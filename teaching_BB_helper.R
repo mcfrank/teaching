@@ -1,3 +1,5 @@
+library(VGAM)
+
 ## plot beta distribution nicely
 plot.beta <- function (a,b,...) {
   xs <- seq(0.01,.99,.01)
@@ -13,7 +15,6 @@ plot.beta <- function (a,b,...) {
 
 
 
-
 ## analytic version
 student.loss <- function(a,b,c) {
   p <- dbetabinom.ab(1, 1, a, b)
@@ -21,8 +22,37 @@ student.loss <- function(a,b,c) {
   return(loss)
 }
 
+## beta function (helper)
+## from wikipedia: http://en.wikipedia.org/wiki/Beta_function
+betafunc <- function (x,y) {
+  b <- (gamma(x) * gamma(y)) / gamma(x+y)
+}
+
+## KL divergence between two betas
+## from wikipedia: http://en.wikipedia.org/wiki/Beta_distribution
+## a' is student's version, a is true
+divergence <- function(a.prime,b.prime,a,b) {
+  t1 <- log(betafunc(a.prime,b.prime) / betafunc(a,b))
+  t2 <- (a - a.prime) * digamma(a)
+  t3 <- (b - b.prime) * digamma(b)
+  t4 <- (a.prime - a + b.prime - b) * digamma(a + b)
+  dkl <- t1 + t2 + t3 + t4
+  return(dkl)
+}
+
+## info gain for a move
+info.gain <- function(a.old, b.old,
+                      a.new, b.new,
+                      a.true, b.true) {
+  old.dkl <- divergence(a.old, b.old,
+                   a.true, b.true)
+  new.dkl <- divergence(a.new, b.new,
+                        a.true, b.true)
+  ig <- old.dkl - new.dkl
+  return(ig)
+}
+
 plot.loss <- function(a,b,...) {
-  
   xs <- seq(0.01,.99,.01)
   n <- length(xs)
   ys <- mapply(student.loss,rep(a,n),
