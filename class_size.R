@@ -1,15 +1,17 @@
+## Class size simulations
+
 rm(list=ls())
 source("helper.R")
 
 #### optimal policy for a number of students - INFO, probabilistic ----
 ## now assume 
 n.students <- c(1, 2, 5, 10, 20, 50, 100)
-n.sims <- 200
+n.sims <- 1000
 
 teacher.mus <- c(.5,.6,.7,.8,.9) # symmetric
 teacher.nu <- 10
 
-student.mu.params <- c(2,2) # for a beta distribution, uninformative
+student.mu.params <- c(1,1) # for a beta distribution, uninformative
 student.nu.params <- c(1,2) # for a gamma distribution, shape, scale
 
 d <- data.frame()
@@ -39,7 +41,6 @@ for (n in n.students) {
     })
     
     d <- rbind(d,data.frame(n=n,
-                            sim=i,
                             teacher.mu=t,
                             ig=igs))
   }
@@ -48,21 +49,24 @@ Sys.time() - start
 
 d$teacher.mu <- factor(d$teacher.mu) # consolidate symmetric mus
 ms <- aggregate(ig ~ teacher.mu + n, d, mean)
-ms$sem <- aggregate(ig ~ teacher.mu + n, d, sem)$ig
+ms$cih <- aggregate(ig ~ teacher.mu + n, d, ci.high)$ig
+ms$cil <- aggregate(ig ~ teacher.mu + n, d, ci.low)$ig
 
 ## plot 
+quartz()
 qplot(n,ig,colour=teacher.mu,group=teacher.mu,
-      ymin=ig-sem,ymax=ig+sem,
+      ymin=ig-cil,ymax=ig+cih,
       geom=c("line","linerange"),
       data=ms) +
   xlab("Number of students") + 
-  ylab("Average information gain (nats)")
+  ylab("Average information gain (nats)") + 
+  geom_dl(aes(label=teacher.mu),method="last.qp")
 
-qplot(n,ig,colour=teacher.mu,group=teacher.mu,
-      ymin=ig-sem,ymax=ig+sem,
-      geom=c("line","linerange"),
-      data=ms) +
-  scale_x_continuous(trans="log10") +
-  xlab("Number of students") + 
-  ylab("Average information gain (nats)")
-
+# qplot(n,ig,colour=teacher.mu,group=teacher.mu,
+#       ymin=ig-sem,ymax=ig+sem,
+#       geom=c("line","linerange"),
+#       data=ms) +
+#   scale_x_continuous(trans="log10") +
+#   xlab("Number of students") + 
+#   ylab("Average information gain (nats)")
+# 

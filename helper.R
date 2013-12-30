@@ -1,4 +1,11 @@
+## Helper functions for optimal teaching simulations
+
+library(RCurl)
 library(VGAM)
+
+## load useful functions from langcog repo
+eval(parse(text=getURL("https://raw.github.com/langcog/Ranalysis/master/useful.R",
+                       ssl.verifypeer=FALSE)))
 
 ## plot beta distribution nicely
 plot.beta <- function (a,b,...) {
@@ -13,14 +20,6 @@ plot.beta <- function (a,b,...) {
   lines(c(midpoint,midpoint),c(0,1),lty=2,col="red")
 }
 
-
-
-## analytic version
-student.loss <- function(a,b,c) {
-  p <- dbetabinom.ab(1, 1, a, b)
-  loss <- 1 - ((p * c) + ((1-p) * (1-c)))
-  return(loss)
-}
 
 ## beta function (helper)
 ## from wikipedia: http://en.wikipedia.org/wiki/Beta_function
@@ -48,16 +47,25 @@ info.gain <- function(a.old, b.old,
                    a.true, b.true)
   new.dkl <- divergence(a.new, b.new,
                         a.true, b.true)
-  ig <- old.dkl - new.dkl
+  ig <- old.dkl - new.dkl # if new is smaller, we learned something
   return(ig)
 }
 
+## --- older functions ---
+
+## analytic version of loss function via betting (not used currently)
+student.loss <- function(a,b,c) {
+  p <- dbetabinom.ab(1, 1, a, b)
+  loss <- 1 - ((p * c) + ((1-p) * (1-c)))
+  return(loss)
+}
+
+## plot analytic loss function via betting (not used)
 plot.loss <- function(a,b,...) {
   xs <- seq(0.01,.99,.01)
   n <- length(xs)
   ys <- mapply(student.loss,rep(a,n),
          rep(b,n),xs)
-  
   
   plot(xs,ys,bty="n",type="l",
        xaxp=c(0,1,2),ylim=c(0,1),
@@ -65,23 +73,4 @@ plot.loss <- function(a,b,...) {
   midpoint <- xs[ys==min(ys)][1]
   lines(c(midpoint,midpoint),c(0,1),lty=2,col="red")
 }
-
-
-# 
-# ### info gain 
-# info.gain <- function(a,b,h,t) {
-#   xs <- seq(.01,.99,.01)
-#   ys1 <- dbeta(xs,a,b)
-#   ys2 <- dbeta(xs,a+h,b+t)
-#   ys1 <- ys1 / sum(ys1) # normalize
-#   ys2 <- ys2 / sum(ys2) # normalize
-#   
-#   loss <- array(length(ys1))
-#   for (i in 1:length(ys1)) {
-#     loss[i] <- ys2[i] * log2(ys2[i] / ys1[i])
-#   }
-#   
-#   return(sum(loss))
-# }
-
 

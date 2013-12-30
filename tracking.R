@@ -4,15 +4,15 @@ rm(list=ls())
 source("helper.R")
 
 ## parameters
-n.students <- c(1, 2, 5, 10, 20, 50, 100)
+n.students <- c(10, 20, 50, 100)
 n.sims <- 100
-teacher.mus <- c(.5,.6,.7,.8,.9) # symmetric
+teacher.mus <- c(.5,.6,.7,.8) # symmetric
 teacher.nu <- 10
 
-##
 student.mu.params <- c(2,2) # for a beta distribution, uninformative
 student.nu.params <- c(1,2) # for a gamma distribution, shape, scale
 
+## simulation code
 d <- data.frame()
 
 start <- Sys.time()
