@@ -1,4 +1,4 @@
-#### Tracking simulations
+#### Tracking simulations for a single mis-tracked individual
 
 rm(list=ls())
 source("helper.R")
@@ -7,7 +7,7 @@ source("helper.R")
 n.students.total <- c(12, 24, 48, 96)
 n.classes <- c(1,2,3,4)
 
-n.sims <- 2000
+n.sims <- 20
 teacher.mu <- .75
 teacher.nu <- 10
 
