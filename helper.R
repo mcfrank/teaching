@@ -51,6 +51,26 @@ info.gain <- function(a.old, b.old,
   return(ig)
 }
 
+## helper function to check whether heads or tails strategy is better 
+## for a group of students relative to some teacher
+maximize.ig <- function(student.mus,student.nus,teacher.mu,teacher.nu) {
+  ig.heads <- mapply(function(m,n) {
+    info.gain((m*n)+1,(1-m)*n,
+              m*n,(1-m)*n,
+              teacher.mu*teacher.nu,(1-teacher.mu)*teacher.nu)
+  }, student.mus, student.nus)
+  
+  ig.tails <- mapply(function(m,n) {
+    info.gain((m*n),1+(1-m)*n,
+              m*n,(1-m)*n,
+              teacher.mu*teacher.nu,(1-teacher.mu)*teacher.nu)
+  }, student.mus, student.nus)    
+  
+  ig <- max(mean(ig.heads),mean(ig.tails))
+  return(ig)
+}
+
+
 ## --- older functions ---
 
 ## analytic version of loss function via betting (not used currently)

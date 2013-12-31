@@ -11,7 +11,7 @@ n.sims <- 1000
 teacher.mus <- c(.5,.6,.7,.8,.9) # symmetric
 teacher.nu <- 10
 
-student.mu.params <- c(.2,5,1,2,5) # for a beta distribution, uninformative
+student.mu.params <- c(.2,.5,1,2,5) # for a beta distribution, uninformative
 student.nu.params <- c(1,2) # for a gamma distribution, shape, scale
 
 d <- data.frame()
@@ -54,7 +54,7 @@ ms$cih <- aggregate(ig ~ teacher.mu + student.mu.prior, d, ci.high)$ig
 ms$cil <- aggregate(ig ~ teacher.mu + student.mu.prior, d, ci.low)$ig
 
 ## plot 
-# quartz()
+quartz()
 qplot(student.mu.prior,ig,colour=teacher.mu,group=teacher.mu,
       ymin=ig-cil,ymax=ig+cih,
       geom=c("line","linerange"),
