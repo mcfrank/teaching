@@ -9,7 +9,7 @@
 
 \DeclareMathOperator*{\argmax}{arg\,max}
 
-\title{Modeling the dynamics of classroom education using simple teaching games}
+\title{Modeling the dynamics of classroom education using teaching games}
  
 \author{{\large \bf Michael C. Frank} \\
   \texttt{mcfrank@stanford.edu} \\
@@ -30,7 +30,18 @@ Bayesian modeling; agent-based modeling; education; pragmatics; teaching
 
 \section{Introduction}
 
-To fill this need, we describe a model of classroom teaching. This model captures phenomena that have to do with the informational dynamics of the classroom---how much information can be transferred between a teacher and a group of students with certain abilities and prior beliefs. It has nothing to say about another---perhaps ultimately more important---part of the classroom experience, its motivational dynamics.  
+What makes a good teacher? Intuitively, a good teacher is a good communicator, choosing explanations and examples that allow students to learn effectively. In our current work we explore this parallel between teaching and communication. We examine how variability in both the size and the knowledgeability of teachers' audience affects communication strategies, making links between 
+
+The parallel between teaching and communication is both 
+ 
+
+\cite{frank2012}
+
+\cite{shafto2008}
+
+\cite{shafto2012}
+
+We describe a model of classroom teaching. This model captures phenomena that have to do with the informational dynamics of the classroom---how much information can be transferred between a teacher and a group of students with certain abilities and prior beliefs. It has nothing to say about another---perhaps ultimately more important---part of the classroom experience, its motivational dynamics.  
 
 What are the functions of such a model? 
 
@@ -96,7 +107,8 @@ E[IG] = \argmax_e {IG(e)}.
 
 Note that this formulation assumes that they have perfect knowledge of the students both before and after an example, and can mentally simulate the effects of a particular example on student knowledge, so as to pick the appropriate one. 
 
-\section{Simulations 1: Initial Results}
+ \section{Simulations}
+% \section{Simulations 1: Initial Results}
 
 We present simulation results for the model described above. We begin by showing results on selecting a strategy for a single student, providing validation of some initial model validation. We then move on to show results for information gain by variance in students; the relationship between class size and average information gain; the functions of splitting students up by their initial knowledge; and the value of formative testing to provide better estimates of student knowledge. Apart from the initial simulation, for which results are computed analytically, all others use 1000 simulated classrooms per parameter setting, with students' $\mu$ values individually generated from a Beta prior for each simulation.
 
@@ -126,6 +138,8 @@ Our next set of simulations combines several students in a single classroom. In 
 
 Greater student uniformity produced greater information gain, for all target concepts. Figure \ref{fig:uniformity} shows this relationship. The effect was greatest for the smallest values, and information gain was very low when students' expectations tended to be extremal but the target value was closer to the middle of the range. 
 
+For $\mu$ priors $< 1$ information gain can actually be negative; this result comes about when student expectations are extremal but the target value is moderate. In these cases, a single piece of evidence will either reinforce students' biases (in the case that their guess is already close to 1 and they see a $T$) or fail to counteract their biases (in the case that their guess is 0 and they see a $T$). The average of these two cases is negative.
+
 This simulation suggests that a more heterogenous classroom will learn less, on average, because the teacher is less able to tailor her examples to the students. In contrast, in a more homogeneous classroom, the teacher can better provide an optimal example. 
 
 \subsection{Classroom Size}
@@ -137,17 +151,38 @@ This simulation suggests that a more heterogenous classroom will learn less, on 
 \caption{\label{fig:class} Information gain plotted by the number of students in a class. Target values for $C$ are shown in different colors. Error bars show 95\% confidence intervals.}
 \end{figure}
 
-In our next simulation, we examine classroom heterogeneity from a different perspective. Class size is an important feature of children's instructional environment. Larger classes should be, on average, more heterogeneous, and should provide. \cite{glass1979}.
+In our next simulation, we examine classroom heterogeneity from a different perspective. As the last simulation set showed, all else being equal, heterogeneity of students is negative relative to the teacher's choice of strategy. More heterogeneous students provide the teacher less of a chance to customize the teaching environment to each student's knowledge state (assuming she knows what that knowledge state is). An important corollary of this finding is that (again, all else being equal) class size is an important factor controlling heterogeneity. Larger classes should be, on average, more heterogeneous, and should hence provide fewer opportunities for teachers to customize their message to the students. 
 
+We created simulated classrooms ranging in size from 1 -- 100 students, across a range of target values for $C$ and found precisely this effect: Larger classrooms showed less average information gain (Figure \ref{fig:class}). This effect was substantially smaller in magnitude than the heterogeneity effects in the preceding simulations---but because students' $mu$ values were chosen uniformly at random we did not expect to see large effects. In addition, the class size effect varied substantially with $C$. For $C=.5$ the effect was most pronounced, because (on average) half of the students in each class begin with a bias that $C$ is lower, and the other half begin believing it is higher. As the biases of students in the class cancel each other out, on average no individual example will teach the class anything. 
+
+Overall, this simulation suggests that, in the presence of a heterogeneous population, class size exerts a negative effect on performance. 
 
 \subsection{Tracking Students by Ability}
 
-\section{Simulations 2: Relaxing Modeling Assumptions}
+\begin{figure*}
+\begin{center}
+\includegraphics[width=5.5in]{figures/tracking.pdf}
+\end{center}
+\caption{\label{fig:tracking} Information gain plotted by the number of students in a class. $C$ is set to .75 for illustrative purposes. Colors show the total number of classes among which students were distributed. In the left (untracked) panel, students were distributed at random; in the right (tracked) panel, students were sorted by their prior expectation. Error bars show 95\% confidence intervals.}
+\end{figure*}
 
-\subsection{Formative Evaluation}
+One way to mitigate class size effects is by reducing classroom heterogeneity. This reduction is sometimes achieved via what is known as ``tracking'': assigning students to classrooms systematically by knowledge or ability, rather than assigning them randomly. In the next simulation, we examine the effects of tracking on classroom performance. 
+
+We created two parallel sets of simulations. In each, a population of students was generated with uniform bias values. The untracked simulations were identical to the class-size simulations above. The tracked simulations were identical except that we sorted students and distributed them into the available classes by their prior knowledge. 
+
+Tracking resulted in substantially greater average information gain for students. Results for an example value of $C$ are shown in Figure \ref{fig:tracking}.
+
+\subsection{Consequences of Mis-tracking for an Individual Student}
+
+
+% \section{Simulations 2: Relaxing Modeling Assumptions}
+
+% \subsection{Formative Evaluation}
 
 
 \section{Discussion}
+
+Class size is an important feature of children's instructional environment. \cite{glass1979}.
 
 
 \section{Acknowledgments}
