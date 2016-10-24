@@ -16,8 +16,34 @@ opts_chunk$set(echo=FALSE, cache=TRUE, warning=FALSE, message = FALSE)
 theme_set(theme_bw())
 ```
 
-Teaching model code. 
+# Single student
 
 ```{r}
-webppl(program_file = "coinFlipWebPPL.js")
+out <- webppl(program_file = "webppl/single_student.js")
+```
+
+We select HMC as our inference method, revisit this. 
+
+Plot output. 
+
+```{r}
+qplot(support, prob, data = out) + 
+  xlim(c(0,1)) + 
+  ylim(c(0,max(out$prob)))
+```
+
+# Single student with teacher
+
+```{r}
+out <- webppl(program_file = "webppl/single_student_with_teacher.js")
+```
+
+We select HMC as our inference method, revisit this. 
+
+Plot output. 
+
+```{r}
+qplot(support, prob, data = out) + 
+  xlim(c(0,1)) + 
+  ylim(c(0,max(out$prob)))
 ```
