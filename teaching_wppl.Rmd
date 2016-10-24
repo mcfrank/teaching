@@ -1,0 +1,23 @@
+---
+title: "Port of teaching analysis to RWebPPL"
+author: "Larry Liu and Michael C. Frank"
+date: "`r Sys.Date()`"
+output: 
+  html_document:
+  toc: true
+number_sections: true
+---
+  
+```{r, echo = FALSE, include = FALSE}
+rm(list=ls())
+library(tidyverse)
+library(rwebppl)
+opts_chunk$set(echo=FALSE, cache=TRUE, warning=FALSE, message = FALSE)
+theme_set(theme_bw())
+```
+
+Teaching model code. 
+
+```{r}
+webppl(program_file = "coinFlipWebPPL.js")
+```
