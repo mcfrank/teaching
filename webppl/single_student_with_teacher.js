@@ -3,6 +3,7 @@ var studentInitialBeta = 1;
 var studentModelPrior = Beta({a: studentInitialAlpha, b: studentInitialBeta});
 
 
+
 var teacher = function(target) {
   return Infer({method: 'enumerate'}, function() {
     var example = flip(0.5);
