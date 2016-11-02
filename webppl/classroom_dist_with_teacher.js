@@ -4,14 +4,22 @@ var studentModelPrior = Beta({a: studentInitialAlpha, b: studentInitialBeta});
 
 var teacher = function(target, students) {
   return Infer({method: 'enumerate'}, function() {
-    var example = flip(0.5);
+    var example = repeat(5, flip);
     
-    var utility = learnerDist(studentInitialAlpha, studentInitialBeta, [example]);
-    var utility2 = learnerDist(3, 1, [example]);
+    //var utility = learnerDist(studentInitialAlpha, studentInitialBeta, [example]);
+    //var utility2 = learnerDist(3, 1, [example]);
     
-    factor(utility.score(target) + utility2.score(target));
+    var utilities = map2(function(priorAlpha, priorBeta){
+      return learnerDist(priorAlpha, priorBeta, example);
+    }, students.priorAlphas, students.priorBetas);
     
-    return example;
+    var scores = map(function(currUtility){
+      return currUtility.score(target);
+    }, utilities)
+    
+    factor(sum(scores));
+    
+    return sum(example);
   });
 };
 
@@ -58,8 +66,8 @@ var learnerDist = function(priorAlpha, priorBeta, example){
 }
 //learner([true, true, true, true, true, true, true, true, true, true, true, true, true])
 
-var students = generateStudents(1000);
+var students = generateStudents(10);
 viz(students.priorAlphas)
 viz(students.priorBetas)
-//var inference = teacher(0.9);
-//viz(inference)
+var inference = teacher(0.3, students);
+viz(inference)
