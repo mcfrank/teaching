@@ -28,12 +28,12 @@ var addTrues = function(total, test){
 }
 
 //Recursive function to generate a sequence of student priorAlphas and priorBetas
-var generateSequence = function(numStudents){
+var generateSequence = function(numStudents, min, max){
   if(numStudents == 1){
-    return [Math.floor(Math.random()*10) + 1];
+    return [Math.floor(Math.random()*(max-min)) + min];
   }
   else{
-    return [Math.floor(Math.random()*10) + 1].concat(generateSequence(numStudents-1));
+    return [Math.floor(Math.random()*(max-min)) + min].concat(generateSequence(numStudents-1, min, max));
   }
   
   //*****
@@ -47,7 +47,7 @@ var generateSequence = function(numStudents){
 
 //Wrapper function to return concatenated generated prior alphas and betas of students
 var generateStudents = function(numStudents){
-   return {priorAlphas: generateSequence(numStudents), priorBetas: generateSequence(numStudents)}; 
+   return {priorAlphas: generateSequence(numStudents, 1, 10), priorBetas: generateSequence(numStudents, 1, 10)}; 
 }
 
 
