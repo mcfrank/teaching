@@ -38,7 +38,7 @@ var addTrues = function(total, test){
 
 //Recursive function to generate a sequence of student priorAlphas and priorBetas
 var generateSequence = function(numStudents, min, max){
-  return repeat(10, function(){uniformDraw(_.range(1,10))})
+  return repeat(numStudents, function(){uniformDraw(_.range(1,10))})
   
   //*****
   //Non-functional programming approach

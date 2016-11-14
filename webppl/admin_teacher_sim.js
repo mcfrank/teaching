@@ -1,3 +1,7 @@
+// WebPPL notes
+// observe(Dist, val) === factor(Dist.score(val))
+// condition(x === y) === factor( x === y ? 0 : -Infinity)
+
 var costPerTeacher = 5;
 
 var admin = function(target, budget, students) {
@@ -11,8 +15,50 @@ var admin = function(target, budget, students) {
     // Array of student distributed into subsets representing numTeachers classrooms
     var distributedStudents = distributeStudents(sortedStudents, numTeachers);
 
+    // Assign teachers to teach each classroom
+    var classroomScores = map(function(studentsInClassroom){
+      
+      // Model each classroom independently
+      return getTeacherScore(target, studentsInClassroom);
+
+    }, distributedStudents);
+
+    factor(sum(classroomScores));
+
     return numTeachers
   })
+
+}
+
+
+// A version of teacher method that returns the scores
+var getTeacherScore = function(target, students) { 
+  return Infer({method: 'enumerate'}, function(){
+
+    var example = repeat(7, flip);
+
+    // All students are in this scope
+    var learnerPosteriors = map(function(student){
+      
+      // Individual students in this scope
+      return learnerDist(student.priorAlpha, student.priorBeta, example);
+    
+    }, students); 
+    
+    
+    // Stochastic generation of posteriors, not using closed form
+    //map(function(learnerPost){ observe(learnerPost, target) }, learnerPosteriors)
+    
+    var scores = map(function(currPosterior){
+      return currPosterior.score(target);
+    }, learnerPosteriors)
+    
+    factor(sum(scores));
+    
+    return sum(scores);
+
+  });
+  
 
 }
 
@@ -91,7 +137,7 @@ var teacher = function(target, students) {
     
     factor(sum(scores));
     
-    return sum(example);
+    return scores;
   });
 };
 
