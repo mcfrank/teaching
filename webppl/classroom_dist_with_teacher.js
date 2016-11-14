@@ -2,16 +2,25 @@ var studentInitialAlpha = 1;
 var studentInitialBeta = 1;
 var studentModelPrior = Beta({a: studentInitialAlpha, b: studentInitialBeta});
 
+
+
 var teacher = function(target, students) {
   return Infer({method: 'enumerate'}, function() {
-    var example = repeat(5, flip);
+    var example = repeat(7, flip);
     
     //var utility = learnerDist(studentInitialAlpha, studentInitialBeta, [example]);
     //var utility2 = learnerDist(3, 1, [example]);
     
-    var utilities = map2(function(priorAlpha, priorBeta){
+    var learnerPosteriors = map2(function(priorAlpha, priorBeta){
       return learnerDist(priorAlpha, priorBeta, example);
     }, students.priorAlphas, students.priorBetas);
+    
+    
+    map(function(learnerPost){ observe(learnerPost, target) }, 
+       learnerPosteriors)
+    
+    // observe(Dist, val) === factor(Dist.score(val))
+    // condition(x === y) === factor( x === y ? 0 : -Infinity)
     
     var scores = map(function(currUtility){
       return currUtility.score(target);
@@ -29,12 +38,7 @@ var addTrues = function(total, test){
 
 //Recursive function to generate a sequence of student priorAlphas and priorBetas
 var generateSequence = function(numStudents, min, max){
-  if(numStudents == 1){
-    return [Math.floor(Math.random()*(max-min)) + min];
-  }
-  else{
-    return [Math.floor(Math.random()*(max-min)) + min].concat(generateSequence(numStudents-1, min, max));
-  }
+  return repeat(10, function(){uniformDraw(_.range(1,10))})
   
   //*****
   //Non-functional programming approach
@@ -56,7 +60,7 @@ var generateStudents = function(numStudents){
 //Returns student posterior distribution
 var learnerDist = function(priorAlpha, priorBeta, example){
   
-  var numTrues = reduce(addTrues, 0, example);
+  var numTrues = sum(example)//reduce(addTrues, 0, example);
   
   var postAlpha = priorAlpha + numTrues //Number of trues
   
@@ -64,6 +68,14 @@ var learnerDist = function(priorAlpha, priorBeta, example){
   
   return Beta({a: postAlpha, b: postBeta})
 }
+
+// var learnerDist = function(...){
+//   return Infer({method: "rejection", samples:1000}, function(){
+//     var coinWeight = beta(priorAlpha, priorBeta)
+//     observe(Binomial({n:example.length, p : coinWeight}), numTrues)
+//     return coinWeight
+//      })
+// }
 //learner([true, true, true, true, true, true, true, true, true, true, true, true, true])
 
 var students = generateStudents(10);
