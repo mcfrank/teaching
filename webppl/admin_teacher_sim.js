@@ -2,28 +2,39 @@
 // observe(Dist, val) === factor(Dist.score(val))
 // condition(x === y) === factor( x === y ? 0 : -Infinity)
 
-var costPerTeacher = 5;
+var costPerTeacher = 10;
 
 var admin = function(target, budget, students) {
   return Infer({method: 'enumerate'}, function(){
     // Draw a random number of teachers within the budget to simulate a school
     var numTeachers = uniformDraw(_.range(1,Math.floor(budget/costPerTeacher)));
-
+    
     // Sort students by their prior beliefs' distributional means
     var sortedStudents = sortStudents(students);
 
     // Array of student distributed into subsets representing numTeachers classrooms
     var distributedStudents = distributeStudents(sortedStudents, numTeachers);
-
+    
     // Assign teachers to teach each classroom
-    var classroomScores = map(function(studentsInClassroom){
+    var classroomExpectations = map(function(studentsInClassroom){
       
       // Model each classroom independently
-      return getTeacherScore(target, studentsInClassroom);
+      var teacherScore = getTeacherScore(target, studentsInClassroom);
+      //viz(teacherScore)
+//    return getTeacherScore(target, studentsInClassroom);
+      return expectation(teacherScore);
 
     }, distributedStudents);
-
-    factor(sum(classroomScores));
+    
+    // Argmax version, as opposed to expected value
+//     var classroomMaxScores = map(function(classroomDist){
+//       classroomDist.support
+//       return Math.max(classroomDist.support);
+//     }, classroomDists);
+    
+//     print(classroomMaxScores)
+    
+    factor(sum(classroomExpectations));
 
     return numTeachers
   })
@@ -43,8 +54,7 @@ var getTeacherScore = function(target, students) {
       // Individual students in this scope
       return learnerDist(student.priorAlpha, student.priorBeta, example);
     
-    }, students); 
-    
+    }, students);
     
     // Stochastic generation of posteriors, not using closed form
     //map(function(learnerPost){ observe(learnerPost, target) }, learnerPosteriors)
@@ -137,7 +147,7 @@ var teacher = function(target, students) {
     
     factor(sum(scores));
     
-    return scores;
+    return sum(example);
   });
 };
 
@@ -203,26 +213,16 @@ var learnerDist = function(priorAlpha, priorBeta, example){
   return Beta({a: postAlpha, b: postBeta})
 }
 
-// var learnerDist = function(...){
-//   return Infer({method: "rejection", samples:1000}, function(){
-//     var coinWeight = beta(priorAlpha, priorBeta)
-//     observe(Binomial({n:example.length, p : coinWeight}), numTrues)
-//     return coinWeight
-//      })
-// }
-//learner([true, true, true, true, true, true, true, true, true, true, true, true, true])
-
 //var students = generateStudents(10);
 //viz(students.priorAlphas)
 //viz(students.priorBetas)
 //var inference = teacher(0.3, students);
 //viz(inference)
 
-var studentsArray = generateStudentsArray(7);
+var studentsArray = generateStudentsArray(50);
+// var inference = getTeacherScore(0.3, studentsArray);
+// print(inference)
+
 var sortedStudents = sortStudents(studentsArray);
-
-print(sortedStudents)
-
-// Array of student distributed into subsets representing numTeachers classrooms
-var distributedStudents = distributeStudents(sortedStudents, 3);
-distributedStudents
+var inference = admin(0.7, 100, sortedStudents)
+viz(inference)

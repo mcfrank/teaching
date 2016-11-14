@@ -1,30 +1,22 @@
-var studentInitialAlpha = 1;
-var studentInitialBeta = 1;
-var studentModelPrior = Beta({a: studentInitialAlpha, b: studentInitialBeta});
-
-
-
 var teacher = function(target, students) {
   return Infer({method: 'enumerate'}, function() {
     var example = repeat(7, flip);
     
-    //var utility = learnerDist(studentInitialAlpha, studentInitialBeta, [example]);
-    //var utility2 = learnerDist(3, 1, [example]);
-    
+    //Closed form
     var learnerPosteriors = map2(function(priorAlpha, priorBeta){
       return learnerDist(priorAlpha, priorBeta, example);
     }, students.priorAlphas, students.priorBetas);
     
     
-    map(function(learnerPost){ observe(learnerPost, target) }, 
-       learnerPosteriors)
+    //Stochastic form
+    //map(function(learnerPost){ observe(learnerPost, target) }, learnerPosteriors)
     
     // observe(Dist, val) === factor(Dist.score(val))
     // condition(x === y) === factor( x === y ? 0 : -Infinity)
     
     var scores = map(function(currUtility){
       return currUtility.score(target);
-    }, utilities)
+    }, learnerPosteriors)
     
     factor(sum(scores));
     
@@ -54,9 +46,6 @@ var generateStudents = function(numStudents){
    return {priorAlphas: generateSequence(numStudents, 1, 10), priorBetas: generateSequence(numStudents, 1, 10)}; 
 }
 
-
-
-
 //Returns student posterior distribution
 var learnerDist = function(priorAlpha, priorBeta, example){
   
@@ -68,15 +57,6 @@ var learnerDist = function(priorAlpha, priorBeta, example){
   
   return Beta({a: postAlpha, b: postBeta})
 }
-
-// var learnerDist = function(...){
-//   return Infer({method: "rejection", samples:1000}, function(){
-//     var coinWeight = beta(priorAlpha, priorBeta)
-//     observe(Binomial({n:example.length, p : coinWeight}), numTrues)
-//     return coinWeight
-//      })
-// }
-//learner([true, true, true, true, true, true, true, true, true, true, true, true, true])
 
 var students = generateStudents(10);
 viz(students.priorAlphas)
