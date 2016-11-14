@@ -8,23 +8,63 @@ var admin = function(target, budget, students) {
     // Sort students by their prior beliefs' distributional means
     var sortedStudents = sortStudents(students);
 
-
-
-
+    // Array of student distributed into subsets representing numTeachers classrooms
+    var distributedStudents = distributeStudents(sortedStudents, numTeachers);
 
     return numTeachers
   })
 
 }
 
+
+// Helper function to sort students by prior distribution mean
 var sortStudents = function(students) {
 
-  return students.sort(function(a,b){ //Anonymous function sorts students by calculating the means using the prior alphas and betas
-      var aMean = a.priorAlpha / (a.priorAlpha + a.priorBeta)
-      var bMean = b.priorAlpha / (b.priorAlpha + b.priorBeta)
+  var betaMeanFn = function(x){return x.priorAlpha / (x.priorAlpha + x.priorBeta + 0.0)};
+  
+  var sortedStudents = sortOn(students, betaMeanFn)
+  
+  return sortedStudents;
+}
 
-      return a < b ? -1 : (a > b ? 1 : 0)
-    });
+// Helper function to distribute students into N classrooms
+var distributeStudents = function(students, N){
+  if (N < 2) { return [students]; };
+
+  var len = students.length;
+  
+  if (len % N === 0) {
+    var size = Math.floor(len / N);
+    return [students.slice(0, size)].concat(distributeStudents(students.slice(size), N-1))
+  }
+
+  else {
+    var size = Math.ceil(len / N);
+    return [students.slice(0, size)].concat(distributeStudents(students.slice(size), N-1))
+  }
+
+  // Non functional-programming approach
+  // var len = students.length,
+    // out = [],
+    // i = 0,
+    // size;
+
+
+  // if (len % n === 0) {
+  //   size = Math.floor(len / N);
+  //   while (i < len) {
+  //     out.push(students.slice(i, i += size));
+  //   }
+  // }
+
+  // else {
+  //   while (i < len) {x
+  //     size = Math.ceil((len - i) / N--);
+  //     out.push(students.slice(i, i += size));
+  //   }
+  // }
+
+  //return out;
 }
 
 var teacher = function(target, students) {
@@ -132,5 +172,11 @@ var learnerDist = function(priorAlpha, priorBeta, example){
 //var inference = teacher(0.3, students);
 //viz(inference)
 
-var studentsArray = generateStudentsArray(4);
-studentsArray
+var studentsArray = generateStudentsArray(7);
+var sortedStudents = sortStudents(studentsArray);
+
+print(sortedStudents)
+
+// Array of student distributed into subsets representing numTeachers classrooms
+var distributedStudents = distributeStudents(sortedStudents, 3);
+distributedStudents
