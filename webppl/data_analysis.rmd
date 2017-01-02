@@ -1,0 +1,185 @@
+---
+title: "R Notebook"
+output: html_notebook
+---
+
+```{r, echo=FALSE}
+#Setting up packages
+
+install.packages('ggplot2')
+library('ggplot2')
+
+install.packages('Rmisc')
+library('Rmisc')
+
+```
+
+```{r, echo=FALSE}
+#Some helper functions
+
+#Get upper confidence interval
+CI.high <- function(x){
+  return(CI(x)['upper'])
+}
+
+#Get lower confidence interval
+CI.low <- function(x){
+  return(CI(x)['lower'])
+}
+
+#Minimum non-zero number
+minNonZero <- function(x){
+  return(min(x[x>0]))
+}
+```
+
+```{r}
+df <- read.csv(file = "C:/Users/Larry/Dropbox/Stanford University/2016-2017/PSYCH 197/teaching/webppl/node_modules/webppl-compute-digamma/numTeachers-5example.csv")
+```
+
+Here, we calculate the score above the baseline given the controlled parameters of target bias. Baseline entails 1 teacher and unsorted roster.
+```{r}
+
+for(rowNum in 1:nrow(df)){
+  #Baselines for numteachers
+  currIG <- df[rowNum, "IG"]
+  baseline <- df[rowNum - ((rowNum - 1) %% 10 + 1) + 1, "IG"] #TODO: write a generalized version of this using aggregate. See pareto block
+  diff <- currIG - baseline
+  df[rowNum, "scoreAboveBaseline"] <- if(abs(diff) < 1e-10) 0.0 else diff
+  
+  #Baslines for sorting
+  sortingBaseline <- df[floor((rowNum+1)/2) * 2 - 1, "IG"]
+  sortingDiff <- currIG - sortingBaseline
+  df[rowNum, "scoreAboveSortingBaseline"] <- if(abs(diff) < 1e-10) 0.0 else sortingDiff
+}
+
+```
+
+
+First, we look at whether or not sorting produces significantly better learning outcomes.
+```{r}
+sortingContrasts <- lm(scoreAboveSortingBaseline ~ sortedStudents, data = df)
+sortingContrastsAdditive <- lm(scoreAboveSortingBaseline ~ sortedStudents + NumTeachers, data=df)
+sortingContrastsInteractive <- lm(scoreAboveSortingBaseline ~ sortedStudents * NumTeachers, data=df)
+summary(sortingContrasts)
+anova(sortingContrasts, sortingContrastsAdditive)
+anova(sortingContrasts, sortingContrastsInteractive)
+
+sortedOnly_df = df[df$sortedStudents == "sorted",]
+
+sortingG <- ggplot(data=sortedOnly_df, aes(x=as.factor(target), y=scoreAboveSortingBaseline, fill=as.factor(target))) + geom_boxplot() + labs(title="Effect of sorting on information gain, by target bias", x="Target bias", y="Number of teachers") + guides(fill=FALSE) + theme_classic() + theme(plot.title = element_text(hjust = 0.5))
+
+sortingG
+
+sortingG2 <- ggplot(data=sortedOnly_df, aes(x=as.factor(target), y=as.factor(NumTeachers), fill=scoreAboveSortingBaseline)) + geom_tile()+ labs(title="Mixed effect of sorting on information gain", x="Target bias", y="Number of teachers") + scale_fill_continuous(name="IG above\nbaseline(nats)") +theme(plot.title = element_text(hjust = 0.5))
+
+sortingG2
+
+```
+
+Next, we look at whether or not the number of teachers affects learning rate. We will consider strictly the sorted students.
+```{r}
+numTeachersContrasts <- lm(scoreAboveBaseline ~ NumTeachers, data = sortedOnly_df)
+summary(numTeachersContrasts)
+
+numTeacherMeans_df <- aggregate(scoreAboveBaseline ~ NumTeachers + target, data=sortedOnly_df, mean)
+numTeacherMeans_df$cih <- aggregate(scoreAboveBaseline ~ NumTeachers + target, data=sortedOnly_df, CI.high)$scoreAboveBaseline
+numTeacherMeans_df$cil <- aggregate(scoreAboveBaseline ~ NumTeachers + target, data=sortedOnly_df, CI.low)$scoreAboveBaseline
+
+numTeachersG <- ggplot(data=numTeacherMeans_df, aes(x=NumTeachers, y=scoreAboveBaseline, ymax=cih, ymin=cil, colour=as.factor(target))) + geom_line() + geom_linerange() + labs(title="Effect of number of teachers on information gain,\nby target bias", x="Number of teachers", y="Information Gain above baseline (nats)") + scale_color_discrete(name="Target bias")  + theme_classic() + theme(plot.title = element_text(hjust = 0.5))
+
+numTeachersG
+```
+
+Now we perform similar analysis for assessments:
+
+```{r}
+df2 <- read.csv(file = "C:/Users/Larry/Dropbox/Stanford University/2016-2017/PSYCH 197/teaching/webppl/node_modules/webppl-compute-digamma/assessments-5example.csv")
+```
+
+Cleaning up the data again
+```{r}
+
+for(rowNum in 1:nrow(df2)){
+  currIG <- df2[rowNum, "IG"]
+  baseline <- df2[rowNum - ((rowNum - 1) %% 10 + 1) + 1, "IG"] #TODO: write a generalized version of this using aggregate. See pareto block
+  diff <- currIG - baseline
+  df2[rowNum, "scoreAboveBaseline"] <- if(abs(diff) < 1e-10) 0.0 else diff
+}
+
+```
+
+Next, we see if there's a difference between noisy and true students:
+```{r}
+noisyOnly_df = df2[df2$noisyStudents == "noisy",]
+
+assessmentContrasts <- lm(scoreAboveBaseline ~ NumAssessments, data = noisyOnly_df)
+summary(assessmentContrasts)
+
+assessmentMeans_df <- aggregate(scoreAboveBaseline ~ NumAssessments + target, data=noisyOnly_df, mean)
+assessmentMeans_df$cih <- aggregate(scoreAboveBaseline ~ NumAssessments + target, data=noisyOnly_df, CI.high)$scoreAboveBaseline
+assessmentMeans_df$cil <- aggregate(scoreAboveBaseline ~ NumAssessments + target, data=noisyOnly_df, CI.low)$scoreAboveBaseline
+
+numAssessmentsG <- ggplot(data=assessmentMeans_df, aes(x=NumAssessments, y=scoreAboveBaseline, ymax=cih, ymin=cil, colour=as.factor(target))) + geom_line() + geom_linerange() + labs(title="Effect of number of assessments on information gain,\nby target bias", x="Number of assessments", y="Information Gain above baseline (nats)") + scale_color_discrete(name="Target bias") + theme_classic() + theme(plot.title = element_text(hjust = 0.5))
+
+numAssessmentsG
+
+# noisyContrasts <- lm(scoreAboveBaseline ~ noisyStudents, data = noisyOnly_df)
+# summary(noisyContrasts)
+# 
+# noisyG <- ggplot(data=noisyOnly_df, aes(x=as.factor(target), y=scoreAboveBaseline, fill=as.factor(target))) + geom_boxplot() + facet_grid(. ~ noisyStudents) + labs(title="Effect of noise on information gain, by target bias", x="Target bias", y="Information Gain above baseline (nats)") + guides(fill=FALSE) + theme(plot.title = element_text(hjust = 0.5))
+# 
+# noisyG
+
+```
+
+Now for pareto efficiency!
+```{r}
+df3 <- read.csv(file = "C:/Users/Larry/Dropbox/Stanford University/2016-2017/PSYCH 197/teaching/webppl/node_modules/webppl-compute-digamma/assessments-5pareto.csv")
+```
+
+```{r}
+#Use the minimum IG for any given trial per target (i.e. any given set of students) as the baseline for that trial
+pareto_trialBaselines <- aggregate(IG ~ trialNum + target, data=df3, mean)
+pareto_trialBaselines$min <- aggregate(IG ~ trialNum + target, data=df3, minNonZero)$IG
+pareto_trialBaselines$max <- aggregate(IG ~ trialNum + target, data=df3, max)$IG
+
+#calculate scores above baseline
+
+for(rowNum in 1:nrow(df3)){
+  currIG <- df3[rowNum, "IG"]
+  temp <- pareto_trialBaselines[pareto_trialBaselines$trialNum == df3[rowNum, "trialNum"],]
+  baseline <- temp[temp$target == df3[rowNum, "target"],"min"]
+  ceiling <- temp[temp$target == df3[rowNum, "target"],"max"]
+  diff <- currIG - baseline
+  df3[rowNum, "scoreAboveBaseline"] <- if(diff < 1e-10) 0.0 else diff
+  df3[rowNum, "pctAboveBaseline"] <- df3[rowNum, "scoreAboveBaseline"] / (ceiling - baseline)
+}
+
+pareto_params <- aggregate(scoreAboveBaseline ~ NumTeachers + NumAssessments + target, data=df3, mean)
+pareto_params$pct <- aggregate(pctAboveBaseline ~ NumTeachers + NumAssessments + target, data=df3, mean)$pctAboveBaseline
+
+pareto_additive <- lm(scoreAboveBaseline ~ NumTeachers + NumAssessments + target, data=pareto_params[pareto_params$scoreAboveBaseline > 0,])
+pareto_interactive <- lm(scoreAboveBaseline ~ (NumTeachers + NumAssessments) * target, data=pareto_params[pareto_params$scoreAboveBaseline > 0,])
+pareto_interactive2 <- lm(scoreAboveBaseline ~ NumTeachers * NumAssessments * target, data=pareto_params[pareto_params$scoreAboveBaseline > 0,])
+summary(pareto_additive)
+summary(pareto_interactive)
+summary(pareto_interactive2)
+anova(pareto_additive, pareto_interactive, pareto_interactive2)
+
+paretoG <- ggplot(data=pareto_params, aes(x=NumAssessments, y=NumTeachers, fill=pct)) + facet_grid(target ~ ., labeller=label_both) + geom_raster()+ labs(title="Pareto efficiency of teachers\nand assessments, by target", x="Number of assessments", y="Number of teachers") +theme(plot.title = element_text(hjust = 0.5)) + scale_fill_gradient(low="red", high="green", name="Efficiency") + geom_contour(aes(z=(NumTeachers * 10 + NumAssessments*20))) + scale_x_continuous(breaks=seq(0,5,by=1)) + scale_y_continuous(breaks=seq(1,10,by=1))
+
+paretoG
+
+paretoG2 <- ggplot(data=pareto_params, aes(x=NumAssessments, y=NumTeachers, fill=scoreAboveBaseline)) + facet_grid(target ~ ., labeller=label_both) + geom_raster()+ labs(title="Pareto efficiency of teachers\nand assessments, by target", x="Number of assessments", y="Number of teachers") +theme(plot.title = element_text(hjust = 0.5)) + scale_fill_gradient(low="red", high="green", name="IG above\nbaseline(nats)") + geom_contour(aes(z=(NumTeachers * 10 + NumAssessments*20))) + scale_x_continuous(breaks=seq(0,5,by=1)) + scale_y_continuous(breaks=seq(1,10,by=1))
+
+paretoG2
+
+
+```
+
+
+
+Add a new chunk by clicking the *Insert Chunk* button on the toolbar or by pressing *Ctrl+Alt+I*.
+
+When you save the notebook, an HTML file containing the code and output will be saved alongside it (click the *Preview* button or press *Ctrl+Shift+K* to preview the HTML file).
