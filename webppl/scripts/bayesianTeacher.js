@@ -66,7 +66,7 @@ var sortStudents = function(students, trueValue) {
 	  
 	  return sortedStudents;
 	}
-	else(trueValue){
+	else{
 	  var sortedStudents = sortOn(students, guessBetaMeanFn)
 	  
 	  return sortedStudents;
