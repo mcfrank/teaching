@@ -41,7 +41,9 @@ var assess = function(students, numAssessments){
 		var studentMu = student.priorAlpha / (student.priorAlpha + student.priorBeta);
 
 		//Sample from student's beliefs numQuestionsToAsk times
-		var answers = sum(repeat(numQuestionsToAsk, function(){ return flip(studentMu);});
+		var answers = sum(repeat(numQuestionsToAsk, function(){ 
+				return flip(studentMu);}
+			));
 
 		//Seed admin beliefs about student
 		return {priorAlpha: student.priorAlpha, priorBeta: student.priorBeta, guessAlpha: answers, guessBeta: numQuestionsToAsk-answers};
@@ -153,6 +155,6 @@ var results = mapN(function(trialNum){
 
 	}, teacherMus);
 
-}, 100); // Run 100 trials
+}, 10); // Run 100 trials
 
 results
