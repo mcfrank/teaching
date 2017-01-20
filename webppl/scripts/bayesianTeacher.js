@@ -16,14 +16,9 @@ var generateStudentsArray = function(numStudents){
 
   //Alphas and betas initially sum to studentInitialNu
   var priorAlphas = generateSequence(numStudents, 1, studentInitialNu - 1);
-  
-  console.log("Alphas generated")
-
   var priorBetas = map(function(alpha){
     return studentInitialNu-alpha;
   }, priorAlphas);
-
-  console.log("Betas generated")
 
   //Guessed alphas and betas are initially the MLE of the generative distribution
   var guessAlpha = studentInitialNu / 2;
@@ -33,8 +28,7 @@ var generateStudentsArray = function(numStudents){
   var students = map2(function(priorAlpha, priorBeta){
     return {priorAlpha: priorAlpha, priorBeta: priorBeta, guessAlpha: guessAlpha, guessBeta: guessBeta}
   }, priorAlphas, priorBetas);
-
-  console.log("returning")
+  
 
   return students; 
 }
@@ -113,6 +107,9 @@ var getTeacherIG = function(students, targetParams, numExamples){
     var actualIGs = map(function(student){
       return IG2(targetParams.alpha, targetParams.beta, student.priorAlpha, student.priorBeta, h, t);
     }, students)
+
+    console.log("Believed IGs: " + believedIGs);
+    console.log("Actual IGs: " + actualIGs);
     
     //Weight choice of examples by what teacher believes the IGs will be
     factor(sum(believedIGs));
