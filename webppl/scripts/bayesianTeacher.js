@@ -8,7 +8,7 @@ var teacherNu = 10;
 // Generate a sequence of student priorAlphas and priorBetas
 var generateSequence = function(numStudents, min, max){
 
-  return repeat(numStudents, function(){uniformDraw(_.range(1,10))})
+  return repeat(numStudents, function(){uniformDraw(_.range(1,10))});
 }
 
 // Returns numStudents students with true and guessed Alpha and Betas
@@ -142,7 +142,7 @@ var results = mapN(function(trialNum){
 
   console.log("entered results function");
 
-	var studentsArray = generateStudentsArray();
+	var studentsArray = generateStudentsArray(10);
 
   console.log("student array generated");
 
