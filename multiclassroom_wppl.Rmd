@@ -21,12 +21,8 @@ theme_set(theme_bw())
 ```{r}
 test_model <- "
 var model = function() {
-  //var a = IG2(1,2,2,4,1,2);
-  //var b = IG2(1,2,2,4,2,1);
-  //print(a);
-  //print(b);
-  //return a+b;
-  return webpplBeta.beta(3,5);
+  console.log(\"Hello world\")
+  return mathBeta.beta(3,5);
 }
 model();
 "
@@ -37,7 +33,7 @@ webppl(test_model, packages = c("webppl/node_modules/webppl-beta"))
 # Single student
 
 ```{r}
-out <- webppl(program_file = "webppl/scripts/bayesianTeacher.js", packages = c("webppl/node_modules/webppl-compute-digamma/"))
+out <- webppl(program_file = "webppl/scripts/bayesianTeacher.js", packages = c("webppl/node_modules/webppl-compute-digamma/", "webppl/node_modules/webppl-beta"))
 ```
 
 We select HMC as our inference method, revisit this. 
