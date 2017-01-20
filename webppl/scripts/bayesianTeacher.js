@@ -1,10 +1,11 @@
+console.log("File opened");
+
 var studentInitialNu = 11;
 var numQuestionsPerAssessment = 5;
 var numTimeSteps = 5;
 var numAssessments = 2;
 var teacherMus = [.5, .6, .7, .8, .9];
 var teacherNu = 10;
-
 
 // Generate a sequence of student priorAlphas and priorBetas
 var generateSequence = function(numStudents, min, max){
@@ -132,13 +133,17 @@ var getAdminIG = function(students, numTeachers, targetParams, numExamples){
     return classroomExpectations;
 }
 
+console.log("entering results method");
+
 var results = mapN(function(trialNum){
+
+  console.log("entered results function");
 
 	var studentsArray = generateStudentsArray();
 	var assessedStudents = assess(studentsArray, numAssessments);
 	var sortedStudents = sortStudents(studentsArray, false); //Sort by guessed params, not true params
 
-  print("students generated for trial " + trialNum);
+  console.log("students generated for trial " + trialNum);
 
 	//Run simulation for all bias levels
 	var teacherMusMapping = map(function(mu){
@@ -147,7 +152,7 @@ var results = mapN(function(trialNum){
 		var teacherBeta = teacherNu - teacherAlpha;
 		var targetParams = {alpha: teacherAlpha, beta: teacherBeta};
 
-    print("testing teacher with mu " + mu);
+    console.log("testing teacher with mu " + mu);
 
 		var numTeachers = 1;
 		var numExamples = numTimeSteps - numAssessments;
