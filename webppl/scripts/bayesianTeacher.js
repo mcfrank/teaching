@@ -99,7 +99,7 @@ var getTeacherIG = function(students, targetParams, numExamples){
 
     var h = uniformDraw(_.range(0, numExamples + 1));
     var t = numExamples - h;
-:    
+
     console.log("target params: alpha: " + targetParams.alpha + " ; beta: " + targetParams.beta);
 
     var believedIGs = map(function(student){
