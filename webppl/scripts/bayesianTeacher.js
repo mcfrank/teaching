@@ -1,5 +1,3 @@
-console.log("File opened");
-
 var studentInitialNu = 11;
 var numQuestionsPerAssessment = 5;
 var numTimeSteps = 5;
@@ -133,14 +131,18 @@ var getAdminIG = function(students, numTeachers, targetParams, numExamples){
     return classroomExpectations;
 }
 
-console.log("entering results method");
-
 var results = mapN(function(trialNum){
 
   console.log("entered results function");
 
 	var studentsArray = generateStudentsArray();
+
+  console.log("student array generated");
+
 	var assessedStudents = assess(studentsArray, numAssessments);
+
+  console.log("students assessed");
+
 	var sortedStudents = sortStudents(studentsArray, false); //Sort by guessed params, not true params
 
   console.log("students generated for trial " + trialNum);
