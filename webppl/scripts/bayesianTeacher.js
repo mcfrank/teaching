@@ -99,12 +99,12 @@ var getTeacherIG = function(students, targetParams, numExamples){
 
     var h = uniformDraw(_.range(0, numExamples + 1));
     var t = numExamples - h;
-     
-    console.log("target params: " + targetParams);
+:    
+    console.log("target params: alpha: " + targetParams.alpha + " ; beta: " + targetParams.beta);
 
     var believedIGs = map(function(student){
       console.log("--------");
-      console.log("Student: " + student);
+      console.log("Student: priorAlpha: " + student.priorAlpha + " ; priorBeta: " + student.priorBeta + " ; guessAlpha: " + student.guessAlpha + " ; guessBeta: " + student.guessBeta);
 
       var score = IG2(targetParams.alpha, targetParams.beta, student.guessAlpha, student.guessBeta, h, t)
       console.log("Score: " + score);
