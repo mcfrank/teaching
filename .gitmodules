@@ -1,0 +1,3 @@
+[submodule "webppl/beta"]
+	path = webppl/node_modules/webppl-beta
+	url = https://github.com/math-io/beta.git
