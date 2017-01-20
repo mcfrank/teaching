@@ -143,13 +143,7 @@ var results = mapN(function(trialNum){
   console.log("entered results function");
 
 	var studentsArray = generateStudentsArray(10);
-
-  console.log("student array generated");
-
 	var assessedStudents = assess(studentsArray, numAssessments);
-
-  console.log("students assessed");
-
 	var sortedStudents = sortStudents(studentsArray, false); //Sort by guessed params, not true params
 
   console.log("students generated for trial " + trialNum);
@@ -167,7 +161,12 @@ var results = mapN(function(trialNum){
 		var numExamples = numTimeSteps - numAssessments;
 
 		var unsortedIG = Math.sum(getAdminIG(assessedStudents, numTeachers, targetParams, numExamples));
-		var sortedIG = Math.sum(getAdminIG(sortedStudents, numTeachers, targetParams, numExamples));
+		
+    console.log("unsortedIG calculated: " + unsortedIG);
+
+    var sortedIG = Math.sum(getAdminIG(sortedStudents, numTeachers, targetParams, numExamples));
+
+    console.log("sortedIG calculated: " + sortedIG)
 
 		return {trialNum: trialNum, numTeachers: numTeachers, numAssessments: numAssessments, numExamples: numExamples, teacherMu: mu, sorted: "sorted", IG: sortedIG}
 
