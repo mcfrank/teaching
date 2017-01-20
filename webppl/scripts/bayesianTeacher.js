@@ -103,16 +103,16 @@ var getTeacherIG = function(students, targetParams, numExamples){
     var h = uniformDraw(_.range(0, numExamples + 1));
     var t = numExamples - h;
 
-    console.log("target params: alpha: " + targetParams.alpha + " ; beta: " + targetParams.beta);
+    //console.log("target params: alpha: " + targetParams.alpha + " ; beta: " + targetParams.beta);
 
     var believedIGs = map(function(student){
-      console.log("--------");
-      console.log("Student: priorAlpha: " + student.priorAlpha + " ; priorBeta: " + student.priorBeta + " ; guessAlpha: " + student.guessAlpha + " ; guessBeta: " + student.guessBeta);
+      //console.log("--------");
+      //console.log("Student: priorAlpha: " + student.priorAlpha + " ; priorBeta: " + student.priorBeta + " ; guessAlpha: " + student.guessAlpha + " ; guessBeta: " + student.guessBeta);
 
-      var score = IG2(targetParams.alpha, targetParams.beta, student.guessAlpha, student.guessBeta, h, t)
-      console.log("Score: " + score);
-      return score;
-      //return IG2(targetParams.alpha, targetParams.beta, student.guessAlpha, student.guessBeta, h, t);
+      //var score = IG2(targetParams.alpha, targetParams.beta, student.guessAlpha, student.guessBeta, h, t)
+      ///console.log("Score: " + score);
+      //return score;
+      return IG2(targetParams.alpha, targetParams.beta, student.guessAlpha, student.guessBeta, h, t);
     }, students)
 
     var actualIGs = map(function(student){
@@ -154,7 +154,7 @@ var results = mapN(function(trialNum){
 	var assessedStudents = assess(studentsArray, numAssessments);
 	var sortedStudents = sortStudents(studentsArray, false); //Sort by guessed params, not true params
 
-  console.log("students generated for trial " + trialNum);
+  console.log("*******\n*******\nstudents generated for trial " + trialNum);
 
 	//Run simulation for all bias levels
 	var teacherMusMapping = map(function(mu){
@@ -163,7 +163,7 @@ var results = mapN(function(trialNum){
 		var teacherBeta = teacherNu - teacherAlpha;
 		var targetParams = {alpha: teacherAlpha, beta: teacherBeta};
 
-    console.log("testing teacher with mu " + mu);
+    console.log("-------\ntesting teacher with mu " + mu);
 
 		var numTeachers = 1;
 		var numExamples = numTimeSteps - numAssessments;
