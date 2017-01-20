@@ -45,6 +45,9 @@ var assess = function(students, numAssessments){
 				return flip(studentMu);}
 			));
 
+    //Smoothing, in case of extremes
+    var answers = Math.min(Math.max(answers, 1), numQuestionsToAsk - 1);
+
 		//Seed admin beliefs about student
 		return {priorAlpha: student.priorAlpha, priorBeta: student.priorBeta, guessAlpha: answers, guessBeta: numQuestionsToAsk-answers};
 
