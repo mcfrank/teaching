@@ -138,12 +138,16 @@ var results = mapN(function(trialNum){
 	var assessedStudents = assess(studentsArray, numAssessments);
 	var sortedStudents = sortStudents(studentsArray, false); //Sort by guessed params, not true params
 
+  print("students generated for trial " + trialNum);
+
 	//Run simulation for all bias levels
 	var teacherMusMapping = map(function(mu){
 
 		var teacherAlpha = teacherNu * mu;
 		var teacherBeta = teacherNu - teacherAlpha;
 		var targetParams = {alpha: teacherAlpha, beta: teacherBeta};
+
+    print("testing teacher with mu " + mu);
 
 		var numTeachers = 1;
 		var numExamples = numTimeSteps - numAssessments;
