@@ -46,10 +46,10 @@ var assess = function(students, numAssessments){
 			));
 
     //Smoothing, in case of extremes
-    var answers = Math.min(Math.max(answers, 1), numQuestionsToAsk - 1);
+    //var answers = Math.min(Math.max(answers, 1), numQuestionsToAsk - 1);
 
 		//Seed admin beliefs about student
-		return {priorAlpha: student.priorAlpha, priorBeta: student.priorBeta, guessAlpha: answers, guessBeta: numQuestionsToAsk-answers};
+		return {priorAlpha: student.priorAlpha, priorBeta: student.priorBeta, guessAlpha: answers + 1, guessBeta: numQuestionsToAsk - answers + 1};
 
 	}, students);
 
@@ -119,8 +119,8 @@ var getTeacherIG = function(students, targetParams, numExamples){
       return IG2(targetParams.alpha, targetParams.beta, student.priorAlpha, student.priorBeta, h, t);
     }, students)
 
-    console.log("Believed IGs: " + believedIGs);
-    console.log("Actual IGs: " + actualIGs);
+    //console.log("Believed IGs: " + believedIGs);
+    //console.log("Actual IGs: " + actualIGs);
     
     //Weight choice of examples by what teacher believes the IGs will be
     factor(sum(believedIGs));
@@ -152,7 +152,7 @@ var results = mapN(function(trialNum){
 
 	var studentsArray = generateStudentsArray(10);
 	var assessedStudents = assess(studentsArray, numAssessments);
-	var sortedStudents = sortStudents(studentsArray, false); //Sort by guessed params, not true params
+	var sortedStudents = sortStudents(assessedStudents, false); //Sort by guessed params, not true params
 
   console.log("*******\n*******\nstudents generated for trial " + trialNum);
 
@@ -165,7 +165,7 @@ var results = mapN(function(trialNum){
 
     console.log("-------\ntesting teacher with mu " + mu);
 
-		var numTeachers = 1;
+		var numTeachers = 5;
 		var numExamples = numTimeSteps - numAssessments;
 
 		var unsortedIG = Math.sum(getAdminIG(assessedStudents, numTeachers, targetParams, numExamples));
@@ -174,7 +174,7 @@ var results = mapN(function(trialNum){
 
     var sortedIG = Math.sum(getAdminIG(sortedStudents, numTeachers, targetParams, numExamples));
 
-    console.log("sortedIG calculated: " + sortedIG)
+    console.log("sortedIG calculated: " + sortedIG);
 
 		return {trialNum: trialNum, numTeachers: numTeachers, numAssessments: numAssessments, numExamples: numExamples, teacherMu: mu, sorted: "sorted", IG: sortedIG}
 
