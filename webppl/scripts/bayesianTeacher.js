@@ -153,12 +153,18 @@ var getAdminIG = function(students, numTeachers, targetParams, numExamples){
 var multiPluck = function(objectArray){
   //Extract the keys from the first object in the array
   var keys = _.keys(objectArray[0]);
+
+console.log("multi plucking");
   
   //Perform a pluck on each key
   var valueArrays = map(function(key){
+console.log("printing key");
+
 	console.log(key);	
     return _.pluck(objectArray, key);
   }, keys);
+
+console.log("attaching key");
 
   //Attach keys to the respective value arrays
   var outputObject = _.object(keys, valueArrays);
@@ -184,18 +190,18 @@ var results = mapN(function(trialNum){
 		var teacherBeta = teacherNu - teacherAlpha;
 		var targetParams = {alpha: teacherAlpha, beta: teacherBeta};
 
-    console.log("-------\ntesting teacher with mu " + mu);
+    //console.log("-------\ntesting teacher with mu " + mu);
 
 		var numTeachers = 5;
 		var numExamples = numTimeSteps - numAssessments;
 
 		var unsortedIG = Math.sum(getAdminIG(assessedStudents, numTeachers, targetParams, numExamples));
 		
-    console.log("unsortedIG calculated: " + unsortedIG);
+    //console.log("unsortedIG calculated: " + unsortedIG);
 
     var sortedIG = Math.sum(getAdminIG(sortedStudents, numTeachers, targetParams, numExamples));
 
-    console.log("sortedIG calculated: " + sortedIG)
+    //console.log("sortedIG calculated: " + sortedIG)
 
 		return {trialNum: trialNum, numTeachers: numTeachers, numAssessments: numAssessments, numExamples: numExamples, teacherMu: mu, sorted: "sorted", IG: sortedIG}
 
