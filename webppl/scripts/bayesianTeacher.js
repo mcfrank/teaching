@@ -45,11 +45,8 @@ var assess = function(students, numAssessments){
 				return flip(studentMu);}
 			));
 
-    //Smoothing, in case of extremes
-    var answers = Math.min(Math.max(answers, 1), numQuestionsToAsk - 1);
-
 		//Seed admin beliefs about student
-		return {priorAlpha: student.priorAlpha, priorBeta: student.priorBeta, guessAlpha: answers, guessBeta: numQuestionsToAsk-answers};
+		return {priorAlpha: student.priorAlpha, priorBeta: student.priorBeta, guessAlpha: answers + 1, guessBeta: numQuestionsToAsk - answers + 1 };
 
 	}, students);
 
@@ -119,8 +116,8 @@ var getTeacherIG = function(students, targetParams, numExamples){
       return IG2(targetParams.alpha, targetParams.beta, student.priorAlpha, student.priorBeta, h, t);
     }, students)
 
-    console.log("Believed IGs: " + believedIGs);
-    console.log("Actual IGs: " + actualIGs);
+    //console.log("Believed IGs: " + believedIGs);
+    //console.log("Actual IGs: " + actualIGs);
     
     //Weight choice of examples by what teacher believes the IGs will be
     factor(sum(believedIGs));
@@ -146,40 +143,43 @@ var getAdminIG = function(students, numTeachers, targetParams, numExamples){
     return classroomExpectations;
 }
 
-var results = mapN(function(trialNum){
+var results = function(){
+  return mapN(function(trialNum){
 
-  console.log("entered results function");
+    console.log("entered results function");
 
-	var studentsArray = generateStudentsArray(10);
-	var assessedStudents = assess(studentsArray, numAssessments);
-	var sortedStudents = sortStudents(studentsArray, false); //Sort by guessed params, not true params
+  	var studentsArray = generateStudentsArray(10);
+  	var assessedStudents = assess(studentsArray, numAssessments);
+  	var sortedStudents = sortStudents(assessedStudents, false); //Sort by guessed params, not true params
 
-  console.log("*******\n*******\nstudents generated for trial " + trialNum);
+    console.log("*******\n*******\nstudents generated for trial " + trialNum);
 
-	//Run simulation for all bias levels
-	var teacherMusMapping = map(function(mu){
+  	//Run simulation for all bias levels
+  	var teacherMusMapping = map(function(mu){
 
-		var teacherAlpha = teacherNu * mu;
-		var teacherBeta = teacherNu - teacherAlpha;
-		var targetParams = {alpha: teacherAlpha, beta: teacherBeta};
+  		var teacherAlpha = teacherNu * mu;
+  		var teacherBeta = teacherNu - teacherAlpha;
+  		var targetParams = {alpha: teacherAlpha, beta: teacherBeta};
 
-    console.log("-------\ntesting teacher with mu " + mu);
+      console.log("-------\ntesting teacher with mu " + mu);
 
-		var numTeachers = 1;
-		var numExamples = numTimeSteps - numAssessments;
+  		var numTeachers = 1;
+  		var numExamples = numTimeSteps - numAssessments;
 
-		var unsortedIG = Math.sum(getAdminIG(assessedStudents, numTeachers, targetParams, numExamples));
-		
-    console.log("unsortedIG calculated: " + unsortedIG);
+  		var unsortedIG = Math.sum(getAdminIG(assessedStudents, numTeachers, targetParams, numExamples));
+  		
+      console.log("unsortedIG calculated: " + unsortedIG);
 
-    var sortedIG = Math.sum(getAdminIG(sortedStudents, numTeachers, targetParams, numExamples));
+      var sortedIG = Math.sum(getAdminIG(sortedStudents, numTeachers, targetParams, numExamples));
 
-    console.log("sortedIG calculated: " + sortedIG)
+      console.log("sortedIG calculated: " + sortedIG)
 
-		return {trialNum: trialNum, numTeachers: numTeachers, numAssessments: numAssessments, numExamples: numExamples, teacherMu: mu, sorted: "sorted", IG: sortedIG}
+  		return {trialNum: trialNum, numTeachers: numTeachers, numAssessments: numAssessments, numExamples: numExamples, teacherMu: mu, sorted: "sorted", IG: sortedIG}
 
-	}, teacherMus);
+  	}, teacherMus);
 
-}, 10); // Run 100 trials
+  }, 10); // Run 100 trials
 
-results
+}
+
+results();
