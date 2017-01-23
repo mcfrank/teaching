@@ -45,8 +45,16 @@ var assess = function(students, numAssessments){
 				return flip(studentMu);}
 			));
 
+<<<<<<< HEAD
 		//Seed admin beliefs about student
 		return {priorAlpha: student.priorAlpha, priorBeta: student.priorBeta, guessAlpha: answers + 1, guessBeta: numQuestionsToAsk - answers + 1 };
+=======
+    //Smoothing, in case of extremes
+    //var answers = Math.min(Math.max(answers, 1), numQuestionsToAsk - 1);
+
+		//Seed admin beliefs about student
+		return {priorAlpha: student.priorAlpha, priorBeta: student.priorBeta, guessAlpha: answers + 1, guessBeta: numQuestionsToAsk - answers + 1};
+>>>>>>> c46a86c64752ed63892becc6c8a7eaaebc6a9a0d
 
 	}, students);
 
@@ -151,7 +159,6 @@ var results = function(){
   	var studentsArray = generateStudentsArray(10);
   	var assessedStudents = assess(studentsArray, numAssessments);
   	var sortedStudents = sortStudents(assessedStudents, false); //Sort by guessed params, not true params
-
     console.log("*******\n*******\nstudents generated for trial " + trialNum);
 
   	//Run simulation for all bias levels
@@ -163,7 +170,7 @@ var results = function(){
 
       console.log("-------\ntesting teacher with mu " + mu);
 
-  		var numTeachers = 1;
+  		var numTeachers = 5;
   		var numExamples = numTimeSteps - numAssessments;
 
   		var unsortedIG = Math.sum(getAdminIG(assessedStudents, numTeachers, targetParams, numExamples));
