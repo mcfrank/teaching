@@ -45,16 +45,11 @@ var assess = function(students, numAssessments){
 				return flip(studentMu);}
 			));
 
-<<<<<<< HEAD
-		//Seed admin beliefs about student
-		return {priorAlpha: student.priorAlpha, priorBeta: student.priorBeta, guessAlpha: answers + 1, guessBeta: numQuestionsToAsk - answers + 1 };
-=======
     //Smoothing, in case of extremes
     //var answers = Math.min(Math.max(answers, 1), numQuestionsToAsk - 1);
 
 		//Seed admin beliefs about student
 		return {priorAlpha: student.priorAlpha, priorBeta: student.priorBeta, guessAlpha: answers + 1, guessBeta: numQuestionsToAsk - answers + 1};
->>>>>>> c46a86c64752ed63892becc6c8a7eaaebc6a9a0d
 
 	}, students);
 
