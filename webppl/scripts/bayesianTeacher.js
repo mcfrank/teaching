@@ -154,16 +154,16 @@ var multiPluck = function(objectArray){
   //Extract the keys from the first object in the array
   var keys = _.keys(objectArray[0]);
 
-console.log(“multi plucking”);
+console.log("multi plucking");
   
   //Perform a pluck on each key
   var valueArrays = map(function(key){
-console.log(“printing key”);
+console.log("printing key");
 	console.log(key);	
     return _.pluck(objectArray, key);
   }, keys);
 
-console.log(“attaching key”);
+console.log("attaching key");
 
   //Attach keys to the respective value arrays
   var outputObject = _.object(keys, valueArrays);
