@@ -1,10 +1,11 @@
 var studentInitialNu = 11;
-var numQuestionsPerAssessment = 5;
+var numQuestionsPerAssessment = 3;
 var numTimeSteps = 5;
-var numAssessments = 2;
+//var numAssessments = 2;
 var teacherMus = [.5, .6, .7, .8, .9];
 var teacherNu = 10;
 var numTeachersArray = [1, 2, 3, 5, 10];
+var numAssessmentsArray = [0, 1, 2, 3, 4, 5]
 
 // Generate a sequence of student priorAlphas and priorBetas
 var generateSequence = function(numStudents, min, max){
@@ -186,19 +187,24 @@ var results = mapN(function(trialNum){
 
     var numTeachersMapping = map(function(numTeachers){
 
-      var numExamples = numTimeSteps - numAssessments;
+      var numAssessmentsMapping = map(function(numAssessments){
+        var numExamples = numTimeSteps - numAssessments;
 
-      var unsortedIG = Math.sum(getAdminIG(assessedStudents, numTeachers, targetParams, numExamples));
+        var unsortedIG = Math.sum(getAdminIG(assessedStudents, numTeachers, targetParams, numExamples));
+        
+        //console.log("unsortedIG calculated: " + unsortedIG);
+
+        var sortedIG = Math.sum(getAdminIG(sortedStudents, numTeachers, targetParams, numExamples));
+
+        //console.log("sortedIG calculated: " + sortedIG)
+
+        return [{trialNum: trialNum, numTeachers: numTeachers, numAssessments: numAssessments, numExamples: numExamples, teacherMu: mu, sorted: "unsorted", IG: unsortedIG},
+        {trialNum: trialNum, numTeachers: numTeachers, numAssessments: numAssessments, numExamples: numExamples, teacherMu: mu, sorted: "sorted", IG: sortedIG}];
+        
+      }, numAssessmentsArray);
       
-      //console.log("unsortedIG calculated: " + unsortedIG);
-
-      var sortedIG = Math.sum(getAdminIG(sortedStudents, numTeachers, targetParams, numExamples));
-
-      //console.log("sortedIG calculated: " + sortedIG)
-
-      return [{trialNum: trialNum, numTeachers: numTeachers, numAssessments: numAssessments, numExamples: numExamples, teacherMu: mu, sorted: "unsorted", IG: unsortedIG},
-      {trialNum: trialNum, numTeachers: numTeachers, numAssessments: numAssessments, numExamples: numExamples, teacherMu: mu, sorted: "sorted", IG: sortedIG}];
-    
+      return numAssessmentsMapping;
+      
     }, numTeachersArray);
 
     return numTeachersMapping;
