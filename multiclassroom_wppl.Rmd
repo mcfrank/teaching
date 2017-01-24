@@ -33,7 +33,7 @@ webppl(test_model, packages = c("webppl/node_modules/webppl-beta"))
 # Single student
 
 ```{r}
-out <- webppl(program_file = "webppl/scripts/bayesianTeacher.js", packages = c("webppl/node_modules/webppl-compute-digamma/", "webppl/node_modules/webppl-beta"))
+out <- as.data.frame(webppl(program_file = "webppl/scripts/bayesianTeacher.js", packages = c("webppl/node_modules/webppl-compute-digamma/", "webppl/node_modules/webppl-beta")))
 ```
 
 # Single student with teacher

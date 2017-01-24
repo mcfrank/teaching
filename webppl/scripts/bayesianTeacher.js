@@ -153,35 +153,26 @@ var getAdminIG = function(students, numTeachers, targetParams, numExamples){
 var multiPluck = function(objectArray){
   //Extract the keys from the first object in the array
   var keys = _.keys(objectArray[0]);
-
-console.log("multi plucking");
   
   //Perform a pluck on each key
   var valueArrays = map(function(key){
-console.log("printing key");
-
-	console.log(key);	
     return _.pluck(objectArray, key);
   }, keys);
 
-console.log("attaching key");
-
   //Attach keys to the respective value arrays
   var outputObject = _.object(keys, valueArrays);
-
-console.log(outputObject);
 
   return outputObject
 }
 
 var results = mapN(function(trialNum){
 
-  console.log("entered results function");
+  //console.log("entered results function");
 
 	var studentsArray = generateStudentsArray(10);
 	var assessedStudents = assess(studentsArray, numAssessments);
 	var sortedStudents = sortStudents(assessedStudents, false); //Sort by guessed params, not true params
-  console.log("*******\n*******\nstudents generated for trial " + trialNum);
+  //console.log("*******\n*******\nstudents generated for trial " + trialNum);
 
 	//Run simulation for all bias levels
 	var teacherMusMapping = map(function(mu){
@@ -203,10 +194,13 @@ var results = mapN(function(trialNum){
 
     //console.log("sortedIG calculated: " + sortedIG)
 
-		return {trialNum: trialNum, numTeachers: numTeachers, numAssessments: numAssessments, numExamples: numExamples, teacherMu: mu, sorted: "sorted", IG: sortedIG}
+		return [{trialNum: trialNum, numTeachers: numTeachers, numAssessments: numAssessments, numExamples: numExamples, teacherMu: mu, sorted: "unsorted", IG: unsortedIG},
+    {trialNum: trialNum, numTeachers: numTeachers, numAssessments: numAssessments, numExamples: numExamples, teacherMu: mu, sorted: "sorted", IG: sortedIG}];
 
 	}, teacherMus);
 
-}, 10); // Run 100 trials
+  return teacherMusMapping;
 
-multiPluck(results);
+}, 100); // Run 100 trials
+
+multiPluck(_.flatten(results));
