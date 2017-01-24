@@ -49,9 +49,47 @@ library('ggplot2')
 library('Rmisc')
 ```
 
-Try running a simulation
+Load data for simulations
 ```{r}
+df <- read.csv(file = 'raw_data.csv')
+```
 
+```{r, echo=FALSE}
+#Some helper functions
+
+#Get upper confidence interval
+CI.high <- function(x){
+  return(CI(x)['upper'])
+}
+
+#Get lower confidence interval
+CI.low <- function(x){
+  return(CI(x)['lower'])
+}
+
+#Minimum non-zero number
+minNonZero <- function(x){
+  return(min(x[x>0]))
+}
+```
+
+Try running a simulation
+
+Here, we calculate the score above the baseline that sorting a roster based on teacher beliefs of student understanding yields. Baseline is the student information gain given the same target concept with an unsorted roster randomly distributed to teachers. All simulations performed with 100 students and 5 teachers.
+```{r}
+for(rowNum in 1:nrow(df)){
+  #Baselines for numteachers
+  currIG <- df[rowNum, "IG"]
+  baseline <- df[rowNum - (rowNum - 1)%%2]
+  baseline <- df[rowNum - ((rowNum - 1) %% 10 + 1) + 1, "IG"] #TODO: write a generalized version of this using aggregate. See pareto block
+  diff <- currIG - baseline
+  df[rowNum, "scoreAboveBaseline"] <- if(abs(diff) < 1e-10) 0.0 else diff
+  
+  #Baslines for sorting
+  sortingBaseline <- df[floor((rowNum+1)/2) * 2 - 1, "IG"]
+  sortingDiff <- currIG - sortingBaseline
+  df[rowNum, "scoreAboveSortingBaseline"] <- if(abs(diff) < 1e-10) 0.0 else sortingDiff
+}
 ```
 
 # Single student with teacher

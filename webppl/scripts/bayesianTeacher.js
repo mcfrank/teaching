@@ -4,6 +4,7 @@ var numTimeSteps = 5;
 var numAssessments = 2;
 var teacherMus = [.5, .6, .7, .8, .9];
 var teacherNu = 10;
+var numTeachersArray = [1, 2, 3, 5, 10];
 
 // Generate a sequence of student priorAlphas and priorBetas
 var generateSequence = function(numStudents, min, max){
@@ -169,7 +170,7 @@ var results = mapN(function(trialNum){
 
   //console.log("entered results function");
 
-	var studentsArray = generateStudentsArray(10);
+	var studentsArray = generateStudentsArray(100);
 	var assessedStudents = assess(studentsArray, numAssessments);
 	var sortedStudents = sortStudents(assessedStudents, false); //Sort by guessed params, not true params
   //console.log("*******\n*******\nstudents generated for trial " + trialNum);
@@ -183,20 +184,25 @@ var results = mapN(function(trialNum){
 
     //console.log("-------\ntesting teacher with mu " + mu);
 
-		var numTeachers = 5;
-		var numExamples = numTimeSteps - numAssessments;
+    var numTeachersMapping = map(function(numTeachers){
 
-		var unsortedIG = Math.sum(getAdminIG(assessedStudents, numTeachers, targetParams, numExamples));
+      var numExamples = numTimeSteps - numAssessments;
+
+      var unsortedIG = Math.sum(getAdminIG(assessedStudents, numTeachers, targetParams, numExamples));
+      
+      //console.log("unsortedIG calculated: " + unsortedIG);
+
+      var sortedIG = Math.sum(getAdminIG(sortedStudents, numTeachers, targetParams, numExamples));
+
+      //console.log("sortedIG calculated: " + sortedIG)
+
+      return [{trialNum: trialNum, numTeachers: numTeachers, numAssessments: numAssessments, numExamples: numExamples, teacherMu: mu, sorted: "unsorted", IG: unsortedIG},
+      {trialNum: trialNum, numTeachers: numTeachers, numAssessments: numAssessments, numExamples: numExamples, teacherMu: mu, sorted: "sorted", IG: sortedIG}];
+    
+    }, numTeachersArray);
+
+    return numTeachersMapping;
 		
-    //console.log("unsortedIG calculated: " + unsortedIG);
-
-    var sortedIG = Math.sum(getAdminIG(sortedStudents, numTeachers, targetParams, numExamples));
-
-    //console.log("sortedIG calculated: " + sortedIG)
-
-		return [{trialNum: trialNum, numTeachers: numTeachers, numAssessments: numAssessments, numExamples: numExamples, teacherMu: mu, sorted: "unsorted", IG: unsortedIG},
-    {trialNum: trialNum, numTeachers: numTeachers, numAssessments: numAssessments, numExamples: numExamples, teacherMu: mu, sorted: "sorted", IG: sortedIG}];
-
 	}, teacherMus);
 
   return teacherMusMapping;
