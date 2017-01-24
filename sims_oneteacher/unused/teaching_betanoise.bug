@@ -1,0 +1,30 @@
+# simple concept boundary learning model
+
+var h[n.students], x[n.students], y[n.students], alpha.x[n.students], beta.x[n.students], alpha.y[n.students], beta.y[n.students], label[n.students,n.test];
+
+model {
+  # generate students 
+  for (s in 1:n.students) {
+    h[s] ~ dbeta(1,1)
+  } 
+  
+  # generate the training examples (likelihood)
+  for (s in 1:n.students) {
+    x[s] ~ dunif(0,h[s])
+    alpha.x[s] <- x[s] * nu[s]
+    beta.x[s] <- (1 - x[s]) * nu[s]
+    x.p[s] ~ dbeta(alpha.x[s],beta.x[s])
+    
+    y[s] ~ dunif(h[s],1)
+    alpha.y[s] <- y[s] * nu[s]
+    beta.y[s] <- (1 - y[s]) * nu[s]
+    y.p[s] ~ dbeta(alpha.y[s],beta.y[s])
+  }
+
+  # now generate labels on the test set
+  for (s in 1:n.students) {
+    for (t in 1:n.test) {
+      label[s,t] <- test[s,t] > h[s]
+    }
+  }
+}

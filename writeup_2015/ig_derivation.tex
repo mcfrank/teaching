@@ -1,0 +1,85 @@
+\documentclass[12pt]{article}
+\usepackage{amsmath}
+\title{Details of the derivation of information gain in Frank et al. (submitted), ``Modeling the dynamics of classroom education using teaching games.''}
+\date{}
+
+\begin{document}
+\maketitle
+
+As described in the text, we are interested in computing
+
+\begin{equation}
+\label{eq:ig}
+IG(e) = D_{KL} ( B_T || B_{S} )  - D_{KL} (B_T ||B_{S+e} ) 
+\end{equation}
+
+\noindent where the divergence measure is computed in closed form for e.g., $B_T$ and $B_S$, as
+
+\begin{equation}
+\label{eq:dkl}
+\begin{split}
+D_{KL} (B_T ||B_{S} )  = & \log( \frac{B(\alpha_{S},\beta_{S})}{B(\alpha_{T},\beta_{T})}) +  (\alpha_T - \alpha_S) \psi (\alpha_T) \\ 
+& + (\beta_T - \beta_S) \psi (\beta_T) +  (\alpha_T - \alpha_S + \beta_T - \beta_S) \psi (\alpha_T + \beta_T). \\
+\end{split}
+\end{equation}
+
+\noindent where $\psi$ denotes the digamma function and $B(a,b)$ denotes the beta function. We can substitute Equation \ref{eq:dkl} into Equation \ref{eq:ig} to get
+
+\begin{equation}
+\begin{split}
+IG(e)  = & \log( \frac{B(\alpha_{S},\beta_{S})}{B(\alpha_{T},\beta_{T})}) + (\alpha_T - \alpha_S) \psi (\alpha_T)  \\ 
+& + (\beta_T - \beta_S) \psi (\beta_T) +  (\alpha_T - \alpha_S + \beta_T - \beta_S) \psi (\alpha_T + \beta_T)  \\
+& - \log( \frac{B(\alpha_{S+e},\beta_{S+e})}{B(\alpha_{T},\beta_{T})}) - (\alpha_T - \alpha_{S+e}) \psi (\alpha_T) \\ 
+& - (\beta_T - \beta_{S+e}) \psi (\beta_T) - (\alpha_T - \alpha_{S+e} + \beta_T - \beta_{S+e}) \psi (\alpha_T + \beta_T)
+\end{split}
+\label{eq:step2}
+\end{equation}
+
+Consider the case where $e$ is a single 1 (head). Then $\alpha_{S+e}= \alpha_S + 1$ and $\beta_{S+e}= \beta_{S}$, so we can simplify Equation \ref{eq:step2} to
+
+\begin{equation}
+\begin{split}
+IG(e)  = & \log( \frac{B(\alpha_{S},\beta_{S})}{B(\alpha_{T},\beta_{T})}) - \log( \frac{B(\alpha_{S}+1,\beta_{S})}{B(\alpha_{T},\beta_{T})}) \\ 
+& + (\alpha_T - \alpha_S) \psi (\alpha_T) +  (\alpha_T - \alpha_S + \beta_T - \beta_S) \psi (\alpha_T + \beta_T)  \\
+& - (\alpha_T - \alpha_{S} - 1) \psi (\alpha_T) - (\alpha_T - \alpha_{S} + \beta_T - \beta_{S} - 1) \psi (\alpha_T + \beta_T) \\
+= & \log( \frac{B(\alpha_{S},\beta_{S})}{B(\alpha_{T},\beta_{T})})   - \log( \frac{B(\alpha_{S}+1,\beta_{S})}{B(\alpha_{T},\beta_{T})}) \\ 
+& + \psi (\alpha_T) + \psi (\alpha_T + \beta_T). \\
+= & \log( \frac{B(\alpha_{S},\beta_{S})}{B(\alpha_{S}+1,\beta_{S})})   \\
+& + \psi (\alpha_T) + \psi (\alpha_T + \beta_T). \\
+\end{split}
+\end{equation}
+
+\noindent And, since 
+
+\begin{equation}
+B(a,b) = \frac{\Gamma(a)\Gamma(b)}{\Gamma(a+b)},
+\end{equation}
+
+\noindent we can rewrite the first term and reduce:
+
+\begin{equation}
+\begin{split}
+IG(e) = & \log( \frac{\frac{\Gamma(\alpha_S)\Gamma(\beta_S)}{\Gamma(\alpha_S+\beta_S)}}{\frac{\Gamma(\alpha_S + 1)\Gamma(\beta_S)}{\Gamma(\alpha_S+\beta_S + 1)}})   \\
+& + \psi (\alpha_T) + \psi (\alpha_T + \beta_T). \\
+=& \log( \frac{\Gamma(\alpha_S)\Gamma(\beta_S) \Gamma(\alpha_S+\beta_S + 1)}{\Gamma(\alpha_S+\beta_S) \Gamma(\alpha_S + 1)\Gamma(\beta_S)})   \\
+& + \psi (\alpha_T) + \psi (\alpha_T + \beta_T). \\
+=& \log( \frac{\Gamma(\alpha_S) \Gamma(\alpha_S+\beta_S + 1)}{\Gamma(\alpha_S+\beta_S) \Gamma(\alpha_S + 1)})   \\
+& + \psi (\alpha_T) + \psi (\alpha_T + \beta_T). \\
+\end{split}
+\end{equation}
+
+\noindent Then, since 
+
+\begin{equation}
+\frac{\Gamma(x + 1)}{\Gamma(x)} = x,
+\end{equation}
+
+\noindent we can reduce the previous formulation a bit further, to
+
+\begin{equation}
+IG(e) = \log(\frac{\alpha_S + \beta_S}{\alpha_S}) + \psi (\alpha_T) + \psi (\alpha_T + \beta_T), 
+\end{equation}
+
+\noindent which is Equation 5 in the main text. 
+
+\end{document}
