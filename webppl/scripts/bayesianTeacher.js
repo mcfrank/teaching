@@ -172,23 +172,25 @@ var results = mapN(function(trialNum){
   //console.log("entered results function");
 
 	var studentsArray = generateStudentsArray(100);
-	var assessedStudents = assess(studentsArray, numAssessments);
-	var sortedStudents = sortStudents(assessedStudents, false); //Sort by guessed params, not true params
-  //console.log("*******\n*******\nstudents generated for trial " + trialNum);
 
-	//Run simulation for all bias levels
-	var teacherMusMapping = map(function(mu){
+  var numAssessmentsMapping = map(function(numAssessments){
 
-		var teacherAlpha = teacherNu * mu;
-		var teacherBeta = teacherNu - teacherAlpha;
-		var targetParams = {alpha: teacherAlpha, beta: teacherBeta};
 
-    //console.log("-------\ntesting teacher with mu " + mu);
+    var assessedStudents = assess(studentsArray, numAssessments);
+    var sortedStudents = sortStudents(assessedStudents, false); //Sort by guessed params, not true params
+    //console.log("*******\n*******\nstudents generated for trial " + trialNum);
+    var numExamples = numTimeSteps - numAssessments;
 
-    var numTeachersMapping = map(function(numTeachers){
+  	//Run simulation for all bias levels
+  	var teacherMusMapping = map(function(mu){
 
-      var numAssessmentsMapping = map(function(numAssessments){
-        var numExamples = numTimeSteps - numAssessments;
+  		var teacherAlpha = teacherNu * mu;
+  		var teacherBeta = teacherNu - teacherAlpha;
+  		var targetParams = {alpha: teacherAlpha, beta: teacherBeta};
+
+      //console.log("-------\ntesting teacher with mu " + mu);
+
+      var numTeachersMapping = map(function(numTeachers){
 
         var unsortedIG = Math.sum(getAdminIG(assessedStudents, numTeachers, targetParams, numExamples));
         
@@ -201,17 +203,17 @@ var results = mapN(function(trialNum){
         return [{trialNum: trialNum, numTeachers: numTeachers, numAssessments: numAssessments, numExamples: numExamples, teacherMu: mu, sorted: "unsorted", IG: unsortedIG},
         {trialNum: trialNum, numTeachers: numTeachers, numAssessments: numAssessments, numExamples: numExamples, teacherMu: mu, sorted: "sorted", IG: sortedIG}];
         
-      }, numAssessmentsArray);
-      
-      return numAssessmentsMapping;
-      
-    }, numTeachersArray);
+      }, numTeachersArray);
 
-    return numTeachersMapping;
-		
-	}, teacherMus);
+      return numTeachersMapping;
+  		
+  	}, teacherMus);
 
-  return teacherMusMapping;
+    return teacherMusMapping;
+
+  }, numAssessmentsArray);
+
+  return numAssessmentsMapping;
 
 }, 100); // Run 100 trials
 
