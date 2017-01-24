@@ -36,6 +36,24 @@ webppl(test_model, packages = c("webppl/node_modules/webppl-beta"))
 out <- as.data.frame(webppl(program_file = "webppl/scripts/bayesianTeacher.js", packages = c("webppl/node_modules/webppl-compute-digamma/", "webppl/node_modules/webppl-beta")))
 ```
 
+Write the data to an intermediate caching csv for external/reproducibility use
+
+```{r}
+write.csv(out, file='raw_data.csv')
+```
+
+Load packages for simulations
+```{r}
+library('tidyverse')
+library('ggplot2')
+library('Rmisc')
+```
+
+Try running a simulation
+```{r}
+
+```
+
 # Single student with teacher
 
 ```{r}
