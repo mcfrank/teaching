@@ -146,42 +146,58 @@ var getAdminIG = function(students, numTeachers, targetParams, numExamples){
     return classroomExpectations;
 }
 
-var results = function(){
-  return mapN(function(trialNum){
+// Helper function to convert an array of objects with shared keys to an object of arrays with same keys
+// ----------
+// Sample input: [{keyA: A1, keyB: B1, keyC: C1}, {keyA: A2, keyB: B2, keyC: C2}]
+// Sample output: {keyA: [A1, A2], keyB: [B1, B2], keyC: [C1, C2]}
+var multiPluck = function(objectArray){
+  //Extract the keys from the first object in the array
+  var keys = _.keys(objectArray[0]);
+  
+  //Perform a pluck on each key
+  var valueArrays = map(function(key){
+    return _.pluck(objectArray, key);
+  }, keys);
 
-    console.log("entered results function");
+  //Attach keys to the respective value arrays
+  var outputObject = _.object(keys, result);
 
-  	var studentsArray = generateStudentsArray(10);
-  	var assessedStudents = assess(studentsArray, numAssessments);
-  	var sortedStudents = sortStudents(assessedStudents, false); //Sort by guessed params, not true params
-    console.log("*******\n*******\nstudents generated for trial " + trialNum);
-
-  	//Run simulation for all bias levels
-  	var teacherMusMapping = map(function(mu){
-
-  		var teacherAlpha = teacherNu * mu;
-  		var teacherBeta = teacherNu - teacherAlpha;
-  		var targetParams = {alpha: teacherAlpha, beta: teacherBeta};
-
-      console.log("-------\ntesting teacher with mu " + mu);
-
-  		var numTeachers = 5;
-  		var numExamples = numTimeSteps - numAssessments;
-
-  		var unsortedIG = Math.sum(getAdminIG(assessedStudents, numTeachers, targetParams, numExamples));
-  		
-      console.log("unsortedIG calculated: " + unsortedIG);
-
-      var sortedIG = Math.sum(getAdminIG(sortedStudents, numTeachers, targetParams, numExamples));
-
-      console.log("sortedIG calculated: " + sortedIG)
-
-  		return {trialNum: trialNum, numTeachers: numTeachers, numAssessments: numAssessments, numExamples: numExamples, teacherMu: mu, sorted: "sorted", IG: sortedIG}
-
-  	}, teacherMus);
-
-  }, 10); // Run 100 trials
-
+  return outputObject
 }
 
-results();
+var results = mapN(function(trialNum){
+
+  console.log("entered results function");
+
+	var studentsArray = generateStudentsArray(10);
+	var assessedStudents = assess(studentsArray, numAssessments);
+	var sortedStudents = sortStudents(assessedStudents, false); //Sort by guessed params, not true params
+  console.log("*******\n*******\nstudents generated for trial " + trialNum);
+
+	//Run simulation for all bias levels
+	var teacherMusMapping = map(function(mu){
+
+		var teacherAlpha = teacherNu * mu;
+		var teacherBeta = teacherNu - teacherAlpha;
+		var targetParams = {alpha: teacherAlpha, beta: teacherBeta};
+
+    console.log("-------\ntesting teacher with mu " + mu);
+
+		var numTeachers = 5;
+		var numExamples = numTimeSteps - numAssessments;
+
+		var unsortedIG = Math.sum(getAdminIG(assessedStudents, numTeachers, targetParams, numExamples));
+		
+    console.log("unsortedIG calculated: " + unsortedIG);
+
+    var sortedIG = Math.sum(getAdminIG(sortedStudents, numTeachers, targetParams, numExamples));
+
+    console.log("sortedIG calculated: " + sortedIG)
+
+		return {trialNum: trialNum, numTeachers: numTeachers, numAssessments: numAssessments, numExamples: numExamples, teacherMu: mu, sorted: "sorted", IG: sortedIG}
+
+	}, teacherMus);
+
+}, 10); // Run 100 trials
+
+multiPluck(results);
