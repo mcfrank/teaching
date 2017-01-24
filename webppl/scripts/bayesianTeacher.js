@@ -160,7 +160,7 @@ var multiPluck = function(objectArray){
   }, keys);
 
   //Attach keys to the respective value arrays
-  var outputObject = _.object(keys, result);
+  var outputObject = _.object(keys, valueArrays);
 
   return outputObject
 }
