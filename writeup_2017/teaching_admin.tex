@@ -59,93 +59,96 @@
 \maketitle
 
 \begin{abstract}
-How should a school administrator allocate a fixed budget towards
-increasing the number of classrooms and increasing student assessment to
-best increase student learning? This paper investigates how stochastic
-models accounting for the inherent uncertainty in student beliefs and
-teacher communication in teacher-student dyads can help school
-administrators figure out how to maximize student learning by optimally
-allocating resources. We replicate existing results from edu- cation
-literature about the effect of class sizes, homogenous ability
-classrooms, and assessment on student learning using computer
-simulation. We also unify these different determi- nants of student
-learning into a more holistic model and report the tradeoffs that
-committing budget to these design features presents. We demonstrated
-that we can create a pareto frontier for the number of teachers and
-assessments against a fixed bud- get, and find an optimal allocation of
-the budget for increasing student learning. We also demonstrate how the
-effectiveness of class sizes and assessment is contingent upon the
-learning concept being taught. We believe that the insights about stu-
-dent learning in multi-classroom settings that we've found and can
-continue to surface are difficult to surface in real-world studies with
-human subjects.
+\textbf{FIXME}: How should a school administrator allocate a fixed
+budget towards increasing the number of classrooms and increasing
+student assessment to best increase student learning? This paper
+investigates how stochastic models accounting for the inherent
+uncertainty in student beliefs and teacher communication in
+teacher-student dyads can help school administrators figure out how to
+maximize student learning by optimally allocating resources. We
+replicate existing results from edu- cation literature about the effect
+of class sizes, homogenous ability classrooms, and assessment on student
+learning using computer simulation. We also unify these different
+determi- nants of student learning into a more holistic model and report
+the tradeoffs that committing budget to these design features presents.
+We demonstrated that we can create a pareto frontier for the number of
+teachers and assessments against a fixed bud- get, and find an optimal
+allocation of the budget for increasing student learning. We also
+demonstrate how the effectiveness of class sizes and assessment is
+contingent upon the learning concept being taught. We believe that the
+insights about stu- dent learning in multi-classroom settings that we've
+found and can continue to surface are difficult to surface in real-world
+studies with human subjects.
 
 \textbf{Keywords:}
 Teaching; learning; education; pragmatics; Bayesian modeling; social
 cognition
 \end{abstract}
 
-\textbf{Education is the process of knowledge transmission from teachers
-to students.}
+Education is the process of knowledge transmission from teachers to
+students. A teacher attempts to provide information to students (whether
+facts, skills, generalizations, or another type of knowledge) in a form
+that will be most likely to result in the student learning that
+information. But even when students are motivated to learn, and teachers
+are motivated to teach, information transmission in the classroom is
+imperfect. Classroom teachers must teach to students with different
+abilities and backgrounds, making the perfect lesson for one child less
+accessible to another (the problem of \emph{student variability}).
+Adding to this issue, teachers don't have perfect knowledge of what
+students know or how they learn (the problem of \emph{imperfect
+knowledge}).
+
+Educators have a variety of tools to address these problems. If students
+are too diverse in their knowledge, they can be broken into groups by
+ability or even tracked by classroom. And if a teacher has uncertainty
+about what students know, formative assessments can provide information
+about the class's knowledge base. But breaking students up into groups
+or separate classes is resource intensive and can be inefficient -- in
+the limit, it would be impossible to give every single student a
+separate tutor, even if it might learn to better learning. And every
+assessment that is given has a cost in terms of lost instructional time.
+When should educators use these tools? The goal of the current paper is
+to provide a formal analysis of these questions.
 
 In our previous work, we conceptualized the teacher's task as one of
-optimal communication ({\textbf{???}}). Following models of pragmatic
+optimal communication (Frank, 2014). Following models of pragmatic
 reasoning (e.g., {\textbf{???}}; Frank \& Goodman, 2012), we modeled the
 teacher as reasoning about what evidence would best change student
-beliefs to more closely correspond to a target.
+beliefs to more closely correspond to a target. Teachers -- with perfect
+knowledge about each of their students -- would try to choose the
+learning example that maximized informatin gain across their students.
+Using this conceptualization, we were able to derive a number of results
+through simulation. For example, we found that individual student
+outcomes were inversely related to class size, since in smaller classes,
+teachers could customize their teaching better to the idiosynrasies of
+their particular student group.
 
-The fundamental unit of analysis in this paper is a teaching game. In
-each teacher-student dyad, a teacher tries to guide the student to
-discover a particular learning concept. For this paper, the learning
-concept we use is the weight of a biased coin (i.e.~the parameter of a
-Bernoulli distribution). As Frank discusses, while this is an extremely
-simplistic case of a learning concept, many interesting dynamics of the
-classroom become clear due to the simplicity. We are able to observe
-many dynamics of optimal teaching where arbitrarily complex learning
-concepts may obscure the discernable patterns in student learning.
+In that previous work and the current work, the fundamental unit of
+analysis is a teaching game. In each teacher-student dyad, a teacher
+tries to guide the student to discover a particular concept by
+presenting examples. Here we use a very simple concept, the weight of a
+biased coin (i.e., the parameter of a Bernoulli distribution). For this
+concept, examples are individual results from coin flips, which provide
+evidence about the coin's weight. Despite the simplicity of this
+teaching game, when analyzed at the level of multiple students and
+multiple teachers, it reveals many interesting dynamics.
 
-\textbf{This framework produced a number of results.}
+In the current work, we consider issues of student variability and
+imperfect teacher knowlege through the lens of \emph{optimal school
+administration}. Given finite resources, what arrangement of teachers
+and students, and assessements and lessons, produces the greatest
+information gain? We describe a generalization of the model presented in
+Frank (2014) and use this framework to investigate how an optimal
+adminstrator might make decisions. Our first two simulations replicate
+and extend results from the previous paper. Then our next two generalize
+the model to the case of imperfect information about students and finite
+resources for hiring teachers and conducting assessments. Our final
+simulation maps out a Pareto frontier for allocation of instructional
+time and teaching resources. Taken together, this work describes a
+first-principles attempt at a framework for understanding resource
+allocation in classroom education.
 
-In the current work, we extend this previous work to consider the
-question of \emph{optimal school administration}. given the
-complexities\ldots{}.
-
-Some existing work has already been done to explore the teacher-learner
-dynamics with stochastic modeling. Previous research demonstrates the
-recursive structure through which teachers and learners make inferences
-about each other's in- tentions. In Shafto and Goodman (2008)'s model,
-the teacher has an initial belief about a student's understanding of a
-par- ticular concept the teacher wishes to teach. Given this belief, the
-teacher chooses an example or set of examples to present to the student.
-The student then updates their belief about the learning concept with
-the new information presented by the teacher, reasoning that the teacher
-chose those specific examples to help calibrate the student's
-understanding towards the true concept. This recursive
-structure--wherein teachers select examples to maximize student learning
-while students consider that the teachers thoughtfully chose those
-examples for them--has demonstrably stronger inferences than models
-where the teacher and student agents don't reason about each other
-(Shafto, Goodman, and Frank, 2012).
-
-Research in the field of education has produced various find- ings that
-are used to inform the design of school systems. For instance,
-researchers have suggested that larger classes pro- duce worse learning
-outcomes for students (Glass and Smith, 1979; Slavin 1989). Somewhat
-orthogonally, some of posited that grouping students with similar
-ability into the same class- room improves learning outcomes (Slavin,
-1987). Some argue that for the sake of differentiated learning, there is
-merit to more frequent or thorough assessments of student abilities so
-that teachers can better cater classroom materials and lessons to the
-students (Fuchs and Fuchs, 1986).
-
-Crucially, these different features of school systems compete for the
-same common resource: money. It is expensive to hire more teachers. The
-creation and administration of assessments is also costly. Even if those
-individual features monotonically and non-asymptotically improved
-student learning outcomes, real-world budget constraints inevitably
-limit the school design possibilities for administrators.
-
-\section{Model}\label{model}
+\section{Model (TODO)}\label{model-todo}
 
 In our model, there are three unique types of agents: students,
 teachers, and administrators. Conceptually, a school consists of an
@@ -177,7 +180,7 @@ and administering assessments are considered part of CA .
 
 The agents' functions are described below.
 
-\subsection{Student}\label{student}
+\subsection{Student (TODO)}\label{student-todo}
 
 Each student has a prior belief about the bias of a Bernoulli variable
 whose true bias the teacher is trying to teach. This prior belief is
@@ -195,7 +198,7 @@ posterior distribution is created using the closed-form solution of a
 Beta distribution. That is, the student's posterior belief is
 represented as \(Beta(\alpha + x, \beta + y)\).
 
-\subsection{Teacher}\label{teacher}
+\subsection{Teacher (TODO)}\label{teacher-todo}
 
 Each teacher is assigned a classroom roster of students on which to
 perform inference. This roster contains information about the students'
@@ -224,7 +227,7 @@ information gain. Finally, the teacher reports to the administrator the
 probability distribution of their roster of students receiving a
 particular amount of information gain.
 
-\subsection{Administrator}\label{administrator}
+\subsection{Administrator (TODO)}\label{administrator-todo}
 
 The administrator gets a roster of students in the entire school and
 also determines the target concept to teach the students. The
@@ -261,102 +264,121 @@ school (compared to just each classroom for each teacher's inference),
 and is able to infer the most effective school design within budget
 constraints.
 
-\subsection{Simulation parameters}\label{simulation-parameters}
+\subsection{Information gain}\label{information-gain}
 
-In our simulation the administrator controls for these parame- ters.
-Changes to these parameters may still have some impact on the effect
-sizes since they are used in some of the genera- tive processes that
-create our synthetic data, but we hold them constant across all
-simulations. They are arbitrarily selected, but in an order magnitude
-consistent with Frank (2014)'s prior work.
+Following Frank (2014), we use information gain to quantify student
+learning. Formally, we assess the Kullback-Leibler divergence (Cover \&
+Thomas, 2012) between student knowledge (\(B_S\)) and the teacher's
+target distribution (\(B_T\)) both before and after teaching. The
+difference between these quantities gives the student's information gain
+for a single example \(e\):
 
---\textgreater{} --\textgreater{} --\textgreater{} --\textgreater{}
---\textgreater{} --\textgreater{} --\textgreater{}
+\[IG(e) = D_{KL}(B_T ||B_S) − D_{KL}(B_T || B_{S+e})\]
 
---\textgreater{}
+We derived a closed form expression for information gain that
+generalizes to any number of examples in an example set \(e\).
+Derivation details can be found at \textbf{LINK}. The final form for
+\(h\) heads and \(t\) tails is:
 
-\subsection{Information Gain}\label{information-gain}
+\begin{multline}
+IG(E) = \sum_{k=0}^{h+t-1} {log(\alpha_S + \beta_S + k)} - \\
+\sum_{i=0}^{h-1} {log (\alpha_S + i)} - \sum_{j=0}^{t-1} {log(\beta_S +j)} + \\
+\psi(\alpha_T)h + \psi(\beta_T)t +  \psi(\alpha_T + \beta_T)(h+t).
+\end{multline}
 
-Frank (2014) proposed a information gain formula using Kullback-Leibler
-divergences between student distributions and the target distributions
-to evaluate the similarity of the distributions (Cover and Thomas,
-2012). Two KL divergences are calculated for each student, one for the
-distance between the target distribution BT and the student prior
-distribution BS, andoneforthedistancebetweenthetargetdistributionBT and
-the student posterior distribution BS + e after updating their beliefs
-upon seeing example e. The difference between the posterior KL
-divergence and the prior KL divergence is the information gain. That is,
+where \(\psi\) represents the digamma function, and \(\alpha_S\),
+\(\beta_S\), \(\alpha_T\), and \(\beta_T\) are student and teacher
+priors respectively.
 
-\[IG(e) = DKL(B_T ||B_S) − DKL(B_T ||B_{S+e})\]
+\subsection{Simulation details}\label{simulation-details}
 
---\textgreater{} --\textgreater{} --\textgreater{} --\textgreater{}
---\textgreater{} --\textgreater{}
+For simplicity, we adopt a set of parameters unformly across our
+simulations. While changes to thesse parameters will have some impact on
+the effect sizes we recover, to our knowledge all qualitative results
+are general across parameter sets. We simulate using groups of 100
+students. Teachers have a target concept in mind, selected via
+pseudocounts on a Beta distribution such that \(\alpha + \beta = 10\)
+(thus target concepts can be .1, .2, .3, etc. Each student has five
+learning opportunities that can be used for showing a teaching example
+or for assessment in later simulations. Students have randomly selected
+priors with total pseudocounts such that
+\(\alpha + \beta = 11\).\footnote{These pseudocounts are slightly offset from the strength of the teaching concept to avoid edge cases where a student belief distribution perfectly matches the teaching concept.}
+
+In each simulation, we report the total information gain over baseline
+for 100 students given any particular school design. The particular
+baseline differs in each simulation. For each simulation set, we
+generate 100 random sets of students and average across these
+replicates. All simulations were conducted using the probabilistic
+programming language \texttt{webppl} (Goodman \& Stuhlmüller, n.d.);
+code is available at {[}\url{http://github.com/mcfrank/teaching}{]}.
+
+\subsection{Interpretive caveats}\label{interpretive-caveats}
+
+In our simulations, we refer to the entire group of students as a
+``school,'' broken into ``classrooms,'' and students are given
+``assessments'' and ``lessons.'' These mappings are inexact, however,
+and the analogical correspondence can be made at a lower level. For
+example, the same set of ideas could be applied \emph{within a
+classroom}, for example to the decision whether to split the class into
+smaller groups and divide the teachers time amongst supervising them.
+And similarly, what we describe ``assessments'' and ``lessons'' could be
+either multi-item tests and then several days of instruction or -- again
+at a more micro scale -- a single question posed to the class followed
+by several pieces of related content within a single class session. Our
+goal is to elucidate general principles that govern the process of
+teaching rather than to claim a correspondence with specific phenomena.
 
 \section{Simulations}\label{simulations}
-
-In each simulation here, we report the aggregate (sum of) information
-gain above baseline for 100 students given any particular school design.
-The baseline structure differs in each simulation, are discussed in the
-following sections. Informa- tion gain at a per-student level would
-simply be one-hundredth of each of these results. Critically, this
-representation of results does not visually cap- ture the final
-inferential step performed by the administrator. The administrator
-utilizes information gain to infer which de- sign to use. Because our
-results in each simulation demonstrate near-strict dominance of some
-parameterization of design choices over others, the administrator's
-inference is somewhat uninteresting. We discuss these outcomes in the
-following sections on each simulation.
 
 \subsection{Simulation 1: Sorting students by prior
 beliefs}\label{simulation-1-sorting-students-by-prior-beliefs}
 
-We hypothesized that sorting students into classrooms by prior beliefs
-will increase information gain compared to randomly Figure 1. Students'
-amount of information gain when sorted into class- rooms based on prior
-beliefs over unsorted baseline assigning students to classrooms. By
-sorting students by prior beliefs, each classroom will have more
-homogenous prior beliefs, so the students will find similar sets of
-examples that a teacher could provide to their classroom useful.
+In our first simulation, we explored the effects of grouping students by
+their prior beliefs, so that teachers can tailor the examples they teach
+to that particular group. This simulation is a replication of results
+reported in Frank (2014) using the multi-classroom model developed here.
+We hypothesized that sorting students by prior beliefs would increase
+information gain compared to random classroom assignment. Our baseline
+for this simulation was the unsorted information gain under the same
+parameters. For instance, the sorted aggregate IG of a school with 5
+teachers and a target bias of .6 is compared to the unsorted aggregate
+IG for a school with the same parameters.
 
-Our baseline for this simulation was the unsorted information gain under
-the same parameters. For instance, the sorted aggregate IG of a school
-with 5 teachers and a target bias of .6 is compared to the unsorted
-aggregate IG of a school with 5 teachers and a target bias of .6 as a
-baseline.
+Results are shown in Figure \ldots{} . Sorted students show greater
+information gain than if the same set of students are distributed into
+unsorted classrooms. This effect is present for all target concepts but
+is most pronounced for less-extreme concepts -- for extreme value
+concepts (e.g., a target of .9, almost all students will benefit from
+seeing the same examples). Thus, an optimal school administrator with
+perfect student knowledge should consistently opt to sort students into
+classrooms over random assignment.
 
-Our simulated findings support our hypothesis and are con- sistent with
-real-world education research on tracking student abilities (Slavin,
-1987). We find that sorted students show greater information gain than
-if the same set of students are distributed into unsorted classrooms, as
-shown in Figure 1, F(1,4998) = 1422, p\textless{}.001. The administrator
-consistently opted to sort students into classrooms over random assign-
-ment. There is also reasonable support for an additive moderation model,
-F(1,4997) = 228.3, p \textless{} .001, because the strength of the
-effect of sorting seemed to vary depending on target belief as well as
-the number of teachers, as seen in Figure 2.
+\subsection{Simulation 2: Class size}\label{simulation-2-class-size}
 
-\subsection{Simulation 2: Number of teachers and class
-size}\label{simulation-2-number-of-teachers-and-class-size}
+In our second simulation, again a replication of our prior work, we
+explored the effects of adding teachers to the simulated school, leading
+to lower class sizes. We hypothesized that increasing the number of
+teachers would strictly improve student learning rate (again assuming
+perfect knowledge about students): more teachers in a school means that
+students are in smaller classes and hence receive better calibrated sets
+of examples from the teacher that appropriately helps them calibrate
+their prior beliefs towards the target concept. Our baseline for this
+simulation was the unsorted information gain under the same target bias
+parameters. We observed the predicted pattern (Figure 2), although there
+were diminishing returns. After a certain number of teachers, additional
+customization was not helpful.
 
-We hypothesized that increasing the number of teachers will strictly
-improve student learning rate. We further guessed that the improvements
-to learning rate will have diminishing returns, even though they will
-still increase learning. By hav- ing more teachers, students can get
-better individualized sets of examples from the teacher that
-appropriately helps them calibrate their prior beliefs towards the
-target concept.
+** should we simulate how this point of diminishing returns depends on
+school size, since more students means more similar students that can be
+grouped together, or is that not that interesting?**
 
-Our baseline for this simulation was the sorted information gain under
-the same target bias parameters. Our simulated findings support our
-hypothesis and are consistent with real- world education research on
-class size (Glass and Smith, 1979; Slavin, 1989). We find that
-increasing the number of teachers, which decreases the number of
-students per class, results in greater information gain, as shown in
-Figure 3, F(1,2498) = 181.2, p \textless{} .001. The administrator
-consistently opted to maximize the number of teachers used.
+\subsection{Simulation 3: Noisy students and assessments
+(TODO)}\label{simulation-3-noisy-students-and-assessments-todo}
 
-\subsection{Simulation 3: Noisy students and
-assessments}\label{simulation-3-noisy-students-and-assessments}
+In our third simulation, we relax the assumption that teachers have
+perfect knowledge about students. Instead, we assume that teachers must
+learn about students via the administration of assessments, in which
+students are called upon
 
 We hypothesized that as the number of assessments conducted to measure
 student ability increases, so will learning rate be- cause teachers can
@@ -395,7 +417,8 @@ information gain introduced by the uncertainty introduced in these two
 areas.
 
 \subsection{Simulation 4: Pareto frontier with imposed budget
-constraints}\label{simulation-4-pareto-frontier-with-imposed-budget-constraints}
+constraints
+(TODO)}\label{simulation-4-pareto-frontier-with-imposed-budget-constraints-todo}
 
 \begin{CodeChunk}
 
@@ -405,8 +428,8 @@ We hypothesized that for a particular budget constraint and fixed costs
 of teachers and assessment, there will be a pareto frontier of possible
 allocations of that budget towards teachers and assessments on which
 there will be an optimal allocation that maximizes student learning.
-Furthermore, we hypoth- esized that the individual results about number
-of teachers number of assessments would hold within levels of the other.
+Furthermore, we hypothesized that the individual results about number of
+teachers number of assessments would hold within levels of the other.
 This is the unification of all previous simulations into one model that
 allows us to introduce a real-world constraint of budget.
 
@@ -463,7 +486,7 @@ bias moves from 0.5 to 0.7, we see that the IG-optimal allocation of
 budget shifts from about 5-6 teachers and 2 assessments towards more
 assessments at the expense of the number of teachers.
 
-\section{Discussion}\label{discussion}
+\section{Discussion (TODO)}\label{discussion-todo}
 
 Overall, we were able to replicate many real-world findings from
 education literature. We found the sorting students into ability level
@@ -568,8 +591,21 @@ This work supported by NSF BCS \#1456077.
 \setlength{\parindent}{-0.1in} \setlength{\leftskip}{0.125in} \noindent
 
 \hypertarget{refs}{}
+\hypertarget{ref-cover2012}{}
+Cover, T. M., \& Thomas, J. A. (2012). \emph{Elements of information
+theory}. John Wiley \& Sons.
+
+\hypertarget{ref-frank2014}{}
+Frank, M. C. (2014). Modeling the dynamics of classroom education using
+teaching games. In \emph{CogSci}.
+
 \hypertarget{ref-frank2012}{}
 Frank, M. C., \& Goodman, N. D. (2012). Predicting pragmatic reasoning
 in language games. \emph{Science}, \emph{336}(6084), 998--998.
+
+\hypertarget{ref-goodman2017}{}
+Goodman, N. D., \& Stuhlmüller, A. (n.d.). The design and implementation
+of probabilistic programming languages. Retrieved 2017, from
+\url{http://dippl.org}
 
 \end{document}
