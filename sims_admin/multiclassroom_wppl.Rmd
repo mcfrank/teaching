@@ -19,28 +19,36 @@ theme_set(theme_bw())
 
 # Pipeline sanity check
 ```{r}
+#if this code block fails to execute because the packages cannot be found, navigate to sims_admin/node_modules/webppl-beta and sims_admin/node_modules/webppl-compute-digamma in the Terminal and run the following command (including final period)
+# npm install --prefix ~/.webppl .
+
 test_model <- "
 var model = function() {
   console.log(\"Hello world\")
-  return mathBeta.beta(3,5);
+  return IG2(1,2,3,4,5,6);
+  //return mathBeta.beta(3,5);
 }
 model();
 "
-webppl(test_model, packages = c("webppl/node_modules/webppl-beta"))
+webppl(test_model, packages = c("math-beta", "webppl-compute-digamma"))
+#webppl(test_model, packages = c("sims_admin/node_modules/webppl-beta", "sims_admin/node_modules/webppl-compute-digamma"))
 
 ```
 
 # Single student
 
 ```{r}
-out <- as.data.frame(webppl(program_file = "webppl/scripts/bayesianTeacher.js", packages = c("webppl/node_modules/webppl-compute-digamma/", "webppl/node_modules/webppl-beta")))
+out <- as.data.frame(webppl(program_file = "~/Documents/teaching/sims_admin/scripts/bayesianTeacher.js", packages = c("math-beta", "webppl-compute-digamma")))
 ```
 
 Write the data to an intermediate caching csv for external/reproducibility use
 
 ```{r}
 #write.csv(out, file='raw_data.csv')
-write_csv(out, file=cat('raw_data_', as.character(Sys.Date()), '.csv', sep=''))
+#write_csv(out, path=cat('raw_data_', as.character(Sys.Date()), '.csv', sep=''))
+#filename <- cat('raw_data_', as.character(Sys.Date()), '.csv',sep='')
+write_csv(out, "cached_data/raw_data_012717.csv")
+#write_csv(out, filename)
 ```
 
 Load packages for simulations
