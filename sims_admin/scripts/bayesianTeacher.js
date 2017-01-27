@@ -215,7 +215,7 @@ var results = mapN(function(trialNum){
   var numAssessmentsMapping = map(function(numAssessments){
 
 
-    var assessedStudents = assess(trueSortedStudents, numAssessments);
+    var assessedStudents = assess(studentsArray, numAssessments);
     var sortedStudents = sortStudents(assessedStudents, false); //Sort by guessed params, not true params
     //console.log("*******\n*******\nstudents generated for trial " + trialNum);
     var numExamples = numTimeSteps - numAssessments;
@@ -231,21 +231,22 @@ var results = mapN(function(trialNum){
 
       var numTeachersMapping = map(function(numTeachers){
 
+        // No sorting, examples chosen with guessed beliefs
         var unsortedIG = Math.sum(getAdminIG(assessedStudents, numTeachers, targetParams, numExamples));
-        
-        //console.log("unsortedIG calculated: " + unsortedIG);
 
-        // IGs when sorted on guessed student beliefs
+        // Sorted on guessed student beliefs, examples chosen with guessed beliefs
         var sortedIG = Math.sum(getAdminIG(sortedStudents, numTeachers, targetParams, numExamples));
 
-        //console.log("sortedIG calculated: " + sortedIG)
+        // Unsorted, examples chosen with true beliefs
+        var trueUnsortedIG = Math.sum(getTrueAdminIG(studentsArray, numTeachers, targetParams, numExamples));
 
-        // IGs when sorted on true student beliefs
-        var trueSortedIG = Math.sum(getTrueAdminIG(assessedStudents, numTeachers, targetParams, numExamples));
+        // Sorted on true student beliefs, examples chosen with true beliefs
+        var trueSortedIG = Math.sum(getTrueAdminIG(trueSortedStudents, numTeachers, targetParams, numExamples));
 
-        return [{trialNum: trialNum, numTeachers: numTeachers, numAssessments: numAssessments, numExamples: numExamples, teacherMu: mu, sorted: "unsorted", IG: unsortedIG},
-        {trialNum: trialNum, numTeachers: numTeachers, numAssessments: numAssessments, numExamples: numExamples, teacherMu: mu, sorted: "guessSorted", IG: sortedIG},
-        {trialNum: trialNum, numTeachers: numTeachers, numAssessments: numAssessments, numExamples: numExamples, teacherMu: mu, sorted: "trueSorted", IG: trueSortedIG}];
+        return [{trialNum: trialNum, numTeachers: numTeachers, numAssessments: numAssessments, numExamples: numExamples, teacherMu: mu, simType: "unsortedUncertainTeachers", IG: unsortedIG},
+        {trialNum: trialNum, numTeachers: numTeachers, numAssessments: numAssessments, numExamples: numExamples, teacherMu: mu, simType: "sortedUncertainTeachers", IG: sortedIG},
+        {trialNum: trialNum, numTeachers: numTeachers, numAssessments: numAssessments, numExamples: numExamples, teacherMu: mu, simType: "unsortedPerfectTeachers", IG: trueSortedIG},
+        {trialNum: trialNum, numTeachers: numTeachers, numAssessments: numAssessments, numExamples: numExamples, teacherMu: mu, simType: "sortedPerfectTeachers", IG: trueSortedIG}];
         
       }, numTeachersArray);
 
