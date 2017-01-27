@@ -22,30 +22,19 @@ var admin = function(targetParams, budget, students) {
     
     // Assign teachers to teach each classroom
     var classroomExpectations = map(function(studentsInClassroom){
-      
-      // Model each classroom independently
-//       var teacherScore = getTeacherScore(target, studentsInClassroom);
-//       print("break1")
-//       viz.hist(teacherScore)
-//       print(expectation(teacherScore))
-//       print("break2")
-// //    return getTeacherScore(target, studentsInClassroom);
-//       return expectation(teacherScore);
-
-//     }, distributedStudents);
     
-    var teacherScore = getTeacherScore(target, studentsInClassroom);
-//       print("break1")
-      viz.hist(teacherScore)
-//       print(mapObject(function(propName, value){
-//         return 
-//       }, teacherScore))
-//       print(teacherScore)
-      print(MAP(teacherScore))
-      print("break2")
-//    return getTeacherScore(target, studentsInClassroom);
-//       return expectation(teacherScore);
-      return MAP(teacherScore).val;
+      var teacherScore = getTeacherScore(targetParams, studentsInClassroom);
+  //       print("break1")
+        viz.hist(teacherScore)
+  //       print(mapObject(function(propName, value){
+  //         return 
+  //       }, teacherScore))
+  //       print(teacherScore)
+        print(MAP(teacherScore))
+        print("break2")
+  //    return getTeacherScore(target, studentsInClassroom);
+  //       return expectation(teacherScore);
+        return MAP(teacherScore).val;
 
     }, distributedStudents);
     
@@ -64,27 +53,40 @@ var admin = function(targetParams, budget, students) {
 
 }
 
+// Helper function to calculate information gain using analytic form:
+var informationGain = function(targetAlpha, targetBeta, studentAlpha, studentBeta){
+  return Math.log((studentAlpha + studentBeta) / studentAlpha) + digamma(targetAlpha) + digamma(targetAlpha + targetBeta);
+}
 
 // A version of teacher method that returns the scores
-var getTeacherScore = function(target, students) { 
+var getTeacherScore = function(targetParams, students) { 
   return Infer({method: 'enumerate'}, function(){
 
     var example = repeat(7, flip);
 
+    // Calculate mean value of target distribution using analytical form
+    var target = targetParams.alpha / (targetParams.alpha + targetParams.beta);
+
     // All students are in this scope
-    var learnerPosteriors = map(function(student){
+    // var learnerPosteriors = map(function(student){
       
-      // Individual students in this scope
-      return learnerDist(student.priorAlpha, student.priorBeta, example);
+    //   // Individual students in this scope
+    //   return learnerDist(student.priorAlpha, student.priorBeta, example);
     
-    }, students);
+    // }, students);
     
     // Stochastic generation of posteriors, not using closed form
     //map(function(learnerPost){ observe(learnerPost, target) }, learnerPosteriors)
     
-    var scores = map(function(currPosterior){
-      return currPosterior.score(target);
-    }, learnerPosteriors)
+    // Score using log probabilities
+    // var scores = map(function(currPosterior){
+    //   return currPosterior.score(target);
+    // }, learnerPosteriors)
+
+    // Score is the information gain formula, so no inference is necessary with knowledge of the student
+    var scores = map(function(currStudent){
+      return informationGain(targetParams.alpha, targetParams.beta, currStudent.priorAlpha, currStudent.priorBeta);
+    }, students)
     
     print(scores)
     
@@ -94,7 +96,18 @@ var getTeacherScore = function(target, students) {
 
   });
   
+}
 
+//Returns student posterior distribution
+var learnerDist = function(priorAlpha, priorBeta, example){
+  
+  var numTrues = sum(example)//reduce(addTrues, 0, example);
+  
+  var postAlpha = priorAlpha + numTrues //Number of trues
+  
+  var postBeta = priorBeta + example.length - numTrues //Number of falses
+  
+  return Beta({a: postAlpha, b: postBeta})
 }
 
 
@@ -124,28 +137,6 @@ var distributeStudents = function(students, N){
     return [students.slice(0, size)].concat(distributeStudents(students.slice(size), N-1))
   }
 
-  // Non functional-programming approach
-  // var len = students.length,
-    // out = [],
-    // i = 0,
-    // size;
-
-
-  // if (len % n === 0) {
-  //   size = Math.floor(len / N);
-  //   while (i < len) {
-  //     out.push(students.slice(i, i += size));
-  //   }
-  // }
-
-  // else {
-  //   while (i < len) {x
-  //     size = Math.ceil((len - i) / N--);
-  //     out.push(students.slice(i, i += size));
-  //   }
-  // }
-
-  //return out;
 }
 
 var teacher = function(target, students) {
@@ -176,24 +167,12 @@ var teacher = function(target, students) {
   });
 };
 
-var addTrues = function(total, test){
-  return test ? total + 1 : total;
-}
-
-//Recursive function to generate a sequence of student priorAlphas and priorBetas
+// Helper function to generate a sequence of student priorAlphas and priorBetas
 var generateSequence = function(numStudents, min, max){
   return repeat(numStudents, function(){uniformDraw(_.range(1,10))})
-  
-  //*****
-  //Non-functional programming approach
-  //*****
-  //
-  //for(var i = 0; i < numStudents; i++){
-  //  ground[priorAlphas][i] = Math.floor(Math.random() * 10) + 1 //Generate random int between 1 and 10 inclusive
-  //}
 }
 
-//Wrapper function to return an array of objects, each that represent a student and contains priorAlpha and priorBeta properties
+// Wrapper function to return an array of objects, each that represent a student and contains priorAlpha and priorBeta properties. Object of [{priorAlpha, priorBeta}, ...] form
 var generateStudentsArray = function(numStudents){
   var priorAlphas = generateSequence(numStudents, 1, 10);
   var priorBetas = generateSequence(numStudents, 1, 10);
@@ -211,6 +190,7 @@ var generateStudents = function(numStudents){
    return {priorAlphas: generateSequence(numStudents, 1, 10), priorBetas: generateSequence(numStudents, 1, 10)}; 
 }
 
+// Wrapper function to return a dictionary of arrays representing student priorAlphas and priorBetas. Object of {priorAlphas: [], priorBetas: []} form
 var generateStudents = function(numStudents){
   var priorAlphas = generateSequence(numStudents, 1, 10);
   var priorBetas = generateSequence(numStudents, 1, 10);
@@ -225,19 +205,6 @@ var generateStudents = function(numStudents){
 
 var generateTargetParams = function(){
   return {alpha: uniformDraw(_.range(1,10)), beta: uniformDraw(_.range(1,10))};
-}
-
-
-//Returns student posterior distribution
-var learnerDist = function(priorAlpha, priorBeta, example){
-  
-  var numTrues = sum(example)//reduce(addTrues, 0, example);
-  
-  var postAlpha = priorAlpha + numTrues //Number of trues
-  
-  var postBeta = priorBeta + example.length - numTrues //Number of falses
-  
-  return Beta({a: postAlpha, b: postBeta})
 }
 
 //var students = generateStudents(10);

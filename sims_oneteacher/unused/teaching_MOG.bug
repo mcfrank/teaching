@@ -1,0 +1,15 @@
+var mu[2], sigma[2], z[N], y[N];
+
+model {
+  # mixture components
+  for (j in 1:2) {
+    mu[j] ~ dunif(-10,10);
+    sigma[j] ~ dgamma(1,2);
+  }
+
+  # data points
+  for (i in 1:N) {
+    z[i] ~ dbern(.5);
+    y[i] ~ dnorm(mu[z[i]+1],sigma[z[i]+1]);
+  }
+}

@@ -148,6 +148,44 @@ var getAdminIG = function(students, numTeachers, targetParams, numExamples){
     return classroomExpectations;
 }
 
+// Get the information gain if the teacher chooses the examples based on student prior beliefs (i.e. perfect knowledge).
+var getTrueTeacherIG = function(students, targetParams, numExamples){
+  return Infer({method: 'enumerate'}, function(){
+    
+    //Use this to seed the prior likelihoods of examples
+    var target = targetParams.alpha / (targetParams.alpha + targetParams.beta);
+
+    var h = uniformDraw(_.range(0, numExamples + 1));
+    var t = numExamples - h;
+
+    var actualIGs = map(function(student){
+      return IG2(targetParams.alpha, targetParams.beta, student.priorAlpha, student.priorBeta, h, t);
+    }, students)
+
+    //Weight choice of examples by what teacher believes the IGs will be
+    factor(sum(actualIGs));
+    
+    //Return as the score what the actual IGs will be
+    return sum(actualIGs);
+
+  });
+}
+
+// Get the total information gain of all students based on prior beliefs
+var getTrueAdminIG = function(students, numTeachers, targetParams, numExamples){
+  // Array of student distributed into subsets representing numTeachers classrooms
+  var distributedStudents = distributeStudents(students, numTeachers);
+  
+  // Assign teachers to teach each classroom
+    var classroomExpectations = map(function(studentsInClassroom){
+      var teacherIG = getTrueTeacherIG(studentsInClassroom, targetParams, numExamples);
+      return MAP(teacherIG).val;
+
+    }, distributedStudents);
+
+    return classroomExpectations;
+}
+
 // Helper function to convert an array of objects with shared keys to an object of arrays with same keys
 // ----------
 // Sample input: [{keyA: A1, keyB: B1, keyC: C1}, {keyA: A2, keyB: B2, keyC: C2}]
@@ -172,11 +210,12 @@ var results = mapN(function(trialNum){
   //console.log("entered results function");
 
 	var studentsArray = generateStudentsArray(100);
+  var trueSortedStudents = sortStudents(studentsArray, true);
 
   var numAssessmentsMapping = map(function(numAssessments){
 
 
-    var assessedStudents = assess(studentsArray, numAssessments);
+    var assessedStudents = assess(trueSortedStudents, numAssessments);
     var sortedStudents = sortStudents(assessedStudents, false); //Sort by guessed params, not true params
     //console.log("*******\n*******\nstudents generated for trial " + trialNum);
     var numExamples = numTimeSteps - numAssessments;
@@ -196,12 +235,17 @@ var results = mapN(function(trialNum){
         
         //console.log("unsortedIG calculated: " + unsortedIG);
 
+        // IGs when sorted on guessed student beliefs
         var sortedIG = Math.sum(getAdminIG(sortedStudents, numTeachers, targetParams, numExamples));
 
         //console.log("sortedIG calculated: " + sortedIG)
 
+        // IGs when sorted on true student beliefs
+        var trueSortedIG = Math.sum(getTrueAdminIG(assessedStudents, numTeachers, targetParams, numExamples));
+
         return [{trialNum: trialNum, numTeachers: numTeachers, numAssessments: numAssessments, numExamples: numExamples, teacherMu: mu, sorted: "unsorted", IG: unsortedIG},
-        {trialNum: trialNum, numTeachers: numTeachers, numAssessments: numAssessments, numExamples: numExamples, teacherMu: mu, sorted: "sorted", IG: sortedIG}];
+        {trialNum: trialNum, numTeachers: numTeachers, numAssessments: numAssessments, numExamples: numExamples, teacherMu: mu, sorted: "guessSorted", IG: sortedIG},
+        {trialNum: trialNum, numTeachers: numTeachers, numAssessments: numAssessments, numExamples: numExamples, teacherMu: mu, sorted: "trueSorted", IG: trueSortedIG}];
         
       }, numTeachersArray);
 

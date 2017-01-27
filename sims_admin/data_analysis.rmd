@@ -37,7 +37,7 @@ minNonZero <- function(x){
 df <- read.csv(file = "C:/Users/Larry/Dropbox/Stanford University/2016-2017/PSYCH 197/teaching/webppl/node_modules/webppl-compute-digamma/numTeachers-5example.csv")
 ```
 
-Here, we calculate the score above the baseline given the controlled parameters of target bias. Baseline entails 1 teacher and unsorted roster.
+Here, we calculate the score above the baseline given the controlled parameters of target bias. Baseline entails 5 teachers, 2 assessments, 3 teaching periods, and unsorted roster.
 ```{r}
 
 for(rowNum in 1:nrow(df)){
