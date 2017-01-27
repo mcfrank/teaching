@@ -123,21 +123,113 @@ In our simulations, we refer to the entire group of students as a "school," brok
 
 # Simulations
 
+```{r}
+NUM_STUDENTS <- 100
+df <- read_csv("../sims_admin/cached_data/raw_data_012717.csv") 
+```
+
 ## Simulation 1: Sorting students by prior beliefs
 
-<!-- Figure 1. Students’ amount of information gain when sorted into class- rooms based on prior beliefs over unsorted baseline -->
+```{r, fig.cap="Student information gain when sorted into class- rooms based on prior beliefs over unsorted baseline"}
+
+df_spread <- spread(df, simType, IG)
+
+sorted_over_unsorted <- df_spread %>%
+  filter(numAssessments == 0) %>%
+  mutate(IG_over_baseline = sortedPerfectTeachers - unsortedPerfectTeachers) %>%
+  group_by(numTeachers, teacherMu) %>%
+  multi_boot_standard(col = "IG_over_baseline")
+
+ggplot(sorted_over_unsorted, aes(x = numTeachers, y = mean, col = factor(teacherMu))) + 
+  geom_line() + 
+  geom_linerange(aes(ymin = ci_lower, ymax = ci_upper)) +
+  ggthemes::theme_few() + 
+  langcog::scale_color_solarized(name = "Target Concept") +
+  ylab("Information Gain Over Unsorted (nats)") + 
+  theme(legend.position = "bottom") +
+  xlab("Number of Teachers") + 
+  scale_x_continuous(breaks = c(1, 2, 3, 5, 10))
+```
 
 In our first simulation, we explored the effects of grouping students by their prior beliefs, so that teachers can tailor the examples they teach to that particular group. This simulation is a replication of results reported in @frank2014 using the multi-classroom model developed here. We hypothesized that sorting students by prior beliefs would increase information gain compared to random classroom assignment. Our baseline for this simulation was the unsorted information gain under the same parameters. For instance, the sorted aggregate IG of a school with 5 teachers and a target bias of .6 is compared to the unsorted aggregate IG for a school with the same parameters. 
 
-Results are shown in Figure ... . Sorted students show greater information gain than if the same set of students are distributed into unsorted classrooms. This effect is present for all target concepts but is most pronounced for less-extreme concepts -- for extreme value concepts (e.g., a target of .9, almost all students will benefit from seeing the same examples). Thus, an optimal school administrator with perfect student knowledge should consistently opt to sort students into classrooms over random assignment.
+Results are shown in Figure 1. Sorted students show greater information gain than if the same set of students are distributed into unsorted classrooms. This effect is present for all target concepts but is most pronounced for less-extreme concepts -- for extreme value concepts (e.g., a target of .9, almost all students will benefit from seeing the same examples). Thus, an optimal school administrator with perfect student knowledge should consistently opt to sort students into classrooms over random assignment.
 
 ## Simulation 2: Class size
 
+```{r}
+sorted_by_teacher_num <- df_spread %>%
+  filter(numAssessments == 0) %>%
+  mutate(class_size = NUM_STUDENTS / numTeachers) %>%
+  select(-sortedUncertainTeachers, -unsortedPerfectTeachers, -unsortedUncertainTeachers) %>%
+  group_by(teacherMu, trialNum) %>%
+  mutate(IG_over_baseline = sortedPerfectTeachers - 
+           sortedPerfectTeachers[numTeachers == 1]) %>%
+  group_by(teacherMu, class_size) %>%
+  multi_boot_standard(col = "IG_over_baseline")
+
+ggplot(sorted_by_teacher_num, aes(x = class_size, y = mean, col = factor(teacherMu))) + 
+  geom_line() + 
+  geom_linerange(aes(ymin = ci_lower, ymax = ci_upper)) +
+  ggthemes::theme_few() + 
+  langcog::scale_color_solarized(name = "Target Concept") +
+  theme(legend.position = "bottom") + 
+  ylab("Info Gain Over 1 Teacher (nats)") + 
+  xlab("Class Size") +
+  scale_x_continuous(breaks = c(10, 20, 33, 50, 100)) 
+
+```
+
 In our second simulation, again a replication of our prior work, we explored the effects of adding teachers to the simulated school, leading to lower class sizes. We hypothesized that increasing the number of teachers would strictly improve student learning rate (again assuming perfect knowledge about students): more teachers in a school means that students are in smaller classes and hence receive better calibrated  sets of examples from the teacher that appropriately helps them calibrate their prior beliefs towards the target concept. Our baseline for this simulation was the unsorted information gain under the same target bias parameters. We observed the predicted pattern (Figure 2), although there were diminishing returns. After a certain number of teachers, additional customization was not helpful. 
 
-** should we simulate how this point of diminishing returns depends on school size, since more students means more similar students that can be grouped together, or is that not that interesting?**
+## Simulation 3: Noisy students and assessments
 
-## Simulation 3: Noisy students and assessments (TODO)
+
+```{r}
+ig_by_sim_type <- df %>%
+  group_by(numAssessments, numTeachers, teacherMu, trialNum) %>%
+  mutate(sorted_perfect = IG[simType == "sortedPerfectTeachers"] - 
+           IG[simType == "unsortedUncertainTeachers"], 
+         sorted_uncertain = IG[simType == "sortedUncertainTeachers"] - 
+           IG[simType == "unsortedUncertainTeachers"], 
+         unsorted_uncertain = IG[simType == "unsortedUncertainTeachers"] -
+           IG[simType == "unsortedUncertainTeachers"]) %>%
+  gather(sim_type, IG_over_baseline, sorted_uncertain, sorted_perfect, unsorted_uncertain) %>%
+  group_by(numAssessments, numTeachers, teacherMu, sim_type) %>%
+  multi_boot_standard(col = "IG_over_baseline")
+
+ggplot(filter(ig_by_sim_type, numAssessments < 5, sim_type != "unsorted_uncertain"),
+       aes(x = numTeachers, y = mean, col = factor(teacherMu))) + 
+  geom_line() + 
+  geom_pointrange(aes(ymin = ci_lower, ymax = ci_upper)) +
+  ggthemes::theme_few() + 
+  facet_grid(sim_type~numAssessments) + 
+  langcog::scale_color_solarized(name = "Target Concept") +
+  theme(legend.position = "bottom") + 
+  ylab("Info Gain Over Unsorted Baseline (nats)") + 
+  xlab("Number of Teachers") + 
+  scale_x_continuous(breaks = c(1, 2, 3, 5, 10))
+```
+
+```{r}
+il_by_sim_type <- df_spread %>%
+  filter(numAssessments < 5, 
+         numTeachers > 2) %>%
+  mutate(IL = sortedUncertainTeachers - sortedPerfectTeachers) %>%
+  group_by(numAssessments, teacherMu) %>%
+  multi_boot_standard(col = "IL")
+
+ggplot(filter(il_by_sim_type, numAssessments < 5),
+       aes(x = numAssessments, y = mean, col = factor(teacherMu))) + 
+  geom_line() + 
+  geom_linerange(aes(ymin = ci_lower, ymax = ci_upper)) +
+  ggthemes::theme_few() + 
+  langcog::scale_color_solarized(name = "Target Concept") +
+  theme(legend.position = "bottom") + 
+  ylab("Info Loss Relative to Perfect Knowledge (nats)") + 
+  xlab("Number of Assessments") + 
+  scale_x_continuous(breaks = c(0, 1, 2, 3, 4))
+```
 
 In our third simulation, we relax the assumption that teachers have perfect knowledge about students. Instead, we assume that teachers must learn about students via the administration of assessments, in which students are called upon 
 
@@ -151,30 +243,38 @@ Worth noting is that student noise introduces uncertainty in two stages of the m
 ## Simulation 4: Pareto frontier with imposed budget constraints (TODO)
 
 ```{r}
-df <- read_csv("../sims_admin/cached_data/raw_data.csv") %>%
-  select(-X1) %>%
-  spread(sorted, IG) %>%
-  mutate(score_above_baseline = sorted - unsorted)
+ig <- df %>%
+  group_by(teacherMu, numAssessments, numTeachers, simType) %>%
+  summarise(IG = mean(IG)) 
 
-# ms <- df %>%
-#   filter(teacherMu != .9) %>%
-#   mutate(teacherMu = factor(teacherMu)) %>%
-#   group_by(numTeachers, numAssessments, teacherMu) %>%
-#   multi_boot_standard(col = "score_above_baseline")
+ggplot(filter(ig, numAssessments < 5), 
+       aes(x = numTeachers, y = IG, col = factor(teacherMu))) +
+  geom_line() + 
+  facet_grid(numAssessments ~ simType, scales = "free_y")  + 
+  scale_colour_solarized() + 
+  ggthemes::theme_few()
 
+```
+
+
+
+```{r}
 ms <- df %>%
-  filter(teacherMu != .9) %>%
-  mutate(teacherMu = factor(teacherMu), cost = numAssessments * 20 + numTeachers * numExamples * 10) %>%
+  mutate(cost = numAssessments * 20 + numTeachers * numExamples * 10) %>%
+  
   group_by(numTeachers, numAssessments, teacherMu) %>%
   multi_boot_standard(col = "score_above_baseline")
 
 ggplot(ms, aes(x = numTeachers, y = mean, col = factor(teacherMu))) +
   geom_line() +
-  geom_pointrange(aes(ymin = ci_lower, ymax = ci_upper)) +
+  geom_linerange(aes(ymin = ci_lower, ymax = ci_upper)) +
   facet_wrap(~numAssessments) + 
   ggthemes::theme_few() + 
-  #langcog::scale_color_solarized() + 
+  langcog::scale_color_solarized() +
   theme(legend.position = "bottom")
+
+
+
 ```
 
 We hypothesized that for a particular budget constraint and fixed costs of teachers and assessment, there will be a pareto frontier of possible allocations of that budget towards teachers and assessments on which there will be an optimal allocation that maximizes student learning. Furthermore, we hypothesized that the individual results about number of teachers number of assessments would hold within levels of the other. This is the unification of all previous simulations into one model that allows us to introduce a real-world constraint of budget.
