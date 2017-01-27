@@ -12,6 +12,7 @@ number_sections: true
 rm(list=ls())
 library(tidyverse)
 library(rwebppl)
+library(knitr)
 opts_chunk$set(echo=FALSE, cache=TRUE, warning=FALSE, message = FALSE)
 theme_set(theme_bw())
 ```
@@ -19,7 +20,7 @@ theme_set(theme_bw())
 # Single student
 
 ```{r}
-out <- webppl(program_file = "webppl/single_student.js")
+out <- webppl(program_file = "~/Documents/teaching/webppl/single_student.js", packages = "~/Documents/teaching/webppl/node_modules/webppl-compute-digamma")
 ```
 
 We select HMC as our inference method, revisit this. 
