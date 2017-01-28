@@ -333,6 +333,12 @@ teaching rather than to claim a correspondence with specific phenomena.
 \subsection{Simulation 1: Sorting students by prior
 beliefs}\label{simulation-1-sorting-students-by-prior-beliefs}
 
+\begin{CodeChunk}
+\begin{figure}[tb]
+\includegraphics{figs/unnamed-chunk-2-1} \caption[Student information gain when sorted into class- rooms based on prior beliefs over unsorted baseline]{Student information gain when sorted into class- rooms based on prior beliefs over unsorted baseline}\label{fig:unnamed-chunk-2}
+\end{figure}
+\end{CodeChunk}
+
 In our first simulation, we explored the effects of grouping students by
 their prior beliefs, so that teachers can tailor the examples they teach
 to that particular group. This simulation is a replication of results
@@ -344,16 +350,20 @@ parameters. For instance, the sorted aggregate IG of a school with 5
 teachers and a target bias of .6 is compared to the unsorted aggregate
 IG for a school with the same parameters.
 
-Results are shown in Figure \ldots{} . Sorted students show greater
-information gain than if the same set of students are distributed into
-unsorted classrooms. This effect is present for all target concepts but
-is most pronounced for less-extreme concepts -- for extreme value
-concepts (e.g., a target of .9, almost all students will benefit from
-seeing the same examples). Thus, an optimal school administrator with
-perfect student knowledge should consistently opt to sort students into
+Results are shown in Figure 1. Sorted students show greater information
+gain than if the same set of students are distributed into unsorted
+classrooms. This effect is present for all target concepts but is most
+pronounced for less-extreme concepts -- for extreme value concepts
+(e.g., a target of .9, almost all students will benefit from seeing the
+same examples). Thus, an optimal school administrator with perfect
+student knowledge should consistently opt to sort students into
 classrooms over random assignment.
 
 \subsection{Simulation 2: Class size}\label{simulation-2-class-size}
+
+\begin{CodeChunk}
+
+\includegraphics{figs/unnamed-chunk-3-1} \end{CodeChunk}
 
 In our second simulation, again a replication of our prior work, we
 explored the effects of adding teachers to the simulated school, leading
@@ -368,12 +378,16 @@ parameters. We observed the predicted pattern (Figure 2), although there
 were diminishing returns. After a certain number of teachers, additional
 customization was not helpful.
 
-** should we simulate how this point of diminishing returns depends on
-school size, since more students means more similar students that can be
-grouped together, or is that not that interesting?**
+\subsection{Simulation 3: Noisy students and
+assessments}\label{simulation-3-noisy-students-and-assessments}
 
-\subsection{Simulation 3: Noisy students and assessments
-(TODO)}\label{simulation-3-noisy-students-and-assessments-todo}
+\begin{CodeChunk}
+
+\includegraphics{figs/unnamed-chunk-4-1} \end{CodeChunk}
+
+\begin{CodeChunk}
+
+\includegraphics{figs/unnamed-chunk-5-1} \end{CodeChunk}
 
 In our third simulation, we relax the assumption that teachers have
 perfect knowledge about students. Instead, we assume that teachers must
@@ -419,10 +433,6 @@ areas.
 \subsection{Simulation 4: Pareto frontier with imposed budget
 constraints
 (TODO)}\label{simulation-4-pareto-frontier-with-imposed-budget-constraints-todo}
-
-\begin{CodeChunk}
-
-\includegraphics{figs/unnamed-chunk-1-1} \end{CodeChunk}
 
 We hypothesized that for a particular budget constraint and fixed costs
 of teachers and assessment, there will be a pareto frontier of possible

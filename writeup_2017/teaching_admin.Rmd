@@ -18,7 +18,7 @@ output: cogsci2016::cogsci_paper
 ---
 
 ```{r global_options, include=FALSE}
-knitr::opts_chunk$set(fig.width=3, fig.height=3, fig.crop = F, fig.pos = "tb", fig.path='figs/', echo=F, warning=F, cache=F, message=F, sanitize = T)
+knitr::opts_chunk$set(fig.width=3, fig.height=3, fig.crop = F, fig.pos = "tb", fig.path='figs/', echo=F, warning=F, cache=TRUE, message=F, sanitize = T)
 ```
 
 ```{r, libraries}
@@ -242,7 +242,7 @@ Worth noting is that student noise introduces uncertainty in two stages of the m
 
 ## Simulation 4: Pareto frontier with imposed budget constraints (TODO)
 
-```{r}
+```{r, eval=FALSE}
 ig <- df %>%
   group_by(teacherMu, numAssessments, numTeachers, simType) %>%
   summarise(IG = mean(IG)) 
@@ -259,19 +259,19 @@ ggplot(filter(ig, numAssessments < 5),
 
 
 ```{r}
-ms <- df %>%
-  mutate(cost = numAssessments * 20 + numTeachers * numExamples * 10) %>%
-  
-  group_by(numTeachers, numAssessments, teacherMu) %>%
-  multi_boot_standard(col = "score_above_baseline")
-
-ggplot(ms, aes(x = numTeachers, y = mean, col = factor(teacherMu))) +
-  geom_line() +
-  geom_linerange(aes(ymin = ci_lower, ymax = ci_upper)) +
-  facet_wrap(~numAssessments) + 
-  ggthemes::theme_few() + 
-  langcog::scale_color_solarized() +
-  theme(legend.position = "bottom")
+# ms <- df %>%
+#   mutate(cost = numAssessments * 20 + numTeachers * numExamples * 10) %>%
+#   
+#   group_by(numTeachers, numAssessments, teacherMu) %>%
+#   multi_boot_standard(col = "score_above_baseline")
+# 
+# ggplot(ms, aes(x = numTeachers, y = mean, col = factor(teacherMu))) +
+#   geom_line() +
+#   geom_linerange(aes(ymin = ci_lower, ymax = ci_upper)) +
+#   facet_wrap(~numAssessments) + 
+#   ggthemes::theme_few() + 
+#   langcog::scale_color_solarized() +
+#   theme(legend.position = "bottom")
 
 
 
