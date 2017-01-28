@@ -1,11 +1,11 @@
 var studentInitialNu = 11;
-var numQuestionsPerAssessment = 3;
-var numTimeSteps = 5;
+var numQuestionsPerAssessment = 1;
+var numTimeSteps = 12;
 //var numAssessments = 2;
 var teacherMus = [.5, .6, .7, .8, .9];
 var teacherNu = 10;
 var numTeachersArray = [1, 2, 3, 5, 10];
-var numAssessmentsArray = [0, 1, 2, 3, 4, 5]
+var numAssessmentsArray = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]
 
 // Generate a sequence of student priorAlphas and priorBetas
 var generateSequence = function(numStudents, min, max){
@@ -260,6 +260,6 @@ var results = mapN(function(trialNum){
 
   return numAssessmentsMapping;
 
-}, 100); // Run 100 trials
+}, 20); // Run 100 trials
 
 multiPluck(_.flatten(results));
