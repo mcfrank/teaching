@@ -123,7 +123,8 @@ In our simulations, we refer to the entire group of students as a "school," brok
 
 ```{r}
 NUM_STUDENTS <- 100
-df <- read_csv("../sims_admin/cached_data/raw_data_012717.csv") 
+df <- read_csv("../sims_admin/cached_data/raw_data_012717.csv") %>%
+  mutate(cost = numAssessments * 20 + numTeachers * numExamples * 10)
 ```
 
 ## Simulation 1: Sorting students by prior beliefs
@@ -257,19 +258,19 @@ ggplot(filter(ig, numAssessments < 5),
 
 
 ```{r}
-ms <- df %>%
-  mutate(cost = numAssessments * 20 + numTeachers * numExamples * 10) %>%
-  
-  group_by(numTeachers, numAssessments, teacherMu) %>%
-  multi_boot_standard(col = "score_above_baseline")
-
-ggplot(ms, aes(x = numTeachers, y = mean, col = factor(teacherMu))) +
-  geom_line() +
-  geom_linerange(aes(ymin = ci_lower, ymax = ci_upper)) +
-  facet_wrap(~numAssessments) + 
-  ggthemes::theme_few() + 
-  langcog::scale_color_solarized() +
-  theme(legend.position = "bottom")
+# ms <- df %>%
+#   filter(teacherMu != .9) %>%
+#   mutate(teacherMu = factor(teacherMu)) %>%
+#   group_by(numTeachers, numAssessments, teacherMu) %>%
+#   multi_boot_standard(col = "score_above_baseline")
+# 
+# ggplot(ms, aes(x = numTeachers, y = mean, col = factor(teacherMu))) +
+#   geom_line() +
+#   geom_linerange(aes(ymin = ci_lower, ymax = ci_upper)) +
+#   facet_wrap(~numAssessments) + 
+#   ggthemes::theme_few() + 
+#   langcog::scale_color_solarized() +
+#   theme(legend.position = "bottom")
 
 
 
