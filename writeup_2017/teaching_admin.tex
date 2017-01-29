@@ -86,11 +86,11 @@ cognition
 \end{abstract}
 
 Education is the process of knowledge transmission from teachers to
-students. A teacher attempts to provide information to students (whether
-facts, skills, generalizations, or another type of knowledge) in a form
-that will be most likely to result in the student learning that
-information. But even when students are motivated to learn, and teachers
-are motivated to teach, information transmission in the classroom is
+students. A teacher attempts to provide information to students --
+whether facts, skills, generalizations, or another type of knowledge --
+in a form that will be most likely to result in the student learning.
+But even when students are motivated to learn, and teachers are
+motivated to teach, information transmission in the classroom is
 imperfect. Classroom teachers must teach to students with different
 abilities and backgrounds, making the perfect lesson for one child less
 accessible to another (the problem of \emph{student variability}).
@@ -99,39 +99,47 @@ students know or how they learn (the problem of \emph{imperfect
 knowledge}).
 
 Educators have a variety of tools to address these problems. If students
-are too diverse in their knowledge, they can be broken into groups by
-ability or even tracked by classroom. And if a teacher has uncertainty
-about what students know, formative assessments can provide information
-about the class's knowledge base. But breaking students up into groups
-or separate classes is resource intensive and can be inefficient -- in
-the limit, it would be impossible to give every single student a
+are too diverse in their knowledge, they can be grouped by ability and
+provided with different lessons (e.g., Slavin, 1987; Tomlinson, 1999).
+And formative assessments -- tests that reveal a student's starting
+state -- can help teachers know what level students start at (L. S.
+Fuchs \& Fuchs, 1986; e.g., Sadler, 1989). But breaking students up into
+groups or separate classes is resource intensive and can be inefficient
+-- in the limit, it would be impossible to give every single student a
 separate tutor, even if it might learn to better learning. And every
-assessment that is given has a cost in terms of lost instructional time.
-When should educators use these tools? The goal of the current paper is
-to provide a formal analysis of these questions.
+assessment has a cost in terms of lost instructional time. When should
+educators use these tools? The goal of the current paper is to provide a
+formal analysis of these questions.
 
 In our previous work, we conceptualized the teacher's task as one of
 optimal communication (Frank, 2014). Following models of pragmatic
-reasoning (e.g., {\textbf{???}}; Frank \& Goodman, 2012), we modeled the
-teacher as reasoning about what evidence would best change student
-beliefs to more closely correspond to a target. Teachers -- with perfect
-knowledge about each of their students -- would try to choose the
-learning example that maximized informatin gain across their students.
-Using this conceptualization, we were able to derive a number of results
-through simulation. For example, we found that individual student
-outcomes were inversely related to class size, since in smaller classes,
-teachers could customize their teaching better to the idiosynrasies of
-their particular student group.
+reasoning in langauge comprehension (Frank \& Goodman, 2012; Goodman \&
+Frank, 2016), we modeled teachers as reasoning about what evidence would
+best change student beliefs to more closely correspond to a target.
+Teachers -- with perfect knowledge about each of their students -- would
+then choose the learning example that maximized information gain across
+their students. Using this conceptualization, we were able to derive a
+number of results through simulation. For example, we found that
+individual student outcomes were inversely related to class size, since
+in smaller classes, teachers could customize their teaching better to
+the idiosynrasies of their particular student group.\footnote{Ability
+  grouping has a complicated history in education (e.g., Slavin, 1990),
+  and we return to motivational issues related to this finding in the
+  General Discussion.}
 
 In that previous work and the current work, the fundamental unit of
 analysis is a teaching game. In each teacher-student dyad, a teacher
 tries to guide the student to discover a particular concept by
-presenting examples. Here we use a very simple concept, the weight of a
-biased coin (i.e., the parameter of a Bernoulli distribution). For this
-concept, examples are individual results from coin flips, which provide
-evidence about the coin's weight. Despite the simplicity of this
-teaching game, when analyzed at the level of multiple students and
-multiple teachers, it reveals many interesting dynamics.
+presenting examples. We use a very simple concept, the weight of a
+biased coin (i.e., the parameter of a Bernoulli distribution, from
+0--1). For this concept, teaching lessons are the results of individual
+coin flips, which provide evidence about the coin's weight. Beliefs can
+then be represented as the parameters of a Beta distribution. For
+example, a student who has a weak belief that a coin is fair (e.g.,
+\(Beta(1,1)\)) can be pursuaded that it is actually biased towards heads
+by seeing the examples \(E = \{H, H, H, H, H\}\). Despite the simplicity
+of this teaching game, when analyzed at the level of multiple students
+and multiple teachers, it reveals many interesting dynamics.
 
 In the current work, we consider issues of student variability and
 imperfect teacher knowlege through the lens of \emph{optimal school
@@ -148,28 +156,26 @@ time and teaching resources. Taken together, this work describes a
 first-principles attempt at a framework for understanding resource
 allocation in classroom education.
 
-\section{Model (TODO)}\label{model-todo}
+\section{Model}\label{model}
 
 In our model, there are three unique types of agents: students,
 teachers, and administrators. Conceptually, a school consists of an
 administrator, at least one teacher, and at least one student. Every
 teacher has at least one student (so there are always at least as many
-teachers as students.
-
-The objective of the model is for the administrator to maximize the
+teachers as students. The objective of the model is to maximize the
 aggregate information gain of all students in the school.
 
 The administrator has a full roster of all students who will be
 attending the school and can choose between various designs or features
-of school operations, each with its own costs. The cost constraints are
-as follows:
+of school operations, each with its own costs. We discuss cost further
+in Simulation 4. The cost constraints are as follows:
 
-The administrator is constrained by a particular budget B.
+The administrator is constrained by a particular budget \(B\).
 
-Hiring each teacher has a fixed cost CT . Each teacher is able to lead
-their own subset of students from the roster, representing a classroom.
-For the sake of simulation, all ad- ditional costs in maintaining an
-additional classroom (prop- erty, utilities, capital equipment, school
+Hiring each teacher has a fixed cost \(C_T\). Each teacher teaches their
+own subset of students from the roster, representing a classroom. For
+the sake of simulation, all additional costs in maintaining an
+additional classroom (property, utilities, capital equipment, school
 supplies, etc.) are considered part of cost CT .
 
 There is a fixed cost of assessment of students CA. Assessments reduce
@@ -184,11 +190,12 @@ The agents' functions are described below.
 
 Each student has a prior belief about the bias of a Bernoulli variable
 whose true bias the teacher is trying to teach. This prior belief is
-represented as a Beta distribution whose α and β parameters are integers
-drawn from a Uniform distribution between 1 and 10 inclusive. Each
-student's prior distribution is generated independently from every other
-student's prior distribution. That is, the student's prior belief is
-represented as a Beta(α,β).
+represented as a Beta distribution whose \(\alpha\) parameter is drawn
+from a Uniform distribution between 1 and 10 inclusive. \(\alpha\) and
+\(\beta\) is set to sum to 11, controlling for the strength of student
+beliefs. That is, the student's prior belief is represented as a
+Beta(\(\alpha\),\(\beta\)). Each student's prior distribution is
+generated independently from every other student's prior distribution.
 
 During the teacher inference phase, a student is able to use a set of
 examples from the teacher with x heads and y tails to update their prior
@@ -202,20 +209,22 @@ represented as \(Beta(\alpha + x, \beta + y)\).
 
 Each teacher is assigned a classroom roster of students on which to
 perform inference. This roster contains information about the students'
-prior beliefs about the learning concept, represented as the α and β
-parameters in a Beta distribution. These parameters can have noise that
-simulates how teachers do not have perfect knowledge of their students'
-beliefs of the learning concept. We test the effect of imperfect teacher
-knowledge about student beliefs on learning rate in Simulation 3.
+prior beliefs about the learning concept, represented as the \(\alpha\)
+and \(\beta\) parameters in a Beta distribution. These parameters can
+have noise that simulates how teachers do not have perfect knowledge of
+their students' beliefs of the learning concept. We test the effect of
+imperfect teacher knowledge about student beliefs on learning rate in
+Simulation 3.
 
 The teacher is also given a target concept to teach to the stu- dents.
 This target concept is the bias of a Bernoulli variable. That is, the
 teacher wants to teach students what p in a dis- tribution Bernoulli(p)
 using only outcomes \{0,1\} from that distribution. The target bias is
 encoded as the mean a Beta distribution to introduce noise in the
-learning concept. The parameters of this target Beta distribution αT and
-βT are selected prior to any presentation of examples to students. This
-target is shared across all teachers in the school system.
+learning concept. The parameters of this target Beta distribution
+\(\alpha\)T and \(\beta\)T are selected prior to any presentation of
+examples to students. This target is shared across all teachers in the
+school system.
 
 During the teacher inference phase, the teacher randomly gen- erates
 sets of examples to reason about teaching to students in their roster.
@@ -273,12 +282,12 @@ target distribution (\(B_T\)) both before and after teaching. The
 difference between these quantities gives the student's information gain
 for a single example \(e\):
 
-\[IG(e) = D_{KL}(B_T ||B_S) − D_{KL}(B_T || B_{S+e})\]
+\[IG(e) = D_{KL}(B_T ||B_S) - D_{KL}(B_T || B_{S+e})\]
 
 We derived a closed form expression for information gain that
 generalizes to any number of examples in an example set \(e\).
-Derivation details can be found at \textbf{LINK}. The final form for
-\(h\) heads and \(t\) tails is:
+Derivation details can be found in our linked repository. The final form
+for \(h\) heads and \(t\) tails is:
 
 \begin{multline}
 IG(E) = \sum_{k=0}^{h+t-1} {log(\alpha_S + \beta_S + k)} - \\
@@ -286,9 +295,9 @@ IG(E) = \sum_{k=0}^{h+t-1} {log(\alpha_S + \beta_S + k)} - \\
 \psi(\alpha_T)h + \psi(\beta_T)t +  \psi(\alpha_T + \beta_T)(h+t).
 \end{multline}
 
-where \(\psi\) represents the digamma function, and \(\alpha_S\),
-\(\beta_S\), \(\alpha_T\), and \(\beta_T\) are student and teacher
-priors respectively.
+\noindent where \(\psi\) represents the digamma function, and
+\(\alpha_S\), \(\beta_S\), \(\alpha_T\), and \(\beta_T\) are student and
+teacher priors respectively.
 
 \subsection{Simulation details}\label{simulation-details}
 
@@ -312,7 +321,12 @@ replicates. All simulations were conducted using the probabilistic
 programming language \texttt{webppl} (Goodman \& Stuhlmüller, n.d.);
 code is available at {[}\url{http://github.com/mcfrank/teaching}{]}.
 
-\subsection{Interpretive caveats}\label{interpretive-caveats}
+\section{Simulations}\label{simulations}
+
+We next present a set of four analyses of simulation data examining the
+effects of factors including grouping students into classess by their
+prior beliefs, changing class sizes, and the use of assessments to help
+teachers tailor their teaching to their specific students.
 
 In our simulations, we refer to the entire group of students as a
 ``school,'' broken into ``classrooms,'' and students are given
@@ -328,16 +342,20 @@ by several pieces of related content within a single class session. Our
 goal is to elucidate general principles that govern the process of
 teaching rather than to claim a correspondence with specific phenomena.
 
-\section{Simulations}\label{simulations}
+\subsection{Simulation 1: Grouping
+students}\label{simulation-1-grouping-students}
 
-\subsection{Simulation 1: Sorting students by prior
-beliefs}\label{simulation-1-sorting-students-by-prior-beliefs}
-
-\begin{CodeChunk}
-\begin{figure}[tb]
-\includegraphics{figs/unnamed-chunk-2-1} \caption[Student information gain when sorted into class- rooms based on prior beliefs over unsorted baseline]{Student information gain when sorted into class- rooms based on prior beliefs over unsorted baseline}\label{fig:unnamed-chunk-2}
-\end{figure}
-\end{CodeChunk}
+\textbackslash{}begin\{CodeChunk\}
+\textbackslash{}begin\{figure\}{[}t{]}
+\includegraphics[width=3.25in,height=2.75in]{figs/sim_grouping-1}
+\textbackslash{}caption{[}Student information gain, plotted by target
+concept and number of teachers in the school{]}\{Student information
+gain, plotted by target concept and number of teachers in the school.
+Information gain represents the gain when students are sorted into
+classrooms based on knowledge compared with an unsorted baseline. Error
+bars show 95\% confidence intervals by non-parametric
+bootstrap.\}\label{fig:sim_grouping} \textbackslash{}end\{figure\}
+\textbackslash{}end\{CodeChunk\}
 
 In our first simulation, we explored the effects of grouping students by
 their prior beliefs, so that teachers can tailor the examples they teach
@@ -354,16 +372,23 @@ Results are shown in Figure 1. Sorted students show greater information
 gain than if the same set of students are distributed into unsorted
 classrooms. This effect is present for all target concepts but is most
 pronounced for less-extreme concepts -- for extreme value concepts
-(e.g., a target of .9, almost all students will benefit from seeing the
-same examples). Thus, an optimal school administrator with perfect
+(e.g., a target of .9), almost all students will benefit from seeing the
+same examples. Thus, an optimal school administrator with perfect
 student knowledge should consistently opt to sort students into
 classrooms over random assignment.
 
 \subsection{Simulation 2: Class size}\label{simulation-2-class-size}
 
-\begin{CodeChunk}
-
-\includegraphics{figs/unnamed-chunk-3-1} \end{CodeChunk}
+\textbackslash{}begin\{CodeChunk\}
+\textbackslash{}begin\{figure\}{[}t{]}
+\includegraphics[width=3.25in,height=2.75in]{figs/sim_class_size-1}
+\textbackslash{}caption{[}Student information gain, plotted by target
+concept and class size{]}\{Student information gain, plotted by target
+concept and class size. Information gain represents the gain when
+students are sorted into classrooms based on knowledge compared with a
+single-classroom baseline. Error bars show 95\% confidence intervals by
+non-parametric bootstrap.\}\label{fig:sim_class_size}
+\textbackslash{}end\{figure\} \textbackslash{}end\{CodeChunk\}
 
 In our second simulation, again a replication of our prior work, we
 explored the effects of adding teachers to the simulated school, leading
@@ -382,25 +407,45 @@ customization was not helpful.
 assessments}\label{simulation-3-noisy-students-and-assessments}
 
 \begin{CodeChunk}
-
-\includegraphics{figs/unnamed-chunk-4-1} \end{CodeChunk}
+\begin{figure*}[t]
+\includegraphics[width=3.25in,height=2.75in]{figs/sim_noisy_students-1} \caption[Information gain plotted by number of assessments (out of 12) for teachers with perfect and uncertain student knowledge]{Information gain plotted by number of assessments (out of 12) for teachers with perfect and uncertain student knowledge. Results shown are for 5 teachers and a target concept of .5.}\label{fig:sim_noisy_students}
+\end{figure*}
+\end{CodeChunk}
 
 \begin{CodeChunk}
+\begin{figure}[t]
+\includegraphics[width=3.25in,height=2.75in]{figs/unnamed-chunk-2-1} \caption[Information gain plotted by number of assessments (out of 12) for teachers with perfect and uncertain student knowledge]{Information gain plotted by number of assessments (out of 12) for teachers with perfect and uncertain student knowledge. Results shown are for 5 teachers and a target concept of .5.}\label{fig:unnamed-chunk-2}
+\end{figure}
+\end{CodeChunk}
 
-\includegraphics{figs/unnamed-chunk-5-1} \end{CodeChunk}
+\textbackslash{}begin\{CodeChunk\}
+\textbackslash{}begin\{figure\}{[}t{]}
+\includegraphics[width=3.25in,height=2.75in]{figs/sim_info_loss-1}
+\textbackslash{}caption{[}Student information loss, plotted by target
+concept and class size{]}\{Student information loss, plotted by target
+concept and class size. Information loss represents loss compared to the
+perfect teacher knowledge condition. Error bars show 95\% confidence
+intervals by non-parametric bootstrap.\}\label{fig:sim_info_loss}
+\textbackslash{}end\{figure\} \textbackslash{}end\{CodeChunk\}
 
 In our third simulation, we relax the assumption that teachers have
-perfect knowledge about students. Instead, we assume that teachers must
-learn about students via the administration of assessments, in which
-students are called upon
+perfect knowledge about students. Instead, we assume that each teacher
+starts with a uniform representation of the students and must learn
+about them via the administration of assessments. In assessments,
+students are called upon to demonstrate their knowledge by sampling from
+their own distribution. These samples then serve to update the teacher's
+estimates of student knowledge, allowing the teacher to customize
+teaching to a particular student group.
 
-We hypothesized that as the number of assessments conducted to measure
-student ability increases, so will learning rate be- cause teachers can
-update their beliefs about student prior beliefs. This allows them to
-more accurately select useful ex- amples to present as they refine their
-model of student beliefs. As with the number of classrooms, we
-hypothesized that there would be diminishing returns of the number of
-assessments on the improvements to learning rate.
+We hypothesized that a small or moderate number of assessments will be
+helpful, outweighing
+
+so will learning rate be- cause teachers can update their beliefs about
+student prior beliefs. This allows them to more accurately select useful
+ex- amples to present as they refine their model of student beliefs. As
+with the number of classrooms, we hypothesized that there would be
+diminishing returns of the number of assessments on the improvements to
+learning rate.
 
 Our baseline for this simulation was the information gain un- der the
 same target bias parameters while using the true student beliefs. In
@@ -613,9 +658,38 @@ teaching games. In \emph{CogSci}.
 Frank, M. C., \& Goodman, N. D. (2012). Predicting pragmatic reasoning
 in language games. \emph{Science}, \emph{336}(6084), 998--998.
 
+\hypertarget{ref-fuchs1986}{}
+Fuchs, L. S., \& Fuchs, D. (1986). Effects of systematic formative
+evaluation: A meta-analysis. \emph{Exceptional Children}.
+
+\hypertarget{ref-goodman2016}{}
+Goodman, N. D., \& Frank, M. C. (2016). Pragmatic language
+interpretation as probabilistic inference. \emph{Trends in Cognitive
+Sciences}, \emph{20}(11), 818--829.
+
 \hypertarget{ref-goodman2017}{}
 Goodman, N. D., \& Stuhlmüller, A. (n.d.). The design and implementation
 of probabilistic programming languages. Retrieved 2017, from
 \url{http://dippl.org}
+
+\hypertarget{ref-sadler1989}{}
+Sadler, D. R. (1989). Formative assessment and the design of
+instructional systems. \emph{Instructional Science}, \emph{18}(2),
+119--144.
+
+\hypertarget{ref-slavin1987}{}
+Slavin, R. E. (1987). Ability grouping and student achievement in
+elementary schools: A best-evidence synthesis. \emph{Review of
+Educational Research}, \emph{57}(3), 293--336.
+
+\hypertarget{ref-slavin1990}{}
+Slavin, R. E. (1990). Achievement effects of ability grouping in
+secondary schools: A best-evidence synthesis. \emph{Review of
+Educational Research}, \emph{60}(3), 471--499.
+
+\hypertarget{ref-tomlinson1999}{}
+Tomlinson, C. A. (1999). \emph{The differentiated classroom: Responding
+to the needs of all learners}. Association for Supervision \& Curriculum
+Development.
 
 \end{document}
