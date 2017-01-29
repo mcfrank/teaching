@@ -59,6 +59,7 @@
 \maketitle
 
 \begin{abstract}
+Education is the transmission of knowledge from teacher to student.
 \textbf{FIXME}: How should a school administrator allocate a fixed
 budget towards increasing the number of classrooms and increasing
 student assessment to best increase student learning? This paper
@@ -158,120 +159,91 @@ allocation in classroom education.
 
 \section{Model}\label{model}
 
-In our model, there are three unique types of agents: students,
-teachers, and administrators. Conceptually, a school consists of an
-administrator, at least one teacher, and at least one student. Every
-teacher has at least one student (so there are always at least as many
-teachers as students. The objective of the model is to maximize the
-aggregate information gain of all students in the school.
+We model three types of agents: \emph{students}, \emph{teachers}, and
+\emph{administrators}. A school consists of an administrator, at least
+one teacher, and at least one student. Every teacher has at least one
+student (so there are always at least as many teachers as students).
+Each agent's functions are described below.
 
-The administrator has a full roster of all students who will be
-attending the school and can choose between various designs or features
-of school operations, each with its own costs. We discuss cost further
-in Simulation 4. The cost constraints are as follows:
+\subsection{Student}\label{student}
 
-The administrator is constrained by a particular budget \(B\).
+Each student is an optimal Bayesian learner of a coin weight, using a
+standard conjugate Beta-Bernoulli model. Students have a prior belief
+about the bias of the coin, represented as \(Beta(\alpha,\beta)\), where
+\(\alpha\) and \(\beta\) are ``pseudo-counts'' (they can be interpreted
+as \(H\)=heads=1 and \(T\)=tails=0 coin flips that the student has
+previously seen). Student beliefs are drawn by sampling
+\(\alpha \sim Unif(1,10)\) and then setting \(\beta = 11 - \alpha\) (so
+that total pseudocounts sum to 11). Students' learning is then modeled
+as updating this distribution by adding observed counts to their priors,
+e.g.~after observing \(x\) heads and \(y\) tails, their updated
+knowledge state is \(Beta(\alpha + x, \beta + y)\). Note that for
+simplicity, student learning is sequence-independent (i.e., seeing
+\(\{H, T, T]\}\) is the same as seeing \(\{T, T, H\}\)).
 
-Hiring each teacher has a fixed cost \(C_T\). Each teacher teaches their
-own subset of students from the roster, representing a classroom. For
-the sake of simulation, all additional costs in maintaining an
-additional classroom (property, utilities, capital equipment, school
-supplies, etc.) are considered part of cost CT .
+\subsection{Teacher}\label{teacher}
 
-There is a fixed cost of assessment of students CA. Assessments reduce
-the noise (improves the precision) of a teacher's beliefs about a
-student's initial level of understand- ing of the learning concept. For
-the sake of simulation, all additional costs of developing, validating,
-and administering assessments are considered part of CA .
+Each teacher has a target concept in mind (i.e., a particular coin
+weight) and is assigned a assigned a classroom of students. The goal of
+the teacher is to provide the set of examples that maximize the
+student's information gain (IG; defined below). This goal is
+accomplished by evaluating the information gain for each student for
+each possible example set and choosing the one that produces the largest
+total information gain for the class.\footnote{A fruitful direction for
+  future work would be to investigate different classroom rules for
+  information gain. For example, a teacher following a remedial policy
+  could try to find the set of examples that maximized the performance
+  of the lowest-performing students or that minimized loss with respect
+  to some threshold.} Since information gain is computed over the
+conjugate posterior representation of student knowledge, choosing an
+action relative to IG constitutes full posterior inference. With only a
+single teaching example, this choice is simply the ratio of the IG for
+\(H\) to the IG for \(T\).
 
-The agents' functions are described below.
+Teachers with \emph{perfect knowledge} infer their choice using the
+exact parameters of student distributions. In contrast, teachers with
+\emph{uncertain knowledge} in our simulations represent students as
+\(Beta(1,1)\) -- weak uniform distributions over possible parameter
+values. They update these representations based on \emph{assessments}.
+Assessments are sampled examples from each student's mean parameter
+estimate, using \(\mu = \frac{\alpha}{\alpha + \beta}\). Teachers
+integrate the samples from these assessments into their distributional
+estimate for each student. For example, if a student was given three
+assessments and produced \(\{H, T, H\}\), the teacher would represent
+that student as \(Beta(2,3)\) and teach accordingly.
 
-\subsection{Student (TODO)}\label{student-todo}
+\subsection{Administrator}\label{administrator}
 
-Each student has a prior belief about the bias of a Bernoulli variable
-whose true bias the teacher is trying to teach. This prior belief is
-represented as a Beta distribution whose \(\alpha\) parameter is drawn
-from a Uniform distribution between 1 and 10 inclusive. \(\alpha\) and
-\(\beta\) is set to sum to 11, controlling for the strength of student
-beliefs. That is, the student's prior belief is represented as a
-Beta(\(\alpha\),\(\beta\)). Each student's prior distribution is
-generated independently from every other student's prior distribution.
+The objective of the administrator is to maximize the information gain
+of all students in the school. Across our simulations, the administrator
+can decide: 1) how many teachers to hire, 2) how many assessments to
+give, and 3) whether to sort students into classrooms by their
+knowledge. We also vary (for purposes of comparison) whether the
+teachers have perfect or uncertain knowledge of the students. The
+administrator weights the various policies that they simu- late based on
+the aggregate information gain of the students in the entire school
+(compared to just each classroom for each teacher's inference), and is
+able to infer the most effective school design within fixed constraints.
 
-During the teacher inference phase, a student is able to use a set of
-examples from the teacher with x heads and y tails to update their prior
-distribution to create a new Beta distribution that represents the
-posterior distribution of their belief about the bias of the coin. This
-posterior distribution is created using the closed-form solution of a
-Beta distribution. That is, the student's posterior belief is
-represented as \(Beta(\alpha + x, \beta + y)\).
+The administrator's main constraint is on assessment: each assessment
+takes the same ``time'' as a teaching example. This constraint
+represents the idea that there is a cost in terms of instruction time
+for getting information about students via assessment. Of course, the
+exact ratio of costs is an arbitrary parameter that we fix at 1 (one
+example from the teacher or one sample from the student) for the sake of
+simplicity. In our final simulation we explore further constraints on
+the administrator, providing a fixed budget \(B\). This budget can be
+used to hire teachers, at a one-time expense \(C_T\). We then assume an
+additional cost of assessments \(C_A\) (over and above their temporal
+tradeoff), corresponding to the costs of implementing a school-wide
+assessment.
 
-\subsection{Teacher (TODO)}\label{teacher-todo}
-
-Each teacher is assigned a classroom roster of students on which to
-perform inference. This roster contains information about the students'
-prior beliefs about the learning concept, represented as the \(\alpha\)
-and \(\beta\) parameters in a Beta distribution. These parameters can
-have noise that simulates how teachers do not have perfect knowledge of
-their students' beliefs of the learning concept. We test the effect of
-imperfect teacher knowledge about student beliefs on learning rate in
-Simulation 3.
-
-The teacher is also given a target concept to teach to the stu- dents.
-This target concept is the bias of a Bernoulli variable. That is, the
-teacher wants to teach students what p in a dis- tribution Bernoulli(p)
-using only outcomes \{0,1\} from that distribution. The target bias is
-encoded as the mean a Beta distribution to introduce noise in the
-learning concept. The parameters of this target Beta distribution
-\(\alpha\)T and \(\beta\)T are selected prior to any presentation of
-examples to students. This target is shared across all teachers in the
-school system.
-
-During the teacher inference phase, the teacher randomly gen- erates
-sets of examples to reason about teaching to students in their roster.
-Using the roster consisting of student prior beliefs, the teacher
-calculates the amount of student learning they believe the students
-would receive using the examples, and weights that set of examples
-proportionally. See the Infor- mation Gain subsection for details on
-information gain. Finally, the teacher reports to the administrator the
-probability distribution of their roster of students receiving a
-particular amount of information gain.
-
-\subsection{Administrator (TODO)}\label{administrator-todo}
-
-The administrator gets a roster of students in the entire school and
-also determines the target concept to teach the students. The
-administrator can sort all of the students by their prior beliefs about
-the learning concept. The real-world analog of this process is the
-conducting of placement tests prior to a school term. This is done with
-the closed-form solution of Beta distributions, where the mean value of
-the distribution is equivalent to
-\[\mu = \frac{\alpha}{\alpha + \beta}\]
-
-We test the effectiveness of sorting students in Simulation 1.
-
-The administrator inference phase involves randomly simulat- ing school
-systems. Simulation involves four parameters: + The administrator can
-choose how to distribute the students into subsets to assign to teachers
-as their classroom rosters. Primarily, this involves deciding whether or
-not to sort students by prior beliefs about the target learning concept.
-(Simulation 1) + The administrator can choose the number of classrooms
-they want to have. This is represented by the number of teachers that
-they hire, and is inversely proportional to class size. (Simulation 2) +
-The administrator can choose how many assessments they want to conduct
-on the students. Increasing the number of assessments reduces the
-noisiness of the teachers' imperfect beliefs about student priors.
-(Simulation 3) + The administrator can choose the target learning
-concept to be taught. In our simulation, it is the parameters of a
-target Beta distribution, which in turn effects a point target of the
-bias of a coin. This random generation of the target is symmetrical
-between {[}0,1{]} across 0.5. This is treated as moderating variable to
-the other parameters' impact on information gain. (All simulations).
-
-The administrator weights the various policies that they simu- late
-based on the aggregate information gain of the students in the entire
-school (compared to just each classroom for each teacher's inference),
-and is able to infer the most effective school design within budget
-constraints.
+In practice, because our results demonstrate near-strict dominance of
+some design choices over others, the administrator's inference is often
+uninteresting and corresponds to the best choice. Thus, in reporting our
+simulations, we report school-wide information gain (the decision-making
+metric for the administrator), often with respect to some meaningful
+baseline.
 
 \subsection{Information gain}\label{information-gain}
 
@@ -304,22 +276,19 @@ teacher priors respectively.
 For simplicity, we adopt a set of parameters unformly across our
 simulations. While changes to thesse parameters will have some impact on
 the effect sizes we recover, to our knowledge all qualitative results
-are general across parameter sets. We simulate using groups of 100
-students. Teachers have a target concept in mind, selected via
-pseudocounts on a Beta distribution such that \(\alpha + \beta = 10\)
-(thus target concepts can be .1, .2, .3, etc. Each student has five
-learning opportunities that can be used for showing a teaching example
-or for assessment in later simulations. Students have randomly selected
-priors with total pseudocounts such that
-\(\alpha + \beta = 11\).\footnote{These pseudocounts are slightly offset from the strength of the teaching concept to avoid edge cases where a student belief distribution perfectly matches the teaching concept.}
-
-In each simulation, we report the total information gain over baseline
-for 100 students given any particular school design. The particular
-baseline differs in each simulation. For each simulation set, we
-generate 100 random sets of students and average across these
-replicates. All simulations were conducted using the probabilistic
-programming language \texttt{webppl} (Goodman \& Stuhlmüller, n.d.);
-code is available at {[}\url{http://github.com/mcfrank/teaching}{]}.
+are general across parameter sets. Teacher target concepts are selected
+via pseudocounts on a Beta distribution such that
+\(\alpha + \beta = 10\) (thus target concepts can be .1, .2, .3,
+etc.).\footnote{These pseudocounts are slightly offset from the strength of the student concepts to avoid edge cases where a student belief distribution perfectly matches the teaching concept.}
+Each student has 12 learning opportunities that can be used for showing
+a teaching example or for assessment in later simulations. In each
+simulation, we report the total information gain over baseline for 100
+students given any particular school design. The particular baseline
+differs in each simulation. For each simulation set, we generate 100
+random sets of students and average across these replicates. All
+simulations were conducted using the probabilistic programming language
+\texttt{webppl} (Goodman \& Stuhlmüller, n.d.); code is available at
+{[}\url{http://github.com/mcfrank/teaching}{]}.
 
 \section{Simulations}\label{simulations}
 
@@ -346,15 +315,15 @@ teaching rather than to claim a correspondence with specific phenomena.
 students}\label{simulation-1-grouping-students}
 
 \textbackslash{}begin\{CodeChunk\}
-\textbackslash{}begin\{figure\}{[}t{]}
-\includegraphics[width=3.25in,height=2.75in]{figs/sim_grouping-1}
+\textbackslash{}begin\{figure\}{[}tb{]}
+\includegraphics[width=3.25in,height=2.6in]{figs/unnamed-chunk-2-1}
 \textbackslash{}caption{[}Student information gain, plotted by target
 concept and number of teachers in the school{]}\{Student information
 gain, plotted by target concept and number of teachers in the school.
 Information gain represents the gain when students are sorted into
 classrooms based on knowledge compared with an unsorted baseline. Error
 bars show 95\% confidence intervals by non-parametric
-bootstrap.\}\label{fig:sim_grouping} \textbackslash{}end\{figure\}
+bootstrap.\}\label{fig:unnamed-chunk-2} \textbackslash{}end\{figure\}
 \textbackslash{}end\{CodeChunk\}
 
 In our first simulation, we explored the effects of grouping students by
@@ -380,8 +349,8 @@ classrooms over random assignment.
 \subsection{Simulation 2: Class size}\label{simulation-2-class-size}
 
 \textbackslash{}begin\{CodeChunk\}
-\textbackslash{}begin\{figure\}{[}t{]}
-\includegraphics[width=3.25in,height=2.75in]{figs/sim_class_size-1}
+\textbackslash{}begin\{figure\}{[}tb{]}
+\includegraphics[width=3.25in,height=2.6in]{figs/sim_class_size-1}
 \textbackslash{}caption{[}Student information gain, plotted by target
 concept and class size{]}\{Student information gain, plotted by target
 concept and class size. Information gain represents the gain when
@@ -407,20 +376,20 @@ customization was not helpful.
 assessments}\label{simulation-3-noisy-students-and-assessments}
 
 \begin{CodeChunk}
-\begin{figure*}[t]
-\includegraphics[width=3.25in,height=2.75in]{figs/sim_noisy_students-1} \caption[Information gain plotted by number of assessments (out of 12) for teachers with perfect and uncertain student knowledge]{Information gain plotted by number of assessments (out of 12) for teachers with perfect and uncertain student knowledge. Results shown are for 5 teachers and a target concept of .5.}\label{fig:sim_noisy_students}
-\end{figure*}
+\begin{figure}[tb]
+\includegraphics[width=3.25in,height=2.6in]{figs/sim_noisy_students-1} \caption[Information gain plotted by number of assessments (out of 12) for teachers with perfect and uncertain student knowledge]{Information gain plotted by number of assessments (out of 12) for teachers with perfect and uncertain student knowledge. Results shown are for 5 teachers and a target concept of .5.}\label{fig:sim_noisy_students}
+\end{figure}
 \end{CodeChunk}
 
 \begin{CodeChunk}
-\begin{figure}[t]
-\includegraphics[width=3.25in,height=2.75in]{figs/unnamed-chunk-2-1} \caption[Information gain plotted by number of assessments (out of 12) for teachers with perfect and uncertain student knowledge]{Information gain plotted by number of assessments (out of 12) for teachers with perfect and uncertain student knowledge. Results shown are for 5 teachers and a target concept of .5.}\label{fig:unnamed-chunk-2}
+\begin{figure}[tb]
+\includegraphics[width=3.25in,height=2.6in]{figs/unnamed-chunk-3-1} \caption[Information gain plotted by number of assessments (out of 12) for teachers with perfect and uncertain student knowledge]{Information gain plotted by number of assessments (out of 12) for teachers with perfect and uncertain student knowledge. Results shown are for 5 teachers and a target concept of .5.}\label{fig:unnamed-chunk-3}
 \end{figure}
 \end{CodeChunk}
 
 \textbackslash{}begin\{CodeChunk\}
-\textbackslash{}begin\{figure\}{[}t{]}
-\includegraphics[width=3.25in,height=2.75in]{figs/sim_info_loss-1}
+\textbackslash{}begin\{figure\}{[}tb{]}
+\includegraphics[width=3.25in,height=2.6in]{figs/sim_info_loss-1}
 \textbackslash{}caption{[}Student information loss, plotted by target
 concept and class size{]}\{Student information loss, plotted by target
 concept and class size. Information loss represents loss compared to the
