@@ -95,8 +95,7 @@ In our simulations, we refer to the entire group of students as a "school," brok
 
 ```{r}
 NUM_STUDENTS <- 100
-df <- read_csv("../sims_admin/cached_data/raw_data_012717.csv") %>%
-  mutate(cost = numAssessments * 20 + numTeachers * numExamples * 10)
+df <- read_csv("../sims_admin/cached_data/raw_data_012717.csv") 
 ```
 
 ## Simulation 1: Grouping students
@@ -268,18 +267,20 @@ We hypothesized that a small or moderate number of assessments will be helpful, 
 
 ```{r}
 ig_by_cost <- df %>%
+  mutate(cost = numAssessments * NUM_STUDENTS * 10 + numTeachers * numExamples * 50) %>%
   mutate(teacherMu = factor(teacherMu)) %>%
   group_by(numTeachers, numAssessments, teacherMu, simType, cost) %>%
-  summarise(IG = mean(IG))
+  summarise(IG = mean(IG)) 
 
 ggplot(filter(ig_by_cost, teacherMu == .5, simType == "sortedUncertainTeachers"),
        aes(x = cost, y = IG, col = factor(numAssessments))) + 
-  # geom_label(aes(label = numAssessments)) + 
   geom_point() + 
   geom_line() + 
-  # facet_grid() + 
-  scale_colour_solarized() + 
-  ggthemes::theme_few()
+  scale_colour_solarized(name = "Number of Assessments") + 
+  ggthemes::theme_few() + 
+  theme(legend.position = "bottom") + 
+  xlab("Cost") + 
+  ylab("Information Gain (nats)")
 ```
 
 We hypothesized that for a particular budget constraint and fixed costs of teachers and assessment, there will be a Pareto frontier of possible allocations of that budget towards teachers and assessments on which there will be an optimal allocation that maximizes student learning. Furthermore, we hypothesized that the individual results about number of teachers number of assessments would hold within levels of the other. This is the unification of all previous simulations into one model that allows us to introduce a real-world constraint of budget.
