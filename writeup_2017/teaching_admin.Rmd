@@ -267,7 +267,7 @@ ggplot(filter(ig, numAssessments < 5),
 # ggplot(ms, aes(x = numTeachers, y = mean, col = factor(teacherMu))) +
 #   geom_line() +
 #   geom_linerange(aes(ymin = ci_lower, ymax = ci_upper)) +
-#   facet_wrap(~numAssessments) + 
+#   facet_wrap(~numAssessments) + x
 #   ggthemes::theme_few() + 
 #   langcog::scale_color_solarized() +
 #   theme(legend.position = "bottom")
