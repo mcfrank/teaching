@@ -36,7 +36,7 @@ library(langcog) #requires devtools::install_github("langcog/langcog")
 
 Teaching is the process of knowledge transmission from teachers to students. A teacher attempts to provide information to students -- whether facts, skills, generalizations, or another type of knowledge -- in a form that will be most likely to result in the student learning. But even when students are motivated to learn, and teachers are motivated to teach, information transmission in the classroom is imperfect. Classroom teachers must teach to students with different abilities and backgrounds, making the perfect lesson for one child less accessible to another (the problem of *student variability*). Adding to this issue, teachers don't have perfect knowledge of what students know or how they learn (the problem of *imperfect knowledge*). 
 
-Educators have a variety of tools to address these problems. If students are too diverse in their knowledge, they can be grouped by ability and provided with different lessons [e.g., @slavin1987;@tomlinson1999]. And formative assessments -- tests that reveal a student's starting state -- can help teachers know what level students start at [e.g., @sadler1989;@fuchs1986]. But breaking students up into groups or separate classes is resource intensive and can be inefficient -- in the limit, it would be impossible to give every single student a separate tutor, even if it might learn to better learning. And every assessment has a cost in terms of lost instructional time. When should educators use these tools? The goal of the current paper is to provide a formal analysis of these questions. 
+Educators have a variety of strategies to address these problems. If students are too diverse in their knowledge, they can be grouped by ability and provided with different lessons [e.g., @slavin1987;@tomlinson1999]. And formative assessments -- tests that reveal a student's starting state -- can help teachers know what level students start at [e.g., @sadler1989;@fuchs1986]. But breaking students up into groups or separate classes is resource intensive and can be inefficient -- in the limit, it would be impossible to give every single student a separate tutor, even if it might learn to better learning. And every assessment has a cost in terms of lost instructional time. When should educators use these tools? The goal of the current paper is to provide a formal analysis of these questions. We refer to this process as the process of "optimal school administration."
 
 In our previous work, we conceptualized the teacher's task as one of optimal communication [@frank2014]. Following models of pragmatic reasoning in langauge comprehension [@goodman2016;@frank2012], we modeled teachers as reasoning about what evidence would best change student beliefs to more closely correspond to a target. Teachers -- with perfect knowledge about each of their students -- would then choose the learning example that maximized information gain across their students. Using this conceptualization, we were able to derive a number of results through simulation. For example, we found that individual student outcomes were inversely related to class size, since in smaller classes, teachers could customize their teaching better to the idiosynrasies of their particular student group.^[Ability grouping has a complicated history in education [e.g., @slavin1990], and we return to  motivational issues related to this finding in the General Discussion.]
 
@@ -58,20 +58,26 @@ Each student is an optimal Bayesian learner, using a standard conjugate Beta-Ber
 
 Each teacher is assigned a classroom of students and a target concept (i.e., a particular coin weight) to teach. The goal of the teacher is to provide the set of examples that maximize the student's information gain (IG; defined below). This goal is accomplished by evaluating the information gain for each student for each possible example set and choosing the one that produces the largest total information gain for the class.^[A fruitful direction for future work would be to investigate different classroom rules for information gain. For example, a teacher following a remedial policy could try to find the set of examples that maximized the performance of the lowest-performing students or that minimized loss with respect to some threshold.] Since information gain is computed over the conjugate posterior representation of student knowledge, choosing an action relative to IG constitutes full posterior inference. With only a single teaching example, this choice is simply the ratio of the IG for $H$ to the IG for $T$. 
 
-**TODO: change here if simulation numbering changes**
+<!-- **TODO: change here if simulation numbering changes** -->
 In Simulations 1 and 2, teachers have *perfect knowledge* of student beliefs. Teachers with perfect knowledge infer their choice of examples using the exact parameters of student distributions. In contrast, the teachers in the remaining simulations have *uncertain knowledge*. Teachers with uncertain knowledge initially represent students as having beliefs in the form of $Beta(1,1)$ -- weak uniform distributions over possible parameter values. They update these representations based on *assessments*. Assessments are sampled examples from each student's mean parameter estimate, using $\mu = \frac{\alpha}{\alpha + \beta}$. Teachers integrate the samples from these assessments into their distributional estimate for each student. For example, if a student was given three assessments and produced $\{H, T, H\}$, the teacher would represent that student as $Beta(1+2,1+1) = Beta(3,2)$ and choose examples to accordingly.
 
 ## Administrator 
 
 The objective of the administrator is to maximize the information gain of all students in the school. Across our simulations, the administrator can decide: 1) how many teachers to hire, 2) how many assessments to give, and 3) whether to sort students into classrooms by their knowledge. We also vary (for purposes of comparison) whether the teachers have perfect or uncertain knowledge of the students. The administrator weights the various policies that they simulate based on the aggregate information gain of the students in the entire school (compared to just each classroom for each teacher's inference), and is able to infer the most effective school design within fixed constraints.
 
+In practice, because our results demonstrate near-strict dominance of some design choices over others, the administrator's inference is often uninteresting and corresponds to the best choice. Thus, in reporting our simulations, we report school-wide information gain (the decision-making metric for the administrator), often with respect to some meaningful baseline.
+
+### Knowledge about students
+
+As in the case of teachers, in Simulations 1 and 2, administrators also have perfect knowledge of their students. In contrast, in Simulations 3 and 4, administrators sort students based on the results of their assessmetns.  This noisy sorting may produce sorting errors, since students who produce similar responses in the assessment phase (a stochastic sampling process) would be grouped into the same classroom even if there were students with more similar prior beliefs.
+
+### Assessment
+
 The administrator's main constraint is on assessment: each assessment takes the same "time" as a teaching example. This constraint represents the idea that there is a cost in terms of instruction time for getting information about students via assessment. Of course, the exact ratio of costs is an arbitrary parameter that we fix at 1 (each *time step* permits either one example taught by the teacher or one assessment sample from the student) for the sake of simplicity.
 
+### Cost
+
 In our final simulation we explore further constraints on the administrator, providing a fixed budget $B$. This budget can be used to hire teachers, at a one-time expense $C_T$. We then assume an additional cost of assessments $C_A$ (over and above their temporal tradeoff), corresponding to the costs of implementing a school-wide assessment.
-
-In the process of sorting students, administrators also have either perfect or imperfect knowledge corresponding to the same simulations for which teachers do or do not have perfect knowledge, respectively, i.e. implying that the school administrator and teachers share information they have on their students freely. Administrators with *perfect knowledge* are able to sort students into classrooms based on the true prior beliefs, preventing missorting. Administrators with *imperfect knowledge* sort students based on the speculated student belief following the assessments, regardless of their true prior beliefs. This noisy sorting may produce sorting errors, since students who produce similar responses in the assessment phase (a stochastic sampling process) would be grouped into the same classroom even if there were students with more similar prior beliefs.
-
-In practice, because our results demonstrate near-strict dominance of some design choices over others, the administrator's inference is often uninteresting and corresponds to the best choice. Thus, in reporting our simulations, we report school-wide information gain (the decision-making metric for the administrator), often with respect to some meaningful baseline.
 
 ## Information gain
 
@@ -291,20 +297,41 @@ Indeed, we found a quadratic shape in the relationship between number of assessm
 
 ```{r}
 ig_by_cost <- df %>%
-  mutate(cost = numAssessments * NUM_STUDENTS * 10 + numTeachers * numExamples * 20) %>%
+  mutate(cost = numAssessments * 50 + numTeachers * 50) %>%
   mutate(teacherMu = factor(teacherMu)) %>%
   group_by(numTeachers, numAssessments, teacherMu, simType, cost) %>%
-  summarise(IG = mean(IG)) 
+  summarise(IG = mean(IG/numExamples)) 
 
 ggplot(filter(ig_by_cost, teacherMu == .5, simType == "sortedUncertainTeachers"),
-       aes(x = cost, y = IG, col = factor(numAssessments))) + 
-  geom_point() + 
+       aes(x = cost, y = IG, col = factor(numTeachers))) + 
+  geom_text(aes(label = numAssessments)) + 
   geom_line() + 
-  scale_colour_solarized(name = "Number of Assessments") + 
+  # facet_wrap(~simType)+ 
+  scale_colour_solarized(name = "Number of Teachers") + 
   ggthemes::theme_few() + 
   theme(legend.position = "bottom") + 
   xlab("Cost") + 
-  ylab("Information Gain (nats)")
+  ylab("Information Gain Per Example (nats)")
+```
+
+```{r, eval = FALSE}
+df_old <- read_csv("../sims_admin/cached_data/raw_data.csv") 
+
+ms <- df_old %>%
+  select(-X1) %>%
+  filter(sorted == "unsorted") %>%
+  mutate(teacherMu = factor(teacherMu),
+         cost = numAssessments * 50 + numTeachers * numExamples * 20) %>%
+  group_by(numTeachers, numAssessments, teacherMu, cost) %>%
+  summarise(IG = mean(IG)) 
+
+ggplot(ms, aes(x = cost, y = IG, col = factor(numAssessments))) +
+  geom_line() +
+  geom_point() + 
+  facet_wrap(~teacherMu) + 
+  ggthemes::theme_few() +
+  langcog::scale_color_solarized() +
+  theme(legend.position = "bottom")
 ```
 
 We hypothesized that for a particular budget constraint and fixed costs of teachers and assessment, there will be a Pareto frontier of possible allocations of that budget towards teachers and assessments on which there will be an optimal allocation that maximizes student learning. Furthermore, we hypothesized that the individual results about number of teachers number of assessments would hold within levels of the other. This is the unification of all previous simulations into one model that allows us to introduce a real-world constraint of budget.
