@@ -168,49 +168,54 @@ Each agent's functions are described below.
 \subsection{Student}\label{student}
 
 Each student is an optimal Bayesian learner of a coin weight, using a
-standard conjugate Beta-Bernoulli model. Students have a prior belief
-about the bias of the coin, represented as \(Beta(\alpha,\beta)\), where
-\(\alpha\) and \(\beta\) are ``pseudo-counts'' (they can be interpreted
-as \(H\)=heads=1 and \(T\)=tails=0 coin flips that the student has
-previously seen). Student beliefs are drawn by sampling
-\(\alpha \sim Unif(1,10)\) and then setting \(\beta = 11 - \alpha\) (so
-that total pseudocounts sum to 11). Students' learning is then modeled
-as updating this distribution by adding observed counts to their priors,
-e.g.~after observing \(x\) heads and \(y\) tails, their updated
-knowledge state is \(Beta(\alpha + x, \beta + y)\). Note that for
-simplicity, student learning is sequence-independent (i.e., seeing
-\(\{H, T, T]\}\) is the same as seeing \(\{T, T, H\}\)).
+standard conjugate Beta-Bernoulli model. Students have a \emph{prior
+belief} about the bias of the coin, represented as
+\(Beta(\alpha,\beta)\), where \(\alpha\) and \(\beta\) are
+``pseudo-counts'' (they can be interpreted as \(H\)=heads=1 and
+\(T\)=tails=0 coin flips that the student has previously seen). Student
+beliefs are drawn by sampling \(\alpha \sim Unif(1,10)\) and then
+setting \(\beta = 11 - \alpha\) (so that total pseudocounts sum to 11).
+Students' learning is then modeled as updating this distribution by
+adding observed counts to their priors, e.g.~after observing \(x\) heads
+and \(y\) tails, their updated knowledge state is
+\(Beta(\alpha + x, \beta + y)\). Note that for simplicity, student
+learning is sequence-independent (i.e., seeing \(\{H, T, T\}\) is the
+same as seeing \(\{T, T, H\}\)).
 
 \subsection{Teacher}\label{teacher}
 
-Each teacher has a target concept in mind (i.e., a particular coin
-weight) and is assigned a assigned a classroom of students. The goal of
-the teacher is to provide the set of examples that maximize the
-student's information gain (IG; defined below). This goal is
-accomplished by evaluating the information gain for each student for
-each possible example set and choosing the one that produces the largest
-total information gain for the class.\footnote{A fruitful direction for
-  future work would be to investigate different classroom rules for
-  information gain. For example, a teacher following a remedial policy
-  could try to find the set of examples that maximized the performance
-  of the lowest-performing students or that minimized loss with respect
-  to some threshold.} Since information gain is computed over the
-conjugate posterior representation of student knowledge, choosing an
-action relative to IG constitutes full posterior inference. With only a
-single teaching example, this choice is simply the ratio of the IG for
-\(H\) to the IG for \(T\).
+Each teacher is assigned a classroom of students and a target concept
+(i.e., a particular coin weight) to teach. The goal of the teacher is to
+provide the set of examples that maximize the student's information gain
+(IG; defined below). This goal is accomplished by evaluating the
+information gain for each student for each possible example set and
+choosing the one that produces the largest total information gain for
+the class.\footnote{A fruitful direction for future work would be to
+  investigate different classroom rules for information gain. For
+  example, a teacher following a remedial policy could try to find the
+  set of examples that maximized the performance of the
+  lowest-performing students or that minimized loss with respect to some
+  threshold.} Since information gain is computed over the conjugate
+posterior representation of student knowledge, choosing an action
+relative to IG constitutes full posterior inference. With only a single
+teaching example, this choice is simply the ratio of the IG for \(H\) to
+the IG for \(T\).
 
-Teachers with \emph{perfect knowledge} infer their choice using the
-exact parameters of student distributions. In contrast, teachers with
-\emph{uncertain knowledge} in our simulations represent students as
-\(Beta(1,1)\) -- weak uniform distributions over possible parameter
-values. They update these representations based on \emph{assessments}.
-Assessments are sampled examples from each student's mean parameter
-estimate, using \(\mu = \frac{\alpha}{\alpha + \beta}\). Teachers
-integrate the samples from these assessments into their distributional
-estimate for each student. For example, if a student was given three
-assessments and produced \(\{H, T, H\}\), the teacher would represent
-that student as \(Beta(2,3)\) and teach accordingly.
+\textbf{TODO: change here if simulation numbering changes} In
+Simulations 1 and 2, teachers have \emph{perfect knowledge} of student
+beliefs. Teachers with perfect knowledge infer their choice of examples
+using the exact parameters of student distributions. In contrast, the
+teachers in the remaining simulations have \emph{uncertain knowledge}.
+Teachers with uncertain knowledge initially represent students as having
+beliefs in the form of \(Beta(1,1)\) -- weak uniform distributions over
+possible parameter values. They update these representations based on
+\emph{assessments}. Assessments are sampled examples from each student's
+mean parameter estimate, using \(\mu = \frac{\alpha}{\alpha + \beta}\).
+Teachers integrate the samples from these assessments into their
+distributional estimate for each student. For example, if a student was
+given three assessments and produced \(\{H, T, H\}\), the teacher would
+represent that student as \(Beta(1+2,1+1) = Beta(3,2)\) and choose
+examples to accordingly.
 
 \subsection{Administrator}\label{administrator}
 
@@ -220,7 +225,7 @@ can decide: 1) how many teachers to hire, 2) how many assessments to
 give, and 3) whether to sort students into classrooms by their
 knowledge. We also vary (for purposes of comparison) whether the
 teachers have perfect or uncertain knowledge of the students. The
-administrator weights the various policies that they simu- late based on
+administrator weights the various policies that they simulate based on
 the aggregate information gain of the students in the entire school
 (compared to just each classroom for each teacher's inference), and is
 able to infer the most effective school design within fixed constraints.
@@ -229,14 +234,30 @@ The administrator's main constraint is on assessment: each assessment
 takes the same ``time'' as a teaching example. This constraint
 represents the idea that there is a cost in terms of instruction time
 for getting information about students via assessment. Of course, the
-exact ratio of costs is an arbitrary parameter that we fix at 1 (one
-example from the teacher or one sample from the student) for the sake of
-simplicity. In our final simulation we explore further constraints on
-the administrator, providing a fixed budget \(B\). This budget can be
-used to hire teachers, at a one-time expense \(C_T\). We then assume an
+exact ratio of costs is an arbitrary parameter that we fix at 1 (each
+\emph{time step} permits either one example taught by the teacher or one
+assessment sample from the student) for the sake of simplicity.
+
+In our final simulation we explore further constraints on the
+administrator, providing a fixed budget \(B\). This budget can be used
+to hire teachers, at a one-time expense \(C_T\). We then assume an
 additional cost of assessments \(C_A\) (over and above their temporal
 tradeoff), corresponding to the costs of implementing a school-wide
 assessment.
+
+In the process of sorting students, administrators also have either
+perfect or imperfect knowledge corresponding to the same simulations for
+which teachers do or do not have perfect knowledge, respectively,
+i.e.~implying that the school administrator and teachers share
+information they have on their students freely. Administrators with
+\emph{perfect knowledge} are able to sort students into classrooms based
+on the true prior beliefs, preventing missorting. Administrators with
+\emph{imperfect knowledge} sort students based on the speculated student
+belief following the assessments, regardless of their true prior
+beliefs. This noisy sorting may produce sorting errors, since students
+who produce similar responses in the assessment phase (a stochastic
+sampling process) would be grouped into the same classroom even if there
+were students with more similar prior beliefs.
 
 In practice, because our results demonstrate near-strict dominance of
 some design choices over others, the administrator's inference is often
@@ -273,21 +294,26 @@ teacher priors respectively.
 
 \subsection{Simulation details}\label{simulation-details}
 
-For simplicity, we adopt a set of parameters unformly across our
-simulations. While changes to thesse parameters will have some impact on
+For simplicity, we adopt a set of parameters uniformly across our
+simulations. While changes to these parameters will have some impact on
 the effect sizes we recover, to our knowledge all qualitative results
 are general across parameter sets. Teacher target concepts are selected
 via pseudocounts on a Beta distribution such that
 \(\alpha + \beta = 10\) (thus target concepts can be .1, .2, .3,
-etc.).\footnote{These pseudocounts are slightly offset from the strength of the student concepts to avoid edge cases where a student belief distribution perfectly matches the teaching concept.}
-Each student has 12 learning opportunities that can be used for showing
-a teaching example or for assessment in later simulations. In each
-simulation, we report the total information gain over baseline for 100
-students given any particular school design. The particular baseline
-differs in each simulation. For each simulation set, we generate 100
-random sets of students and average across these replicates. All
-simulations were conducted using the probabilistic programming language
-\texttt{webppl} (Goodman \& Stuhlmüller, n.d.); code is available at
+etc.).\footnote{These pseudocounts are slightly offset from the pseudocount of the prior student belief distributions, 11, to avoid edge cases where a student belief distribution perfectly matches the teaching concept.}
+Each student has 12 learning opportunities (also referred to in this
+paper as \emph{time steps}) that can be used for showing a teaching
+example or for assessment in later simulations.
+
+In each simulation, we report the total information gain over baseline
+for 100 students given any particular school design. The particular
+design parameters (number of teachers, number of assessments, teaching
+concept, perfect vs.~imperfect teacher knowledge, and sorting) and
+baseline configuration differs in each simulation. Each simulation is
+tested on 100 random sets (\emph{trial}s) of 100 students and
+performance is averaged across these trials. All simulations were
+conducted using the probabilistic programming language \texttt{webppl}
+(Goodman \& Stuhlmüller, n.d.); code is available at
 {[}\url{http://github.com/mcfrank/teaching}{]}.
 
 \section{Simulations}\label{simulations}
@@ -309,7 +335,8 @@ either multi-item tests and then several days of instruction or -- again
 at a more micro scale -- a single question posed to the class followed
 by several pieces of related content within a single class session. Our
 goal is to elucidate general principles that govern the process of
-teaching rather than to claim a correspondence with specific phenomena.
+teaching rather than to claim a correspondence with specific phenomena
+or teaching methodology.
 
 \subsection{Simulation 1: Grouping
 students}\label{simulation-1-grouping-students}
@@ -327,24 +354,27 @@ bootstrap.\}\label{fig:unnamed-chunk-2} \textbackslash{}end\{figure\}
 \textbackslash{}end\{CodeChunk\}
 
 In our first simulation, we explored the effects of grouping students by
-their prior beliefs, so that teachers can tailor the examples they teach
-to that particular group. This simulation is a replication of results
-reported in Frank (2014) using the multi-classroom model developed here.
-We hypothesized that sorting students by prior beliefs would increase
-information gain compared to random classroom assignment. Our baseline
-for this simulation was the unsorted information gain under the same
-parameters. For instance, the sorted aggregate IG of a school with 5
-teachers and a target bias of .6 is compared to the unsorted aggregate
-IG for a school with the same parameters.
+their \emph{true prior beliefs} (admins with perfect knowledge), so that
+teachers can tailor the examples they teach to that particular group.
+This simulation is a replication of results reported in Frank (2014)
+using the multi-classroom model developed here. We hypothesized that
+sorting students by their true beliefs would increase information gain
+compared to random classroom assignment. Our baseline for this
+simulation was the unsorted information gain under the same parameters.
+For instance, the sorted aggregate IG of a school with 5 teachers and a
+target bias of .6 is compared to the unsorted aggregate IG for a school
+with 5 teachers and a target bias of .6 using the same school of
+students.
 
 Results are shown in Figure 1. Sorted students show greater information
 gain than if the same set of students are distributed into unsorted
 classrooms. This effect is present for all target concepts but is most
 pronounced for less-extreme concepts -- for extreme value concepts
 (e.g., a target of .9), almost all students will benefit from seeing the
-same examples. Thus, an optimal school administrator with perfect
-student knowledge should consistently opt to sort students into
-classrooms over random assignment.
+same examples anyway, rendering sorting irrelevant. Thus, an optimal
+school administrator with perfect student knowledge should consistently
+opt to sort students into classrooms by their prior beliefs over random
+assignment.
 
 \subsection{Simulation 2: Class size}\label{simulation-2-class-size}
 
@@ -364,13 +394,13 @@ explored the effects of adding teachers to the simulated school, leading
 to lower class sizes. We hypothesized that increasing the number of
 teachers would strictly improve student learning rate (again assuming
 perfect knowledge about students): more teachers in a school means that
-students are in smaller classes and hence receive better calibrated sets
-of examples from the teacher that appropriately helps them calibrate
+students are in smaller classes and hence receive better customized sets
+of examples from the teacher that appropriately helps students calibrate
 their prior beliefs towards the target concept. Our baseline for this
-simulation was the unsorted information gain under the same target bias
+simulation was the sorted information gain under the same target bias
 parameters. We observed the predicted pattern (Figure 2), although there
 were diminishing returns. After a certain number of teachers, additional
-customization was not helpful.
+lesson customization becomes less helpful.
 
 \subsection{Simulation 3: Noisy students and
 assessments}\label{simulation-3-noisy-students-and-assessments}
@@ -383,7 +413,10 @@ assessments}\label{simulation-3-noisy-students-and-assessments}
 
 \begin{CodeChunk}
 \begin{figure}[t]
-\includegraphics[width=3.25in,height=2.6in]{figs/unnamed-chunk-3-1} \caption[Information gain plotted by number of assessments (out of 12) for teachers with perfect and uncertain student knowledge]{Information gain plotted by number of assessments (out of 12) for teachers with perfect and uncertain student knowledge. Results shown are for 5 teachers and a target concept of .5.}\label{fig:unnamed-chunk-3}
+\includegraphics[width=3.25in,height=2.6in]{figs/unnamed-chunk-3-1} \caption[Information gain plotted by number of assessments (out of 12) for teachers with perfect and uncertain student knowledge]{Information gain plotted by number of assessments (out of 12) for teachers with perfect and uncertain student knowledge. Results shown are for 5 teachers and a target concept of .5.}\label{fig:unnamed-chunk-31}
+\end{figure}
+\begin{figure}[t]
+\includegraphics[width=3.25in,height=2.6in]{figs/unnamed-chunk-3-2} \caption[Information gain plotted by number of assessments (out of 12) for teachers with perfect and uncertain student knowledge]{Information gain plotted by number of assessments (out of 12) for teachers with perfect and uncertain student knowledge. Results shown are for 5 teachers and a target concept of .5.}\label{fig:unnamed-chunk-32}
 \end{figure}
 \end{CodeChunk}
 
@@ -398,13 +431,53 @@ intervals by non-parametric bootstrap.\}\label{fig:sim_info_loss}
 \textbackslash{}end\{figure\} \textbackslash{}end\{CodeChunk\}
 
 In our third simulation, we relax the assumption that teachers have
-perfect knowledge about students. Instead, we assume that each teacher
-starts with a uniform representation of the students and must learn
-about them via the administration of assessments. In assessments,
-students are called upon to demonstrate their knowledge by sampling from
-their own distribution. These samples then serve to update the teacher's
-estimates of student knowledge, allowing the teacher to customize
-teaching to a particular student group.
+perfect knowledge about students. Instead, we assume that the school
+faculty starts with a naive uniform representation of the students and
+must learn about them via the administration of assessments. In
+assessments, students are called upon to demonstrate their knowledge by
+sampling from their own distribution. These samples then serve to update
+the faculty's estimates of student knowledge. The admin uses these
+estimates to sort students into classrooms, and teachers use these
+estimates to customize the set of teaching lessons to a particular
+student group.
+
+In the simulation, the students have a limited number of learning
+opportunities. We found that increasing aggregate IG converges quick
+after 10 time steps (noticeable in Figure 5), so we report results with
+an arbitrarily chosen 12 time steps. Each assessment or lesson takes 1
+time step, and all assessments come before all lessons.
+
+We hypothesized that the noisy students will produce less information
+gain than if the faculty had perfect knowledge of student beliefs. We
+suspect the school design will differ from the optimal configurations at
+two stages: the sorting stage (classrooms will not have maximal
+homogeneity), and the teaching stage (the examples selected by any given
+teacher will not maximize IG for the students assigned to their class).
+Nevertheless, we still believe the improvements to IG by increasing the
+number of teachers and reducing class sizes would persist for noisy
+students.
+
+We further hypothesized that the optimal use of the allotted time steps
+would involve a small or moderate number of assessments and a moderate
+to large number of lessons. We thought that a few assessments would get
+the estimated beliefs about student knowledge close enough to the
+students' true beliefs to minimize sorting errors, leaving teachers with
+enough time to teach lessons to move the students' actual beliefs
+towards the target concept. Too many assessments would reduce the amount
+of time teachers have to teach regardless of how precise their estimates
+of student knowledge are; too few assessments would prevent teachers
+from selecting helpful examples in their lessons.
+
+Indeed, we found a quadratic shape in the relationship between number of
+assessments and aggregate IG. Assessing students helps improve learning
+rate by giving teachers better estimates of their beliefs, but they
+still need time to subsequently teach towards the target concept.
+Additionally, like previous simulations, this effect was most pronounced
+in moderate target concepts. These results make intuitive sense.
+Teaching concepts where there may be greater variance in student
+knowledge relative to each other (e.g.~teaching concepts of .5) demand
+more customization in lesson plans with students exhibiting different
+levels of mastery.
 
 We hypothesized that a small or moderate number of assessments will be
 helpful, outweighing
@@ -415,7 +488,7 @@ constraints
 
 \begin{CodeChunk}
 
-\includegraphics[width=3.25in,height=2.6in]{figs/unnamed-chunk-5-1} \end{CodeChunk}
+\includegraphics[width=3.25in,height=2.6in]{figs/unnamed-chunk-6-1} \end{CodeChunk}
 
 We hypothesized that for a particular budget constraint and fixed costs
 of teachers and assessment, there will be a Pareto frontier of possible
