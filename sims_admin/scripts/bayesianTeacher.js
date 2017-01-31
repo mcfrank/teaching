@@ -1,8 +1,8 @@
-var studentInitialNu = 11;
+var studentInitialNu = 5;
 var numQuestionsPerAssessment = 1;  
 var numTimeSteps = 12;
 //var numAssessments = 2;
-var teacherMus = [.5, .6, .7, .8, .9];
+var teacherMus = [.5];//, .6, .7, .8, .9];
 var teacherNu = 10;
 var numTeachersArray = [1, 2, 3, 5, 10];
 var numAssessmentsArray = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]
@@ -10,7 +10,7 @@ var numAssessmentsArray = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]
 // Generate a sequence of student priorAlphas and priorBetas
 var generateSequence = function(numStudents, min, max){
   
-  return repeat(numStudents, function(){uniformDraw(_.range(1,10))});
+  return repeat(numStudents, function(){uniformDraw(_.range(min, max))});
 }
 
 // Returns numStudents students with true and guessed Alpha and Betas
@@ -28,6 +28,7 @@ var generateStudentsArray = function(numStudents){
 
   //Generate array of students
   var students = map2(function(priorAlpha, priorBeta){
+    //console.log("pA:" + priorAlpha + " | pB: " + priorBeta);
     return {priorAlpha: priorAlpha, priorBeta: priorBeta, guessAlpha: guessAlpha, guessBeta: guessBeta}
   }, priorAlphas, priorBetas);
   
@@ -48,10 +49,15 @@ var assess = function(students, numAssessments){
 			));
 
     //Smoothing, in case of extremes
-    //var answers = Math.min(Math.max(answers, 1), numQuestionsToAsk - 1);
+    
+    // var guessAlpha = answers + 1;
+    //var guessBeta = numQuestionsToAsk - answers + 1;
+
+    var guessAlpha = ((answers*1.0 + 1)/(numQuestionsToAsk+2)) * studentInitialNu;
+    var guessBeta = ((numQuestionsToAsk - answers * 1.0 + 1)/(numQuestionsToAsk+2)) * studentInitialNu;
 
 		//Seed admin beliefs about student
-		return {priorAlpha: student.priorAlpha, priorBeta: student.priorBeta, guessAlpha: answers + 1, guessBeta: numQuestionsToAsk - answers + 1};
+		return {priorAlpha: student.priorAlpha, priorBeta: student.priorBeta, guessAlpha: guessAlpha, guessBeta: guessBeta};
 
 	}, students);
 
@@ -238,10 +244,10 @@ var results = mapN(function(trialNum){
         var sortedIG = sum(getAdminIG(sortedStudents, numTeachers, targetParams, numExamples));
 
         // Unsorted, examples chosen with true beliefs
-        var trueUnsortedIG = Math.sum(getTrueAdminIG(studentsArray, numTeachers, targetParams, numExamples));
+        var trueUnsortedIG = sum(getTrueAdminIG(studentsArray, numTeachers, targetParams, numExamples));
 
         // Sorted on true student beliefs, examples chosen with true beliefs
-        var trueSortedIG = Math.sum(getTrueAdminIG(trueSortedStudents, numTeachers, targetParams, numExamples));
+        var trueSortedIG = sum(getTrueAdminIG(trueSortedStudents, numTeachers, targetParams, numExamples));
 
         return [{trialNum: trialNum, numTeachers: numTeachers, numAssessments: numAssessments, numExamples: numExamples, teacherMu: mu, simType: "unsortedUncertainTeachers", IG: unsortedIG},
         {trialNum: trialNum, numTeachers: numTeachers, numAssessments: numAssessments, numExamples: numExamples, teacherMu: mu, simType: "sortedUncertainTeachers", IG: sortedIG},
