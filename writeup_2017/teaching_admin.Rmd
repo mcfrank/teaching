@@ -328,7 +328,7 @@ A novel finding that emerged not described in existing educa- tion literature is
 
 # Discussion (TODO)
 
-Overall, we were able to replicate many real-world findings from education literature. We found the sorting students into ability level classrooms, increasing assessment, and decreasing class size all increase information gain.
+Overall, we were able to replicate many real-world findings from education literature. We found that sorting students into ability level classrooms, increasing assessment, and decreasing class size all increase information gain.
 
 One of the more interesting findings was the influence of the target bias on the effects we were finding. Based on our results, target bias significantly moderates each of the effects we found. When teaching an extremely difficult (or easy, given symmetry) learning concept such that all student prior beliefs are on one side of the concept, the payoffs to information gain that sorting, class sizes, and assessment have diminish because regardless of the level of noise, teachers have relative certainty about the students' relative level of understanding. Similarly, target biases that are very close to central (around 0.5) have a lot to gain from diminishing noise in the system.
 

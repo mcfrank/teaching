@@ -232,10 +232,10 @@ var results = mapN(function(trialNum){
       var numTeachersMapping = map(function(numTeachers){
 
         // No sorting, examples chosen with guessed beliefs
-        var unsortedIG = Math.sum(getAdminIG(assessedStudents, numTeachers, targetParams, numExamples));
+        var unsortedIG = sum(getAdminIG(assessedStudents, numTeachers, targetParams, numExamples));
 
         // Sorted on guessed student beliefs, examples chosen with guessed beliefs
-        var sortedIG = Math.sum(getAdminIG(sortedStudents, numTeachers, targetParams, numExamples));
+        var sortedIG = sum(getAdminIG(sortedStudents, numTeachers, targetParams, numExamples));
 
         // Unsorted, examples chosen with true beliefs
         var trueUnsortedIG = Math.sum(getTrueAdminIG(studentsArray, numTeachers, targetParams, numExamples));
