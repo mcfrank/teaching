@@ -2,7 +2,7 @@ var studentInitialNu = 5;
 var numQuestionsPerAssessment = 1;  
 var numTimeSteps = 12;
 //var numAssessments = 2;
-var teacherMus = [.5];//, .6, .7, .8, .9];
+var teacherMus = [.5, .6, .7, .8, .9];
 var teacherNu = 10;
 var numTeachersArray = [1, 2, 3, 5, 10];
 var numAssessmentsArray = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]
@@ -50,11 +50,8 @@ var assess = function(students, numAssessments){
 
     //Smoothing, in case of extremes
     
-    // var guessAlpha = answers + 1;
-    //var guessBeta = numQuestionsToAsk - answers + 1;
-
-    var guessAlpha = ((answers*1.0 + 1)/(numQuestionsToAsk+2)) * studentInitialNu;
-    var guessBeta = ((numQuestionsToAsk - answers * 1.0 + 1)/(numQuestionsToAsk+2)) * studentInitialNu;
+    var guessAlpha = answers + 1;
+    var guessBeta = numQuestionsToAsk - answers + 1;
 
 		//Seed admin beliefs about student
 		return {priorAlpha: student.priorAlpha, priorBeta: student.priorBeta, guessAlpha: guessAlpha, guessBeta: guessBeta};
