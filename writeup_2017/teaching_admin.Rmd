@@ -109,7 +109,7 @@ In our simulations, we refer to the entire group of students as a "school," brok
 
 ```{r}
 NUM_STUDENTS <- 100
-df <- read_csv("../sims_admin/cached_data/raw_data_013117.csv.csv") 
+df <- read_csv("../sims_admin/cached_data/raw_data_013117.csv") 
 ```
 
 ## Simulation 1: Grouping students
