@@ -213,7 +213,7 @@ ggplot(filter(ig_by_sim_type, numAssessments < 12, sim_type != "unsorted_uncerta
 #   scale_x_continuous(breaks = c(0, 3, 6, 9, 12))
 ```
 
-```{r, fig.cap="Information gain plotted by number of assessments (out of 12) for teachers with perfect and uncertain student knowledge. Results shown are for 5 teachers and a target concept of .5.", eval = FALSE}
+```{r, fig.cap="Information gain plotted by number of assessments (out of 12) for teachers with perfect and uncertain student knowledge. Results shown are for 5 teachers and a target concept of .5.", eval = TRUE}
 
 ggplot(filter(ig_by_sim_type, teacherMu == .5, numTeachers == 5,
               sim_type != "unsorted_uncertain"),
@@ -230,21 +230,21 @@ ggplot(filter(ig_by_sim_type, teacherMu == .5, numTeachers == 5,
   geom_dl(aes(label = sim_type), method = "smart.grid") +
   scale_x_continuous(breaks = c(0, 3, 6, 9, 12))
 
-ggplot(filter(ig_by_sim_type, numTeachers == 5, 
-              sim_type != "unsorted_uncertain"),
-       aes(x = numAssessments, y = mean, lty = sim_type)) + 
-  geom_line() + 
-  geom_point() + 
-  facet_grid(. ~ factor(teacherMu))+
-  ggthemes::theme_few() + 
-  # langcog::scale_color_solarized(name = "Target Concept") +
-  # geom_pointrange(aes(ymin = ci_lower, ymax = ci_upper)) +
-  # theme(legend.position = "bottom") + 
-  ylab("Info Gain Over Unsorted Baseline (nats)") + 
-  xlab("Number of Assessments") + 
-  scale_linetype(guide=FALSE) + 
-  geom_dl(aes(label = sim_type), method = "smart.grid") +
-  scale_x_continuous(breaks = c(0, 3, 6, 9, 12))
+# ggplot(filter(ig_by_sim_type, numTeachers == 5, 
+#               sim_type != "unsorted_uncertain"),
+#        aes(x = numAssessments, y = mean, lty = sim_type)) + 
+#   geom_line() + 
+#   geom_point() + 
+#   facet_grid(. ~ factor(teacherMu))+
+#   ggthemes::theme_few() + 
+#   # langcog::scale_color_solarized(name = "Target Concept") +
+#   # geom_pointrange(aes(ymin = ci_lower, ymax = ci_upper)) +
+#   # theme(legend.position = "bottom") + 
+#   ylab("Info Gain Over Unsorted Baseline (nats)") + 
+#   xlab("Number of Assessments") + 
+#   scale_linetype(guide=FALSE) + 
+#   geom_dl(aes(label = sim_type), method = "smart.grid") +
+#   scale_x_continuous(breaks = c(0, 3, 6, 9, 12))
 ```
 
 ```{r sim_info_loss, fig.cap="Student information loss, plotted by target concept and class size. Information loss represents loss compared to the perfect teacher knowledge condition. Error bars show 95% confidence intervals by non-parametric bootstrap.", eval=FALSE}
@@ -297,7 +297,7 @@ Indeed, we found a quadratic shape in the relationship between number of assessm
 
 ```{r}
 ig_by_cost <- df %>%
-  mutate(cost = numAssessments * 50 + numTeachers * 50) %>%
+  mutate(cost = numAssessments * 20 + numTeachers * numExamples * 10) %>%
   mutate(teacherMu = factor(teacherMu)) %>%
   group_by(numTeachers, numAssessments, teacherMu, simType, cost) %>%
   summarise(IG = mean(IG/numExamples)) 
