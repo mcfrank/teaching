@@ -274,7 +274,7 @@ ig <- df %>%
   group_by(teacherMu, numAssessments, numTeachers, simType) %>%
   summarise(IG = mean(IG)) 
 
-ggplot(filter(ig, numAssessments < 5), 
+ggplot(ig,
        aes(x = numTeachers, y = IG, col = factor(teacherMu))) +
   geom_line() + 
   facet_grid(numAssessments ~ simType, scales = "free_y")  + 
@@ -293,25 +293,32 @@ We further hypothesized that the optimal use of the allotted time steps would in
 
 Indeed, we found a quadratic shape in the relationship between number of assessments and aggregate IG. Assessing students helps improve learning rate by giving teachers better estimates of their beliefs, but they still need time to subsequently teach towards the target concept. Additionally, like previous simulations, this effect was most pronounced in moderate target concepts. These results make intuitive sense. Teaching concepts where there may be greater variance in student knowledge relative to each other (e.g. teaching concepts of .5) demand more customization in lesson plans with students exhibiting different levels of mastery.
 
-## Simulation 4: Pareto frontier with imposed budget constraints (TODO)
+## Simulation 4: Pareto frontier with imposed budget constraints 
+
+- when assessment dominates, get lots of teachers. (uninteresting)
+- when teaching cost dominates, 
+  - perfect teachers have a pareto frontier where it's still worth assessing sometimes
+  - but uncertain teachers don't usually - seems there you just hire one.
+- tradeoff - you see frontiers in both
 
 ```{r}
 ig_by_cost <- df %>%
-  mutate(cost = numAssessments * 20 + numTeachers * numExamples * 10) %>%
+  mutate(cost = numAssessments * 50 + numTeachers * numExamples * 2) %>%
   mutate(teacherMu = factor(teacherMu)) %>%
   group_by(numTeachers, numAssessments, teacherMu, simType, cost) %>%
-  summarise(IG = mean(IG/numExamples)) 
+  summarise(IG = mean(IG)) 
 
-ggplot(filter(ig_by_cost, teacherMu == .5, simType == "sortedUncertainTeachers"),
+ggplot(filter(ig_by_cost, teacherMu == .5, 
+              simType %in% c("sortedPerfectTeachers","sortedUncertainTeachers")),
        aes(x = cost, y = IG, col = factor(numTeachers))) + 
   geom_text(aes(label = numAssessments)) + 
   geom_line() + 
-  # facet_wrap(~simType)+ 
+  facet_wrap(~simType)+
   scale_colour_solarized(name = "Number of Teachers") + 
   ggthemes::theme_few() + 
   theme(legend.position = "bottom") + 
   xlab("Cost") + 
-  ylab("Information Gain Per Example (nats)")
+  ylab("Information Gain (nats)")
 ```
 
 ```{r, eval = FALSE}
@@ -353,7 +360,9 @@ An interesting result, however, is that having noisy students diminishes the eff
 students's prior belief will fall on one side of that target, in- creasing the number of teachers might actually reduce the effectiveness of the teacher's choice of examples.
 A novel finding that emerged not described in existing educa- tion literature is that there are different patterns of optimality along the pareto frontiers. As the extremity of the target bias moves from 0.5 to 0.7, we see that the IG-optimal allocation of budget shifts from about 5-6 teachers and 2 assessments towards more assessments at the expense of the number of teachers.
 
-# Discussion (TODO)
+# Discussion
+
+Summary
 
 Overall, we were able to replicate many real-world findings from education literature. We found that sorting students into ability level classrooms, increasing assessment, and decreasing class size all increase information gain.
 
