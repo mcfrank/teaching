@@ -11,7 +11,7 @@ number_sections: true
 ```{r, echo = FALSE, include = FALSE}
 rm(list=ls())
 library(tidyverse)
-library(rwebppl)
+library(rwebppl) #requires devtools::install_github("mhtess/rwebppl")
 library(knitr)
 opts_chunk$set(echo=FALSE, cache=TRUE, warning=FALSE, message = FALSE)
 theme_set(theme_bw())
@@ -38,7 +38,23 @@ webppl(test_model, packages = c("math-beta", "webppl-compute-digamma"))
 # Single student
 
 ```{r}
-out <- as.data.frame(webppl(program_file = "~/Documents/teaching/sims_admin/scripts/bayesianTeacher.js", packages = c("math-beta", "webppl-compute-digamma")))
+startTimeSmall100 <- Sys.time()
+out1 <- as.data.frame(webppl(program_file = "~/Documents/teaching/sims_admin/scripts/bayesianTeacher.js", packages = c("math-beta", "webppl-compute-digamma")))
+out2 <- as.data.frame(webppl(program_file = "~/Documents/teaching/sims_admin/scripts/bayesianTeacher.js", packages = c("math-beta", "webppl-compute-digamma")))
+out3 <- as.data.frame(webppl(program_file = "~/Documents/teaching/sims_admin/scripts/bayesianTeacher.js", packages = c("math-beta", "webppl-compute-digamma")))
+out4 <- as.data.frame(webppl(program_file = "~/Documents/teaching/sims_admin/scripts/bayesianTeacher.js", packages = c("math-beta", "webppl-compute-digamma")))
+out5 <- as.data.frame(webppl(program_file = "~/Documents/teaching/sims_admin/scripts/bayesianTeacher.js", packages = c("math-beta", "webppl-compute-digamma")))
+out2$trialNum = out2$trialNum + 20
+out3$trialNum = out3$trialNum + 40
+out4$trialNum = out4$trialNum + 60
+out5$trialNum = out5$trialNum + 80
+out <- rbind(out1, out2, out3, out4, out5)
+endTimeSmall100 <- Sys.time()
+```
+
+```{r}
+out3Per11Nu <- as.data.frame(webppl(program_file = "~/Documents/teaching/sims_admin/scripts/bayesianTeacher.js", packages = c("math-beta", "webppl-compute-digamma")))
+write_csv(out3Per, "cached_data/raw_data_013117_3Per11Nu_small.csv")
 ```
 
 Write the data to an intermediate caching csv for external/reproducibility use
@@ -47,7 +63,7 @@ Write the data to an intermediate caching csv for external/reproducibility use
 #write.csv(out, file='raw_data.csv')
 #write_csv(out, path=cat('raw_data_', as.character(Sys.Date()), '.csv', sep=''))
 #filename <- cat('raw_data_', as.character(Sys.Date()), '.csv',sep='')
-write_csv(out, "cached_data/raw_data_012717.csv")
+write_csv(out1, "cached_data/raw_data_013117.csv")
 #write_csv(out, filename)
 ```
 

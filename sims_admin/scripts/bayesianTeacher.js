@@ -1,5 +1,5 @@
-var studentInitialNu = 5;
-var numQuestionsPerAssessment = 1;  
+var studentInitialNu = 11;
+var numQuestionsPerAssessment = 3;  
 var numTimeSteps = 12;
 //var numAssessments = 2;
 var teacherMus = [.5, .6, .7, .8, .9];
@@ -263,7 +263,7 @@ var results = mapN(function(trialNum){
 
   return numAssessmentsMapping;
 
-}, 20); // Run 100 trials
+}, 3); // Run 100 trials
 
 
 multiPluck(_.flatten(results));
