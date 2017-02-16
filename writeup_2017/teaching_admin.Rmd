@@ -274,10 +274,10 @@ ig <- df %>%
   group_by(teacherMu, numAssessments, numTeachers, simType) %>%
   summarise(IG = mean(IG)) 
 
-ggplot(filter(ig, numAssessments < 5), 
-       aes(x = numTeachers, y = IG, col = factor(teacherMu))) +
+ggplot(filter(ig, teacherMu == .7), 
+       aes(x = numTeachers, y = IG, col = factor(simType))) +
   geom_line() + 
-  facet_grid(numAssessments ~ simType, scales = "free_y")  + 
+  facet_wrap(~ numAssessments)  + 
   scale_colour_solarized() + 
   ggthemes::theme_few()
 
