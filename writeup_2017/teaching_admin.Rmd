@@ -106,7 +106,7 @@ In each simulation, we report the total information gain over baseline for 100 s
 
 ```{r}
 NUM_STUDENTS <- 100
-df <- read_csv("../sims_admin/cached_data/raw_data_013117_11Nu_small.csv") 
+df <- read_csv("../sims_admin/cached_data/raw_data_022217_11Nu_small.csv") 
 ```
 
 We next present a set of four analyses of simulation data examining the effects of factors including grouping students into classess by their prior beliefs, changing class sizes, and the use of assessments to help teachers tailor their teaching to their specific students. In our first two analyses, we focus on the *perfect knowledge* case, in which teachers and administrators have full knowledge of students' knowledge state. In the subsequent two analyses, we relax this assumption and explore . 
