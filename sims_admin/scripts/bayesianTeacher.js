@@ -193,7 +193,8 @@ var getTrueAdminIG = function(students, numTeachers, targetParams, numExamples){
 // This could be optimized without the Infer statement, but maintained for clarity on equivalent structure
 var getNaiveTeacherIG = function(students, targetParams, numExamples){
   return Infer({method: 'enumerate'}, function(){
-    
+    //console.log("Naive teacher IG calculating...");
+
     //Use this to seed the prior likelihoods of examples
     var target = targetParams.alpha / (targetParams.alpha + targetParams.beta);
 
@@ -202,10 +203,12 @@ var getNaiveTeacherIG = function(students, targetParams, numExamples){
 
     var actualIGs = map(function(student){
       return IG2(targetParams.alpha, targetParams.beta, student.priorAlpha, student.priorBeta, h, t);
-    }, students)
+    }, students);
 
     //Weight choice of examples by what teacher believes the IGs will be
     factor(sum(actualIGs));
+
+    //console.log("Naive teacher IG calculated...");
     
     //Return as the score what the actual IGs will be
     return sum(actualIGs);
@@ -250,7 +253,7 @@ var multiPluck = function(objectArray){
 
 var results = mapN(function(trialNum){
 
-  //console.log("entered results function");
+  console.log("Starting trial " + trialNum);
 
 	var studentsArray = generateStudentsArray(100); // Unsorted array of students, (1,1) guesses
   var trueSortedStudents = sortStudents(studentsArray, true); // Students sorted on true beliefs, (1,1) guesses
