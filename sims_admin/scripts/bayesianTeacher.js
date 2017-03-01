@@ -197,8 +197,8 @@ var getNaiveTeacherIG = function(students, targetParams, numExamples){
 
     //Use this to seed the prior likelihoods of examples
     var target = targetParams.alpha / (targetParams.alpha + targetParams.beta);
-
-    var h = Math.round(target * numExamples);
+    
+    var h = sum(repeat(numExamples, flip(target)));
     var t = numExamples - h;
 
     var actualIGs = map(function(student){
