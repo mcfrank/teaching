@@ -220,7 +220,7 @@ var getNaiveAdminIG = function(students, numTeachers, targetParams, numExamples)
   
   // Assign teachers to teach each classroom
     var classroomExpectations = map(function(studentsInClassroom){
-      var teacherIG = getTrueTeacherIG(studentsInClassroom, targetParams, numExamples);
+      var teacherIG = getNaiveTeacherIG(studentsInClassroom, targetParams, numExamples);
       return MAP(teacherIG).val;
 
     }, distributedStudents);
@@ -252,14 +252,14 @@ var results = mapN(function(trialNum){
 
   //console.log("entered results function");
 
-	var studentsArray = generateStudentsArray(100);
-  var trueSortedStudents = sortStudents(studentsArray, true);
+	var studentsArray = generateStudentsArray(100); // Unsorted array of students, (1,1) guesses
+  var trueSortedStudents = sortStudents(studentsArray, true); // Students sorted on true beliefs, (1,1) guesses
 
   var numAssessmentsMapping = map(function(numAssessments){
 
 
-    var assessedStudents = assess(studentsArray, numAssessments);
-    var sortedStudents = sortStudents(assessedStudents, false); //Sort by guessed params, not true params
+    var assessedStudents = assess(studentsArray, numAssessments); // Unsorted array of students, assessed guesses
+    var sortedStudents = sortStudents(assessedStudents, false); // Students sorted on assessment results
     //console.log("*******\n*******\nstudents generated for trial " + trialNum);
     var numExamples = numTimeSteps - numAssessments;
 
