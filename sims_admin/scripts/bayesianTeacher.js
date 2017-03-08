@@ -6,6 +6,7 @@ var teacherMus = [.5, .6, .7, .8, .9];
 var teacherNu = 10;
 var numTeachersArray = [1, 2, 3, 5, 10];
 var numAssessmentsArray = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]
+var factorials = [1, 1, 2, 6, 24, 120, 720, 5040, 40320, 362880, 3628800, 39916800, 479001600]
 
 // Generate a sequence of student priorAlphas and priorBetas
 var generateSequence = function(numStudents, min, max){
@@ -198,15 +199,19 @@ var getNaiveTeacherIG = function(students, targetParams, numExamples){
     //Use this to seed the prior likelihoods of examples
     var target = targetParams.alpha / (targetParams.alpha + targetParams.beta);
     
-    var h = sum(repeat(numExamples, flip(target)));
+    //var h = sum(repeat(numExamples, function(){ flip(target)}));
+    var h = uniformDraw(_.range(0, numExamples + 1));
     var t = numExamples - h;
 
     var actualIGs = map(function(student){
       return IG2(targetParams.alpha, targetParams.beta, student.priorAlpha, student.priorBeta, h, t);
     }, students);
 
-    //Weight choice of examples by what teacher believes the IGs will be
-    factor(sum(actualIGs));
+    //Weight choice of examples by what teacher believes the IGs will be, weighted by the numExamples choose h
+    var numExamplesFactorial = factorials[numExamples];
+    var hFactorial = factorials[h];
+    var tFactorial = factorials[t];
+    factor(numExamplesFactorial / (hFactorial * tFactorial) * sum(actualIGs));
 
     //console.log("Naive teacher IG calculated...");
     
