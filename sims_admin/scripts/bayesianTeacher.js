@@ -193,14 +193,14 @@ var getTrueAdminIG = function(students, numTeachers, targetParams, numExamples){
 // Get the information gain if the teacher naive chooses the examples to match the target params (no inference on student beliefs)
 // This could be optimized without the Infer statement, but maintained for clarity on equivalent structure
 var getNaiveTeacherIG = function(students, targetParams, numExamples){
-  return Infer({method: 'enumerate'}, function(){
+  return Infer({method: 'forward', samples: 100}, function(){
     //console.log("Naive teacher IG calculating...");
 
     //Use this to seed the prior likelihoods of examples
     var target = targetParams.alpha / (targetParams.alpha + targetParams.beta);
     
-    //var h = sum(repeat(numExamples, function(){ flip(target)}));
-    var h = uniformDraw(_.range(0, numExamples + 1));
+    var h = sum(repeat(numExamples, function(){ flip(target)}));
+    //var h = uniformDraw(_.range(0, numExamples + 1));
     var t = numExamples - h;
 
     var actualIGs = map(function(student){
@@ -208,10 +208,10 @@ var getNaiveTeacherIG = function(students, targetParams, numExamples){
     }, students);
 
     //Weight choice of examples by what teacher believes the IGs will be, weighted by the numExamples choose h
-    var numExamplesFactorial = factorials[numExamples];
-    var hFactorial = factorials[h];
-    var tFactorial = factorials[t];
-    factor(numExamplesFactorial / (hFactorial * tFactorial) * sum(actualIGs));
+    // var numExamplesFactorial = factorials[numExamples];
+    // var hFactorial = factorials[h];
+    // var tFactorial = factorials[t];
+    // factor(numExamplesFactorial / (hFactorial * tFactorial) * sum(actualIGs));
 
     //console.log("Naive teacher IG calculated...");
     
@@ -315,7 +315,7 @@ var results = mapN(function(trialNum){
 
   return numAssessmentsMapping;
 
-}, 5); // Run 100 trials
+}, 3); // Run 100 trials
 
 
 multiPluck(_.flatten(results));
