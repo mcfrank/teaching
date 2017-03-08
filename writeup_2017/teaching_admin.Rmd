@@ -106,7 +106,7 @@ In each simulation, we report the total information gain over baseline for 100 s
 
 ```{r}
 NUM_STUDENTS <- 100
-df <- read_csv("../sims_admin/cached_data/raw_data_022217_11Nu_small.csv") 
+df <- read_csv("../sims_admin/cached_data/raw_data_030117_3Per11Nu_small.csv") 
 ```
 
 We next present a set of four analyses of simulation data examining the effects of factors including grouping students into classess by their prior beliefs, changing class sizes, and the use of assessments to help teachers tailor their teaching to their specific students. In our first two analyses, we focus on the *perfect knowledge* case, in which teachers and administrators have full knowledge of students' knowledge state. In the subsequent two analyses, we relax this assumption and explore . 
@@ -174,71 +174,89 @@ In our second analysis, again a replication of our prior work, we explored the e
 ig_by_sim_type <- df %>%
   group_by(numAssessments, numTeachers, teacherMu, trialNum) %>%
   mutate(sorted_perfect = IG[simType == "sortedPerfectTeachers"] - 
-           IG[simType == "unsortedUncertainTeachers"], 
+           IG[simType == "unsortedNaiveTeachers"], 
          sorted_uncertain = IG[simType == "sortedUncertainTeachers"] - 
-           IG[simType == "unsortedUncertainTeachers"], 
+           IG[simType == "unsortedNaiveTeachers"], 
          unsorted_perfect = IG[simType == "unsortedPerfectTeachers"] -
-           IG[simType == "unsortedUncertainTeachers"]) %>%
+           IG[simType == "unsortedNaiveTeachers"],
+         unsorted_uncertain = IG[simType == "unsortedUncertainTeachers"] -
+           IG[simType == "unsortedNaiveTeachers"]) %>%
   gather(sim_type, IG_over_baseline, 
-         sorted_uncertain, sorted_perfect, unsorted_perfect) %>%
+         unsorted_uncertain, sorted_uncertain, sorted_perfect, unsorted_perfect) %>%
   group_by(numAssessments, numTeachers, teacherMu, sim_type) %>%
   summarise(mean = mean(IG_over_baseline)) %>%
-  mutate(sim_type = fct_recode(sim_type, 
-                               "Sorted, Perfect" = "sorted_perfect",
-                               "Sorted, Uncertain" = "sorted_uncertain", 
-                               "Unsorted, Perfect" = "unsorted_perfect"))
-         # multi_boot_standard(col = "IG_over_baseline")
+  separate(sim_type, into = c("sorting","knowledge"))
+  # mutate(sim_type = fct_recode(sim_type, 
+  #                              "Unsorted, Uncertain" =
+  #                              "Sorted, Perfect" = "sorted_perfect",
+  #                              "Sorted, Uncertain" = "sorted_uncertain", 
+  #                              "Unsorted, Perfect" = "unsorted_perfect"))
+  #        # multi_boot_standard(col = "IG_over_baseline")
 
-ggplot(filter(ig_by_sim_type, teacherMu == .6, numTeachers == 5),
-       aes(x = numAssessments, y = mean, col = sim_type)) +
+ggplot(ig_by_sim_type,
+       aes(x = numAssessments, y = mean, col = sorting, lty = knowledge, pch = knowledge)) +
   geom_line() +
   geom_point() +
-  ggthemes::theme_few() +
+  facet_grid(teacherMu~numTeachers) +
   # geom_pointrange(aes(ymin = ci_lower, ymax = ci_upper)) +
-  # theme(legend.position = "bottom") +
-  langcog::scale_color_solarized(guide=FALSE) +
-  ylab("Info Gain Over Unsorted Baseline (nats)") +
+  theme(legend.position = "bottom") +
+  ggthemes::theme_few() +
+  langcog::scale_color_solarized() +
+  ylab("Info Gain Over Naive Baseline (nats)") +
   xlab("Number of Assessments") +
-  scale_linetype(guide=FALSE) +
-  geom_dl(aes(label = sim_type), method = "smart.grid") +
+  # scale_linetype(guide=FALSE) +
+  # geom_dl(aes(label = sim_type), method = "smart.grid") +
   scale_x_continuous(breaks = c(0, 3, 6, 9, 12)) + 
   geom_hline(yintercept = 0, lty = 2, col = "black")
+```
 
+
+
+```{r}
 ig_by_sim <- df %>%
   group_by(simType, numTeachers, numAssessments, teacherMu) %>%
   summarise(IG = mean(IG))
 
-ggplot(filter(ig_by_sim, teacherMu == .6, numTeachers == 5 ), 
+ggplot(ig_by_sim, 
        aes(x = numAssessments, y = IG, col = simType)) +
   geom_line() + 
-  scale_x_continuous(breaks = c(0, 3, 6, 9, 12))
+  facet_grid(teacherMu ~ numTeachers) + 
+  scale_x_continuous(breaks = c(0, 3, 6, 9, 12)) + 
+    ggthemes::theme_few() +
+  langcog::scale_color_solarized()
+
 
 ```
 
 ```{r eval = FALSE}
-ggplot(filter(ig_by_sim_type, numAssessments < 12),
+ggplot(filter(ig_by_sim_type),
        aes(x = numTeachers, y = mean, col = factor(teacherMu))) +
   geom_line() +
   # geom_pointrange(aes(ymin = ci_lower, ymax = ci_upper)) +
   ggthemes::theme_few() +
-  facet_grid(sim_type~numAssessments) +
+  facet_grid(interaction(sorting,knowledge)~numAssessments) +
   langcog::scale_color_solarized(name = "Target Concept") +
   theme(legend.position = "bottom") +
-  ylab("Info Gain Over Unsorted Baseline (nats)") +
+  ylab("Info Gain Over Naive Baseline (nats)") +
   xlab("Number of Teachers") +
   scale_x_continuous(breaks = c(0, 3, 6, 9, 12))
+```
 
-ggplot(filter(ig_by_sim_type, teacherMu == .5 , sim_type != "unsorted_uncertain"),
-       aes(x = numTeachers, y = mean, lty = sim_type)) +
+```{r}
+ggplot(ig_by_sim_type,
+       aes(x = numTeachers, y = mean, col = sorting, pch = knowledge, lty = knowledge)) +
   geom_line() +
   # geom_pointrange(aes(ymin = ci_lower, ymax = ci_upper)) +
   ggthemes::theme_few() +
-  facet_grid(.~numAssessments) +
+  facet_grid(teacherMu~numAssessments) +
   langcog::scale_color_solarized(name = "Target Concept") +
   theme(legend.position = "bottom") +
-  ylab("Info Gain Over Unsorted Baseline (nats)") +
+  ylab("Info Gain Over Naive Baseline (nats)") +
   xlab("Number of Teachers") +
   scale_x_continuous(breaks = c(0, 3, 6, 9, 12))
+```
+
+```{r}
 
 ggplot(filter(ig_by_sim_type, teacherMu == .5, numTeachers == 5,
               sim_type != "unsorted_uncertain"),
