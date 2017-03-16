@@ -5,8 +5,9 @@ var numTimeSteps = 12;
 var teacherMus = [.5, .6, .7, .8, .9];
 var teacherNu = 10;
 var numTeachersArray = [1, 2, 3, 5, 10];
-var numAssessmentsArray = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]
-var factorials = [1, 1, 2, 6, 24, 120, 720, 5040, 40320, 362880, 3628800, 39916800, 479001600]
+var numAssessmentsArray = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12];
+var factorials = [1, 1, 2, 6, 24, 120, 720, 5040, 40320, 362880, 3628800, 39916800, 479001600];
+var exponentsArray = [0.8, 0.9, 1, 1.1, 1.2];
 
 // Generate a sequence of student priorAlphas and priorBetas
 var generateSequence = function(numStudents, min, max){
@@ -102,6 +103,7 @@ var distributeStudents = function(students, N){
 // Get the ACTUAL information gain if the teacher chooses the examples they BELIEVE will best improve IG.
 var getTeacherIG = function(students, targetParams, numExamples, exponent){
   return Infer({method: 'enumerate'}, function(){
+    //console.log("Getting teacher IG...");
     
     //Use this to seed the prior likelihoods of examples
     var target = targetParams.alpha / (targetParams.alpha + targetParams.beta);
@@ -118,33 +120,33 @@ var getTeacherIG = function(students, targetParams, numExamples, exponent){
       //var score = IG2(targetParams.alpha, targetParams.beta, student.guessAlpha, student.guessBeta, h, t)
       ///console.log("Score: " + score);
       //return score;
-      return IG2(targetParams.alpha, targetParams.beta, student.guessAlpha, student.guessBeta, h, t);
+      return Math.pow(IG2(targetParams.alpha, targetParams.beta, student.guessAlpha, student.guessBeta, h, t), exponent);
     }, students)
 
     var actualIGs = map(function(student){
-      return IG2(targetParams.alpha, targetParams.beta, student.priorAlpha, student.priorBeta, h, t);
+      return Math.pow(IG2(targetParams.alpha, targetParams.beta, student.priorAlpha, student.priorBeta, h, t), exponent);
     }, students)
 
     //console.log("Believed IGs: " + believedIGs);
     //console.log("Actual IGs: " + actualIGs);
     
     //Weight choice of examples by what teacher believes the IGs will be
-    factor(Math.pow(sum(believedIGs));
+    factor(sum(believedIGs));
     
     //Return as the score what the actual IGs will be
-    return sum(Math.pow(actualIGs));
+    return sum(actualIGs);
 
   });
 }
 
 // Get the total information gain of all students 
-var getAdminIG = function(students, numTeachers, targetParams, numExamples){
+var getAdminIG = function(students, numTeachers, targetParams, numExamples, exponent){
   // Array of student distributed into subsets representing numTeachers classrooms
   var distributedStudents = distributeStudents(students, numTeachers);
   
   // Assign teachers to teach each classroom
     var classroomExpectations = map(function(studentsInClassroom){
-      var teacherIG = getTeacherIG(studentsInClassroom, targetParams, numExamples, 1);
+      var teacherIG = getTeacherIG(studentsInClassroom, targetParams, numExamples, exponent);
       return MAP(teacherIG).val;
 
     }, distributedStudents);
@@ -163,26 +165,26 @@ var getTrueTeacherIG = function(students, targetParams, numExamples, exponent){
     var t = numExamples - h;
 
     var actualIGs = map(function(student){
-      return IG2(targetParams.alpha, targetParams.beta, student.priorAlpha, student.priorBeta, h, t);
+      return Math.pow(IG2(targetParams.alpha, targetParams.beta, student.priorAlpha, student.priorBeta, h, t), exponent);
     }, students)
 
     //Weight choice of examples by what teacher believes the IGs will be
-    factor(Math.pow(sum(actualIGs), exponent));
+    factor(sum(actualIGs));
     
     //Return as the score what the actual IGs will be
-    return Math.pow(sum(actualIGs), exponent);
+    return sum(actualIGs);
 
   });
 }
 
 // Get the total information gain of all students based on prior beliefs
-var getTrueAdminIG = function(students, numTeachers, targetParams, numExamples){
+var getTrueAdminIG = function(students, numTeachers, targetParams, numExamples, exponent){
   // Array of student distributed into subsets representing numTeachers classrooms
   var distributedStudents = distributeStudents(students, numTeachers);
   
   // Assign teachers to teach each classroom
     var classroomExpectations = map(function(studentsInClassroom){
-      var teacherIG = getTrueTeacherIG(studentsInClassroom, targetParams, numExamples, 1);
+      var teacherIG = getTrueTeacherIG(studentsInClassroom, targetParams, numExamples, exponent);
       return MAP(teacherIG).val;
 
     }, distributedStudents);
@@ -204,7 +206,7 @@ var getNaiveTeacherIG = function(students, targetParams, numExamples, exponent){
     var t = numExamples - h;
 
     var actualIGs = map(function(student){
-      return IG2(targetParams.alpha, targetParams.beta, student.priorAlpha, student.priorBeta, h, t);
+      return Math.pow(IG2(targetParams.alpha, targetParams.beta, student.priorAlpha, student.priorBeta, h, t), exponent);
     }, students);
 
     //Weight choice of examples by what teacher believes the IGs will be, weighted by the numExamples choose h
@@ -216,18 +218,18 @@ var getNaiveTeacherIG = function(students, targetParams, numExamples, exponent){
     //console.log("Naive teacher IG calculated...");
     
     //Return as the score what the actual IGs will be
-    return Math.pow(sum(actualIGs), exponent);
+    return sum(actualIGs);
   });
 }
 
 // Get the total information gain of all students with naive teachers only picking examples to match the target params (no inference on perfect nor guessed student beliefs)
-var getNaiveAdminIG = function(students, numTeachers, targetParams, numExamples){
+var getNaiveAdminIG = function(students, numTeachers, targetParams, numExamples, exponent){
   // Array of student distributed into subsets representing numTeachers classrooms
   var distributedStudents = distributeStudents(students, numTeachers);
   
   // Assign teachers to teach each classroom
     var classroomExpectations = map(function(studentsInClassroom){
-      var teacherIG = getNaiveTeacherIG(studentsInClassroom, targetParams, numExamples);
+      var teacherIG = getNaiveTeacherIG(studentsInClassroom, targetParams, numExamples, exponent);
       return MAP(teacherIG).val;
 
     }, distributedStudents);
@@ -263,6 +265,7 @@ var results = mapN(function(trialNum){
   var trueSortedStudents = sortStudents(studentsArray, true); // Students sorted on true beliefs, (1,1) guesses
 
   var numAssessmentsMapping = map(function(numAssessments){
+    console.log("Assessing: " + numAssessments);
 
 
     var assessedStudents = assess(studentsArray, numAssessments); // Unsorted array of students, assessed guesses
@@ -280,7 +283,6 @@ var results = mapN(function(trialNum){
       //console.log("-------\ntesting teacher with mu " + mu);
 
       var numTeachersMapping = map(function(numTeachers){
-
         // No sorting, naive teachers (teachers show examples proportional to target, without inference on student beliefs)
         var unsortedNaiveIG = sum(getNaiveAdminIG(studentsArray, numTeachers, targetParams, numExamples));
 
