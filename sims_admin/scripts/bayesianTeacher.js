@@ -100,7 +100,7 @@ var distributeStudents = function(students, N){
 }
 
 // Get the ACTUAL information gain if the teacher chooses the examples they BELIEVE will best improve IG.
-var getTeacherIG = function(students, targetParams, numExamples){
+var getTeacherIG = function(students, targetParams, numExamples, exponent){
   return Infer({method: 'enumerate'}, function(){
     
     //Use this to seed the prior likelihoods of examples
@@ -129,10 +129,10 @@ var getTeacherIG = function(students, targetParams, numExamples){
     //console.log("Actual IGs: " + actualIGs);
     
     //Weight choice of examples by what teacher believes the IGs will be
-    factor(sum(believedIGs));
+    factor(Math.pow(sum(believedIGs));
     
     //Return as the score what the actual IGs will be
-    return sum(actualIGs);
+    return sum(Math.pow(actualIGs));
 
   });
 }
@@ -144,7 +144,7 @@ var getAdminIG = function(students, numTeachers, targetParams, numExamples){
   
   // Assign teachers to teach each classroom
     var classroomExpectations = map(function(studentsInClassroom){
-      var teacherIG = getTeacherIG(studentsInClassroom, targetParams, numExamples);
+      var teacherIG = getTeacherIG(studentsInClassroom, targetParams, numExamples, 1);
       return MAP(teacherIG).val;
 
     }, distributedStudents);
@@ -153,7 +153,7 @@ var getAdminIG = function(students, numTeachers, targetParams, numExamples){
 }
 
 // Get the information gain if the teacher chooses the examples based on student prior beliefs (i.e. perfect knowledge).
-var getTrueTeacherIG = function(students, targetParams, numExamples){
+var getTrueTeacherIG = function(students, targetParams, numExamples, exponent){
   return Infer({method: 'enumerate'}, function(){
     
     //Use this to seed the prior likelihoods of examples
@@ -167,10 +167,10 @@ var getTrueTeacherIG = function(students, targetParams, numExamples){
     }, students)
 
     //Weight choice of examples by what teacher believes the IGs will be
-    factor(sum(actualIGs));
+    factor(Math.pow(sum(actualIGs), exponent));
     
     //Return as the score what the actual IGs will be
-    return sum(actualIGs);
+    return Math.pow(sum(actualIGs), exponent);
 
   });
 }
@@ -182,7 +182,7 @@ var getTrueAdminIG = function(students, numTeachers, targetParams, numExamples){
   
   // Assign teachers to teach each classroom
     var classroomExpectations = map(function(studentsInClassroom){
-      var teacherIG = getTrueTeacherIG(studentsInClassroom, targetParams, numExamples);
+      var teacherIG = getTrueTeacherIG(studentsInClassroom, targetParams, numExamples, 1);
       return MAP(teacherIG).val;
 
     }, distributedStudents);
@@ -192,7 +192,7 @@ var getTrueAdminIG = function(students, numTeachers, targetParams, numExamples){
 
 // Get the information gain if the teacher naive chooses the examples to match the target params (no inference on student beliefs)
 // This could be optimized without the Infer statement, but maintained for clarity on equivalent structure
-var getNaiveTeacherIG = function(students, targetParams, numExamples){
+var getNaiveTeacherIG = function(students, targetParams, numExamples, exponent){
   return Infer({method: 'enumerate'}, function(){
     //console.log("Naive teacher IG calculating...");
 
@@ -211,12 +211,13 @@ var getNaiveTeacherIG = function(students, targetParams, numExamples){
     var numExamplesFactorial = factorials[numExamples];
     var hFactorial = factorials[h];
     var tFactorial = factorials[t];
-    factor(numExamplesFactorial / (hFactorial * tFactorial) * sum(actualIGs));
+    //factor(numExamplesFactorial / (hFactorial * tFactorial) * sum(actualIGs));
+    factor(numExamplesFactorial / (hFactorial * tFactorial));
 
     //console.log("Naive teacher IG calculated...");
     
     //Return as the score what the actual IGs will be
-    return sum(actualIGs);
+    return Math.pow(sum(actualIGs), exponent);
 
   });
 }
