@@ -142,14 +142,15 @@ var getTeacherIG = function(students, targetParams, numExamples, exponent){
 // Get the total information gain of all students 
 var getAdminIG = function(students, numTeachers, targetParams, numExamples, exponent){
   // Array of student distributed into subsets representing numTeachers classrooms
-  var distributedStudents = distributeStudents(students, numTeachers);
+  //var distributedStudents = distributeStudents(students, numTeachers);
   
   // Assign teachers to teach each classroom
     var classroomExpectations = map(function(studentsInClassroom){
       var teacherIG = getTeacherIG(studentsInClassroom, targetParams, numExamples, exponent);
       return MAP(teacherIG).val;
 
-    }, distributedStudents);
+    }, students);
+    //}, distributedStudents);
 
     return classroomExpectations;
 }
@@ -180,14 +181,15 @@ var getTrueTeacherIG = function(students, targetParams, numExamples, exponent){
 // Get the total information gain of all students based on prior beliefs
 var getTrueAdminIG = function(students, numTeachers, targetParams, numExamples, exponent){
   // Array of student distributed into subsets representing numTeachers classrooms
-  var distributedStudents = distributeStudents(students, numTeachers);
-  
+  //var distributedStudents = distributeStudents(students, numTeachers);
+
   // Assign teachers to teach each classroom
     var classroomExpectations = map(function(studentsInClassroom){
       var teacherIG = getTrueTeacherIG(studentsInClassroom, targetParams, numExamples, exponent);
       return MAP(teacherIG).val;
 
-    }, distributedStudents);
+    }, students);
+    //}, distributedStudents);
 
     return classroomExpectations;
 }
@@ -196,7 +198,6 @@ var getTrueAdminIG = function(students, numTeachers, targetParams, numExamples, 
 // This could be optimized without the Infer statement, but maintained for clarity on equivalent structure
 var getNaiveTeacherIG = function(students, targetParams, numExamples, exponent){
   return Infer({method: 'forward', samples: 100}, function(){
-    //console.log("Naive teacher IG calculating...");
 
     //Use this to seed the prior likelihoods of examples
     var target = targetParams.alpha / (targetParams.alpha + targetParams.beta);
@@ -225,14 +226,15 @@ var getNaiveTeacherIG = function(students, targetParams, numExamples, exponent){
 // Get the total information gain of all students with naive teachers only picking examples to match the target params (no inference on perfect nor guessed student beliefs)
 var getNaiveAdminIG = function(students, numTeachers, targetParams, numExamples, exponent){
   // Array of student distributed into subsets representing numTeachers classrooms
-  var distributedStudents = distributeStudents(students, numTeachers);
-  
+  //var distributedStudents = distributeStudents(students, numTeachers);
+
   // Assign teachers to teach each classroom
     var classroomExpectations = map(function(studentsInClassroom){
       var teacherIG = getNaiveTeacherIG(studentsInClassroom, targetParams, numExamples, exponent);
       return MAP(teacherIG).val;
 
-    }, distributedStudents);
+    }, students);
+    //}, distributedStudents);
 
     return classroomExpectations;
 
@@ -261,16 +263,34 @@ var results = mapN(function(trialNum){
 
   console.log("Starting trial " + trialNum);
 
-	var studentsArray = generateStudentsArray(100); // Unsorted array of students, (1,1) guesses
+	var studentsArray = generateStudentsArray(10); // Unsorted array of students, (1,1) guesses
+  // Do distribution of studentsArray once across all parameterizations of assessments and mus.
+  var studentsArray_rosters_byNumTeachers = map(function(numTeachers){
+    return distributeStudents(studentsArray, numTeachers);
+  }, numTeachersArray);
+
   var trueSortedStudents = sortStudents(studentsArray, true); // Students sorted on true beliefs, (1,1) guesses
+  // Do distribution of trueSortedStudents once across all parameterizations of assessments and mus.
+  var trueSortedStudents_rosters_byNumTeachers = map(function(numTeachers){
+    return distributeStudents(trueSortedStudents, numTeachers);
+  }, numTeachersArray);
 
   var numAssessmentsMapping = map(function(numAssessments){
     console.log("Assessing: " + numAssessments);
 
 
     var assessedStudents = assess(studentsArray, numAssessments); // Unsorted array of students, assessed guesses
+    // Do distribution of assessedStudents once across all parameterizations of mus.
+    var assessedStudents_rosters_byNumTeachers = map(function(numTeachers){
+      return distributeStudents(assessedStudents, numTeachers);
+    }, numTeachersArray);
+
     var sortedStudents = sortStudents(assessedStudents, false); // Students sorted on assessment results
-    //console.log("*******\n*******\nstudents generated for trial " + trialNum);
+    // Do distribution of sortedStudents once across all parameterizations of mus.
+    var sortedStudents_rosters_byNumTeachers = map(function(numTeachers){
+      return distributeStudents(sortedStudents, numTeachers);
+    }, numTeachersArray);
+
     var numExamples = numTimeSteps - numAssessments;
 
   	//Run simulation for all bias levels
@@ -282,21 +302,27 @@ var results = mapN(function(trialNum){
 
       //console.log("-------\ntesting teacher with mu " + mu);
 
-      var numTeachersMapping = map(function(numTeachers){
+      var numTeachersMapping = mapN(function(i){
+        var numTeachers = numTeachersArray[i]; // Get number of teachers at index i
+        var studentsArray_roster = studentsArray_rosters_byNumTeachers[i]; //Get distribution of studentsArray for this number of teachers, which is at index i
+        var assessedStudents_roster = assessedStudents_rosters_byNumTeachers[i];
+        var sortedStudents_roster = sortedStudents_rosters_byNumTeachers[i];
+        var trueSortedStudents_roster = trueSortedStudents_rosters_byNumTeachers[i];
+
         // No sorting, naive teachers (teachers show examples proportional to target, without inference on student beliefs)
-        var unsortedNaiveIG = sum(getNaiveAdminIG(studentsArray, numTeachers, targetParams, numExamples));
+        var unsortedNaiveIG = sum(getNaiveAdminIG(studentsArray_roster, numTeachers, targetParams, numExamples, 1));
 
         // No sorting, examples chosen with guessed beliefs
-        var unsortedIG = sum(getAdminIG(assessedStudents, numTeachers, targetParams, numExamples));
+        var unsortedIG = sum(getAdminIG(assessedStudents_roster, numTeachers, targetParams, numExamples, 1));
 
         // Sorted on guessed student beliefs, examples chosen with guessed beliefs
-        var sortedIG = sum(getAdminIG(sortedStudents, numTeachers, targetParams, numExamples));
+        var sortedIG = sum(getAdminIG(sortedStudents_roster, numTeachers, targetParams, numExamples, 1));
 
         // No sorting, examples chosen with true beliefs
-        var trueUnsortedIG = sum(getTrueAdminIG(studentsArray, numTeachers, targetParams, numExamples));
+        var trueUnsortedIG = sum(getTrueAdminIG(studentsArray_roster, numTeachers, targetParams, numExamples, 1));
 
         // Sorted on true student beliefs, examples chosen with true beliefs
-        var trueSortedIG = sum(getTrueAdminIG(trueSortedStudents, numTeachers, targetParams, numExamples));
+        var trueSortedIG = sum(getTrueAdminIG(trueSortedStudents_roster, numTeachers, targetParams, numExamples, 1));
 
         return [{trialNum: trialNum, numTeachers: numTeachers, numAssessments: numAssessments, numExamples: numExamples, teacherMu: mu, simType: "unsortedNaiveTeachers", IG: unsortedNaiveIG},
         {trialNum: trialNum, numTeachers: numTeachers, numAssessments: numAssessments, numExamples: numExamples, teacherMu: mu, simType: "unsortedUncertainTeachers", IG: unsortedIG},
@@ -304,7 +330,7 @@ var results = mapN(function(trialNum){
         {trialNum: trialNum, numTeachers: numTeachers, numAssessments: numAssessments, numExamples: numExamples, teacherMu: mu, simType: "unsortedPerfectTeachers", IG: trueUnsortedIG},
         {trialNum: trialNum, numTeachers: numTeachers, numAssessments: numAssessments, numExamples: numExamples, teacherMu: mu, simType: "sortedPerfectTeachers", IG: trueSortedIG}];
         
-      }, numTeachersArray);
+      }, numTeachersArray.length);
 
       return numTeachersMapping;
   		
