@@ -359,7 +359,7 @@ var results = mapN(function(trialNum){
 
   return numAssessmentsMapping;
 
-}, 20); // Run 100 trials
+}, 1); // Run 100 trials
 
 
 multiPluck(_.flatten(results));
