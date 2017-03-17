@@ -37,7 +37,7 @@ var generateStudentsArray = function(numStudents){
       var mu = teacherMus[muIndex];
       var teacherAlpha = teacherNu * mu;
       var teacherBeta = teacherNu - teacherAlpha;
-      var priorOldDKL = DKL(priorAlpha, priorBeta, targetAlpha, targetBeta);
+      var priorOldDKL = DKL(priorAlpha, priorBeta, teacherAlpha, teacherBeta);
       return priorOldDKL;
     }, teacherMus.length);
 
@@ -65,18 +65,18 @@ var assess = function(students, numAssessments){
     var guessAlpha = answers + 1;
     var guessBeta = numQuestionsToAsk - answers + 1;
 
-    //Get the priorOldDKLs for all Mu levels
+    //Get the guessOldDKLs for all Mu levels
     var guessOldDKLs = mapN(function(muIndex){
       
       var mu = teacherMus[muIndex];
       var teacherAlpha = teacherNu * mu;
       var teacherBeta = teacherNu - teacherAlpha;
-      var guessOldDKL = DKL(guessAlpha, guessBeta, targetAlpha, targetBeta);
+      var guessOldDKL = DKL(guessAlpha, guessBeta, teacherAlpha, teacherBeta);
       return guessOldDKL;
     }, teacherMus.length);
 
 		//Seed admin beliefs about student
-		return {priorAlpha: student.priorAlpha, priorBeta: student.priorBeta, guessAlpha: guessAlpha, guessBeta: guessBeta, priorOldDKLs: priorOldDKLs, guessOldDKLs: guessOldDKLs};
+		return {priorAlpha: student.priorAlpha, priorBeta: student.priorBeta, guessAlpha: guessAlpha, guessBeta: guessBeta, priorOldDKLs: student.priorOldDKLs, guessOldDKLs: guessOldDKLs};
 	}, students);
 
 	return assessedStudents;
