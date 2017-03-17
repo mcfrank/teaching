@@ -148,7 +148,7 @@ var getTeacherIG = function(students, targetParams, numExamples, exponent){
       //return score;
 
       //Retrieve guessOldDKL calculated earlier for this mu
-      var oldDKL = student.guessOldDKLs[targetParams.muIndex]);
+      var oldDKL = student.guessOldDKLs[targetParams.muIndex];
 
       var newDKL = DKL(student.guessAlpha + h, student.guessBeta + t, targetParams.alpha, targetParams.beta);
 
@@ -161,7 +161,7 @@ var getTeacherIG = function(students, targetParams, numExamples, exponent){
     var actualIGs = map(function(student){
 
       //Retrieve priorOldDKL calculated earlier for this mu
-      var oldDKL = student.priorOldDKLs[targetParams.muIndex]);
+      var oldDKL = student.priorOldDKLs[targetParams.muIndex];
 
       var newDKL = DKL(student.priorAlpha + h, student.priorBeta + t, targetParams.alpha, targetParams.beta);
 
@@ -210,20 +210,14 @@ var getTrueTeacherIG = function(students, targetParams, numExamples, exponent){
     var t = numExamples - h;
 
     var actualIGs = map(function(student){
-      var oldDKL = DKL(student.priorAlpha, student.priorBeta, targetParams.alpha, targetParams.beta);
-      console.log("prioroldDKL_here: " + oldDKL);
-      console.log("prioroldDKL_early: " + student.priorOldDKLs[targetParams.muIndex]);
+      var oldDKL = student.priorOldDKLs[targetParams.muIndex];
 
       var newDKL = DKL(student.priorAlpha + h, student.priorBeta + t, targetParams.alpha, targetParams.beta);
-      var IG_manual = oldDKL - newDKL;
-      console.log("IG Manual: " + IG_manual);
-
-      var IG_auto = IG2(targetParams.alpha, targetParams.beta, student.priorAlpha, student.priorBeta, h, t);
-      console.log("IG Auto: " + IG_auto);
-      console.log("----------------\n");
+      
+      var IG = oldDKL - newDKL;
 
       return Math.sign(IG) * Math.pow(Math.abs(IG), exponent);
-    }, students)
+    }, students);
 
     //Weight choice of examples by what teacher believes the IGs will be
     factor(sum(actualIGs));
@@ -263,19 +257,13 @@ var getNaiveTeacherIG = function(students, targetParams, numExamples, exponent){
     var t = numExamples - h;
 
     var actualIGs = map(function(student){
-      var oldDKL = DKL(student.priorAlpha, student.priorBeta, targetParams.alpha, targetParams.beta);
-      console.log("prioroldDKL_here: " + oldDKL);
-      console.log("prioroldDKL_early: " + student.priorOldDKLs[targetParams.muIndex]);
+      var oldDKL = student.priorOldDKLs[targetParams.muIndex];
 
       var newDKL = DKL(student.priorAlpha + h, student.priorBeta + t, targetParams.alpha, targetParams.beta);
-      var IG_manual = oldDKL - newDKL;
-      console.log("IG Manual: " + IG_manual);
+      
+      var IG = oldDKL - newDKL;
 
-      var IG_auto = IG2(targetParams.alpha, targetParams.beta, student.priorAlpha, student.priorBeta, h, t);
-      console.log("IG Auto: " + IG_auto);
-      console.log("----------------\n");
-
-      return Math.sign(IG_auto) * Math.pow(Math.abs(IG_auto), exponent);
+      return Math.sign(IG) * Math.pow(Math.abs(IG), exponent);
     }, students);
 
     //Weight choice of examples by what teacher believes the IGs will be, weighted by the numExamples choose h
@@ -330,7 +318,7 @@ var results = mapN(function(trialNum){
 
   console.log("Starting trial " + trialNum);
 
-	var studentsArray = generateStudentsArray(10); // Unsorted array of students, (1,1) guesses
+	var studentsArray = generateStudentsArray(100); // Unsorted array of students, (1,1) guesses
   // Do distribution of studentsArray once across all parameterizations of assessments and mus.
   var studentsArray_rosters_byNumTeachers = map(function(numTeachers){
     return distributeStudents(studentsArray, numTeachers);
