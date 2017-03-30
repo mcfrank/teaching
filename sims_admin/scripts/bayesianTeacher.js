@@ -120,7 +120,6 @@ var getTeacherIG = function(students, targetParams, numExamples, exponent){
       //var score = IG2(targetParams.alpha, targetParams.beta, student.guessAlpha, student.guessBeta, h, t)
       ///console.log("Score: " + score);
       //return score;
-
       var oldDKL = DKL(student.guessAlpha, student.guessBeta, targetParams.alpha, targetParams.beta);
       var newDKL = DKL(student.guessAlpha + h, student.guessBeta + t, targetParams.alpha, targetParams.beta);
       var IG_manual = oldDKL - newDKL;
@@ -130,11 +129,14 @@ var getTeacherIG = function(students, targetParams, numExamples, exponent){
       console.log("IG Auto: " + IG_auto);
       console.log("----------------\n");
 
-      return Math.pow(IG_auto, exponent);
+      return Math.sign(IG_auto) * Math.pow(Math.abs(IG_auto), exponent);
+      //return Math.pow(IG2(targetParams.alpha, targetParams.beta, student.guessAlpha, student.guessBeta, h, t), exponent);
     }, students)
 
     var actualIGs = map(function(student){
-      return Math.pow(IG2(targetParams.alpha, targetParams.beta, student.priorAlpha, student.priorBeta, h, t), exponent);
+      var IG = IG2(targetParams.alpha, targetParams.beta, student.priorAlpha, student.priorBeta, h, t);
+      return Math.sign(IG) * Math.pow(Math.abs(IG), exponent);
+      //return Math.pow(IG2(targetParams.alpha, targetParams.beta, student.priorAlpha, student.priorBeta, h, t), exponent);
     }, students)
 
     //console.log("Believed IGs: " + believedIGs);
@@ -176,7 +178,8 @@ var getTrueTeacherIG = function(students, targetParams, numExamples, exponent){
     var t = numExamples - h;
 
     var actualIGs = map(function(student){
-      return Math.pow(IG2(targetParams.alpha, targetParams.beta, student.priorAlpha, student.priorBeta, h, t), exponent);
+      var IG = IG2(targetParams.alpha, targetParams.beta, student.priorAlpha, student.priorBeta, h, t);
+      return Math.sign(IG) * Math.pow(Math.abs(IG), exponent);
     }, students)
 
     //Weight choice of examples by what teacher believes the IGs will be
@@ -217,7 +220,8 @@ var getNaiveTeacherIG = function(students, targetParams, numExamples, exponent){
     var t = numExamples - h;
 
     var actualIGs = map(function(student){
-      return Math.pow(IG2(targetParams.alpha, targetParams.beta, student.priorAlpha, student.priorBeta, h, t), exponent);
+      var IG = IG2(targetParams.alpha, targetParams.beta, student.priorAlpha, student.priorBeta, h, t);
+      return Math.sign(IG) * Math.pow(Math.abs(IG), exponent);
     }, students);
 
     //Weight choice of examples by what teacher believes the IGs will be, weighted by the numExamples choose h
@@ -242,7 +246,6 @@ var getNaiveAdminIG = function(students, numTeachers, targetParams, numExamples,
     var classroomExpectations = map(function(studentsInClassroom){
       var teacherIG = getNaiveTeacherIG(studentsInClassroom, targetParams, numExamples, exponent);
       return MAP(teacherIG).val;
-
     }, students);
     //}, distributedStudents);
 
@@ -319,27 +322,31 @@ var results = mapN(function(trialNum){
         var sortedStudents_roster = sortedStudents_rosters_byNumTeachers[i];
         var trueSortedStudents_roster = trueSortedStudents_rosters_byNumTeachers[i];
 
-        // No sorting, naive teachers (teachers show examples proportional to target, without inference on student beliefs)
-        var unsortedNaiveIG = sum(getNaiveAdminIG(studentsArray_roster, numTeachers, targetParams, numExamples, 1));
+        var exponentsMapping = map(function(exponent){
+          // No sorting, naive teachers (teachers show examples proportional to target, without inference on student beliefs)
+          var unsortedNaiveIG = sum(getNaiveAdminIG(studentsArray_roster, numTeachers, targetParams, numExamples, exponent));
 
-        // No sorting, examples chosen with guessed beliefs
-        var unsortedIG = sum(getAdminIG(assessedStudents_roster, numTeachers, targetParams, numExamples, 1));
+          // No sorting, examples chosen with guessed beliefs
+          var unsortedIG = sum(getAdminIG(assessedStudents_roster, numTeachers, targetParams, numExamples, exponent));
 
-        // Sorted on guessed student beliefs, examples chosen with guessed beliefs
-        var sortedIG = sum(getAdminIG(sortedStudents_roster, numTeachers, targetParams, numExamples, 1));
+          // Sorted on guessed student beliefs, examples chosen with guessed beliefs
+          var sortedIG = sum(getAdminIG(sortedStudents_roster, numTeachers, targetParams, numExamples, exponent));
 
-        // No sorting, examples chosen with true beliefs
-        var trueUnsortedIG = sum(getTrueAdminIG(studentsArray_roster, numTeachers, targetParams, numExamples, 1));
+          // No sorting, examples chosen with true beliefs
+          var trueUnsortedIG = sum(getTrueAdminIG(studentsArray_roster, numTeachers, targetParams, numExamples, exponent));
 
-        // Sorted on true student beliefs, examples chosen with true beliefs
-        var trueSortedIG = sum(getTrueAdminIG(trueSortedStudents_roster, numTeachers, targetParams, numExamples, 1));
+          // Sorted on true student beliefs, examples chosen with true beliefs
+          var trueSortedIG = sum(getTrueAdminIG(trueSortedStudents_roster, numTeachers, targetParams, numExamples, exponent));
 
-        return [{trialNum: trialNum, numTeachers: numTeachers, numAssessments: numAssessments, numExamples: numExamples, teacherMu: mu, simType: "unsortedNaiveTeachers", IG: unsortedNaiveIG},
-        {trialNum: trialNum, numTeachers: numTeachers, numAssessments: numAssessments, numExamples: numExamples, teacherMu: mu, simType: "unsortedUncertainTeachers", IG: unsortedIG},
-        {trialNum: trialNum, numTeachers: numTeachers, numAssessments: numAssessments, numExamples: numExamples, teacherMu: mu, simType: "sortedUncertainTeachers", IG: sortedIG},
-        {trialNum: trialNum, numTeachers: numTeachers, numAssessments: numAssessments, numExamples: numExamples, teacherMu: mu, simType: "unsortedPerfectTeachers", IG: trueUnsortedIG},
-        {trialNum: trialNum, numTeachers: numTeachers, numAssessments: numAssessments, numExamples: numExamples, teacherMu: mu, simType: "sortedPerfectTeachers", IG: trueSortedIG}];
-        
+          return [{trialNum: trialNum, numTeachers: numTeachers, numAssessments: numAssessments, numExamples: numExamples, teacherMu: mu, exponent: exponent, simType: "unsortedNaiveTeachers", IG: unsortedNaiveIG},
+          {trialNum: trialNum, numTeachers: numTeachers, numAssessments: numAssessments, numExamples: numExamples, teacherMu: mu, exponent: exponent, simType: "unsortedUncertainTeachers", IG: unsortedIG},
+          {trialNum: trialNum, numTeachers: numTeachers, numAssessments: numAssessments, numExamples: numExamples, teacherMu: mu, exponent: exponent, simType: "sortedUncertainTeachers", IG: sortedIG},
+          {trialNum: trialNum, numTeachers: numTeachers, numAssessments: numAssessments, numExamples: numExamples, teacherMu: mu, exponent: exponent, simType: "unsortedPerfectTeachers", IG: trueUnsortedIG},
+          {trialNum: trialNum, numTeachers: numTeachers, numAssessments: numAssessments, numExamples: numExamples, teacherMu: mu, exponent: exponent, simType: "sortedPerfectTeachers", IG: trueSortedIG}];
+      
+        }, exponentsArray);
+
+        return exponentsMapping;
       }, numTeachersArray.length);
 
       return numTeachersMapping;
@@ -352,7 +359,7 @@ var results = mapN(function(trialNum){
 
   return numAssessmentsMapping;
 
-}, 3); // Run 100 trials
+}, 20); // Run 100 trials
 
 
 multiPluck(_.flatten(results));
