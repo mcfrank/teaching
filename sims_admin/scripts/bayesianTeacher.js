@@ -146,36 +146,28 @@ var getTeacherIG = function(students, targetParams, numExamples, exponent){
       //var score = IG2(targetParams.alpha, targetParams.beta, student.guessAlpha, student.guessBeta, h, t)
       ///console.log("Score: " + score);
       //return score;
-      var oldDKL = DKL(student.guessAlpha, student.guessBeta, targetParams.alpha, targetParams.beta);
-      console.log("guessoldDKL_here: " + oldDKL);
-      console.log("guessoldDKL_early: " + student.guessOldDKLs[targetParams.muIndex]);
+
+      //Retrieve guessOldDKL calculated earlier for this mu
+      var oldDKL = student.guessOldDKLs[targetParams.muIndex]);
 
       var newDKL = DKL(student.guessAlpha + h, student.guessBeta + t, targetParams.alpha, targetParams.beta);
-      var IG_manual = oldDKL - newDKL;
-      console.log("IG Manual: " + IG_manual);
 
-      var IG_auto = IG2(targetParams.alpha, targetParams.beta, student.guessAlpha, student.guessBeta, h, t);
-      console.log("IG Auto: " + IG_auto);
-      console.log("----------------\n");
+      var IG = oldDKL - newDKL;
 
-      return Math.sign(IG_auto) * Math.pow(Math.abs(IG_auto), exponent);
+      return Math.sign(IG) * Math.pow(Math.abs(IG), exponent);
       //return Math.pow(IG2(targetParams.alpha, targetParams.beta, student.guessAlpha, student.guessBeta, h, t), exponent);
     }, students)
 
     var actualIGs = map(function(student){
-      var oldDKL = DKL(student.priorAlpha, student.priorBeta, targetParams.alpha, targetParams.beta);
-      console.log("prioroldDKL_here: " + oldDKL);
-      console.log("prioroldDKL_early: " + student.priorOldDKLs[targetParams.muIndex]);
+
+      //Retrieve priorOldDKL calculated earlier for this mu
+      var oldDKL = student.priorOldDKLs[targetParams.muIndex]);
 
       var newDKL = DKL(student.priorAlpha + h, student.priorBeta + t, targetParams.alpha, targetParams.beta);
-      var IG_manual = oldDKL - newDKL;
-      console.log("IG Manual: " + IG_manual);
 
-      var IG_auto = IG2(targetParams.alpha, targetParams.beta, student.priorAlpha, student.priorBeta, h, t);
-      console.log("IG Auto: " + IG_auto);
-      console.log("----------------\n");
+      var IG = oldDKL - newDKL;
 
-      return Math.sign(IG_auto) * Math.pow(Math.abs(IG_auto), exponent);
+      return Math.sign(IG) * Math.pow(Math.abs(IG), exponent);
       //return Math.pow(IG2(targetParams.alpha, targetParams.beta, student.priorAlpha, student.priorBeta, h, t), exponent);
     }, students)
 
@@ -218,7 +210,18 @@ var getTrueTeacherIG = function(students, targetParams, numExamples, exponent){
     var t = numExamples - h;
 
     var actualIGs = map(function(student){
-      var IG = IG2(targetParams.alpha, targetParams.beta, student.priorAlpha, student.priorBeta, h, t);
+      var oldDKL = DKL(student.priorAlpha, student.priorBeta, targetParams.alpha, targetParams.beta);
+      console.log("prioroldDKL_here: " + oldDKL);
+      console.log("prioroldDKL_early: " + student.priorOldDKLs[targetParams.muIndex]);
+
+      var newDKL = DKL(student.priorAlpha + h, student.priorBeta + t, targetParams.alpha, targetParams.beta);
+      var IG_manual = oldDKL - newDKL;
+      console.log("IG Manual: " + IG_manual);
+
+      var IG_auto = IG2(targetParams.alpha, targetParams.beta, student.priorAlpha, student.priorBeta, h, t);
+      console.log("IG Auto: " + IG_auto);
+      console.log("----------------\n");
+
       return Math.sign(IG) * Math.pow(Math.abs(IG), exponent);
     }, students)
 
@@ -260,8 +263,19 @@ var getNaiveTeacherIG = function(students, targetParams, numExamples, exponent){
     var t = numExamples - h;
 
     var actualIGs = map(function(student){
-      var IG = IG2(targetParams.alpha, targetParams.beta, student.priorAlpha, student.priorBeta, h, t);
-      return Math.sign(IG) * Math.pow(Math.abs(IG), exponent);
+      var oldDKL = DKL(student.priorAlpha, student.priorBeta, targetParams.alpha, targetParams.beta);
+      console.log("prioroldDKL_here: " + oldDKL);
+      console.log("prioroldDKL_early: " + student.priorOldDKLs[targetParams.muIndex]);
+
+      var newDKL = DKL(student.priorAlpha + h, student.priorBeta + t, targetParams.alpha, targetParams.beta);
+      var IG_manual = oldDKL - newDKL;
+      console.log("IG Manual: " + IG_manual);
+
+      var IG_auto = IG2(targetParams.alpha, targetParams.beta, student.priorAlpha, student.priorBeta, h, t);
+      console.log("IG Auto: " + IG_auto);
+      console.log("----------------\n");
+
+      return Math.sign(IG_auto) * Math.pow(Math.abs(IG_auto), exponent);
     }, students);
 
     //Weight choice of examples by what teacher believes the IGs will be, weighted by the numExamples choose h
