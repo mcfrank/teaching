@@ -30,8 +30,18 @@ var generateStudentsArray = function(numStudents){
 
   //Generate array of students
   var students = map2(function(priorAlpha, priorBeta){
-    //console.log("pA:" + priorAlpha + " | pB: " + priorBeta);
-    return {priorAlpha: priorAlpha, priorBeta: priorBeta, guessAlpha: guessAlpha, guessBeta: guessBeta}
+    
+    //Get the priorOldDKLs for all Mu levels
+    var priorOldDKLs = mapN(function(muIndex){
+      
+      var mu = teacherMus[muIndex];
+      var teacherAlpha = teacherNu * mu;
+      var teacherBeta = teacherNu - teacherAlpha;
+      var priorOldDKL = DKL(priorAlpha, priorBeta, targetAlpha, targetBeta);
+      return priorOldDKL;
+    }, teacherMus.length);
+
+    return {priorAlpha: priorAlpha, priorBeta: priorBeta, guessAlpha: guessAlpha, guessBeta: guessBeta, priorOldDKLs: priorOldDKLs}
   }, priorAlphas, priorBetas);
   
 
@@ -55,13 +65,29 @@ var assess = function(students, numAssessments){
     var guessAlpha = answers + 1;
     var guessBeta = numQuestionsToAsk - answers + 1;
 
-		//Seed admin beliefs about student
-		return {priorAlpha: student.priorAlpha, priorBeta: student.priorBeta, guessAlpha: guessAlpha, guessBeta: guessBeta};
+    //Get the priorOldDKLs for all Mu levels
+    var guessOldDKLs = mapN(function(muIndex){
+      
+      var mu = teacherMus[muIndex];
+      var teacherAlpha = teacherNu * mu;
+      var teacherBeta = teacherNu - teacherAlpha;
+      var guessOldDKL = DKL(guessAlpha, guessBeta, targetAlpha, targetBeta);
+      return guessOldDKL;
+    }, teacherMus.length);
 
+		//Seed admin beliefs about student
+		return {priorAlpha: student.priorAlpha, priorBeta: student.priorBeta, guessAlpha: guessAlpha, guessBeta: guessBeta, priorOldDKLs: priorOldDKLs, guessOldDKLs: guessOldDKLs};
 	}, students);
 
 	return assessedStudents;
 }
+
+// var calculateOldDKLs = function(students, targetAlpha, targetBeta){
+
+//   var studentsWithOldDKLs = 
+//   //Store their oldDKL at this phase
+//   return {priorAlpha: student.priorAlpha, priorBeta: student.priorBeta, guessAlpha: student.guessAlpha, guessBeta: student.guessBeta, priorOldDKL: oldDKL}
+// }
 
 // Helper function to sort students by true or guessed prior distribution
 var sortStudents = function(students, trueValue) {
@@ -121,6 +147,9 @@ var getTeacherIG = function(students, targetParams, numExamples, exponent){
       ///console.log("Score: " + score);
       //return score;
       var oldDKL = DKL(student.guessAlpha, student.guessBeta, targetParams.alpha, targetParams.beta);
+      console.log("guessoldDKL_here: " + oldDKL);
+      console.log("guessoldDKL_early: " + student.guessOldDKLs[targetParams.muIndex]);
+
       var newDKL = DKL(student.guessAlpha + h, student.guessBeta + t, targetParams.alpha, targetParams.beta);
       var IG_manual = oldDKL - newDKL;
       console.log("IG Manual: " + IG_manual);
@@ -134,8 +163,19 @@ var getTeacherIG = function(students, targetParams, numExamples, exponent){
     }, students)
 
     var actualIGs = map(function(student){
-      var IG = IG2(targetParams.alpha, targetParams.beta, student.priorAlpha, student.priorBeta, h, t);
-      return Math.sign(IG) * Math.pow(Math.abs(IG), exponent);
+      var oldDKL = DKL(student.priorAlpha, student.priorBeta, targetParams.alpha, targetParams.beta);
+      console.log("prioroldDKL_here: " + oldDKL);
+      console.log("prioroldDKL_early: " + student.priorOldDKLs[targetParams.muIndex]);
+
+      var newDKL = DKL(student.priorAlpha + h, student.priorBeta + t, targetParams.alpha, targetParams.beta);
+      var IG_manual = oldDKL - newDKL;
+      console.log("IG Manual: " + IG_manual);
+
+      var IG_auto = IG2(targetParams.alpha, targetParams.beta, student.priorAlpha, student.priorBeta, h, t);
+      console.log("IG Auto: " + IG_auto);
+      console.log("----------------\n");
+
+      return Math.sign(IG_auto) * Math.pow(Math.abs(IG_auto), exponent);
       //return Math.pow(IG2(targetParams.alpha, targetParams.beta, student.priorAlpha, student.priorBeta, h, t), exponent);
     }, students)
 
@@ -307,11 +347,11 @@ var results = mapN(function(trialNum){
     var numExamples = numTimeSteps - numAssessments;
 
   	//Run simulation for all bias levels
-  	var teacherMusMapping = map(function(mu){
-
+  	var teacherMusMapping = mapN(function(muIndex){
+      var mu = teacherMus[muIndex];
   		var teacherAlpha = teacherNu * mu;
   		var teacherBeta = teacherNu - teacherAlpha;
-  		var targetParams = {alpha: teacherAlpha, beta: teacherBeta};
+  		var targetParams = {alpha: teacherAlpha, beta: teacherBeta, muIndex: muIndex};
 
       //console.log("-------\ntesting teacher with mu " + mu);
 
@@ -351,7 +391,7 @@ var results = mapN(function(trialNum){
 
       return numTeachersMapping;
   		
-  	}, teacherMus);
+  	}, teacherMus.length);
 
     return teacherMusMapping;
 
