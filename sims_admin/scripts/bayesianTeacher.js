@@ -120,7 +120,17 @@ var getTeacherIG = function(students, targetParams, numExamples, exponent){
       //var score = IG2(targetParams.alpha, targetParams.beta, student.guessAlpha, student.guessBeta, h, t)
       ///console.log("Score: " + score);
       //return score;
-      return Math.pow(IG2(targetParams.alpha, targetParams.beta, student.guessAlpha, student.guessBeta, h, t), exponent);
+
+      var oldDKL = DKL(student.guessAlpha, student.guessBeta, targetParams.alpha, targetParams.beta);
+      var newDKL = DKL(student.guessAlpha + h, student.guessBeta + t, targetParams.alpha, targetParams.beta);
+      var IG_manual = oldDKL - newDKL;
+      console.log("IG Manual: " + IG_manual);
+
+      var IG_auto = IG2(targetParams.alpha, targetParams.beta, student.guessAlpha, student.guessBeta, h, t);
+      console.log("IG Auto: " + IG_auto);
+      console.log("----------------\n");
+
+      return Math.pow(IG_auto, exponent);
     }, students)
 
     var actualIGs = map(function(student){
