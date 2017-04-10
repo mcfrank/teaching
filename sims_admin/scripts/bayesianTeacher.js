@@ -247,7 +247,7 @@ var getTrueAdminIG = function(students, numTeachers, targetParams, numExamples, 
 // Get the information gain if the teacher naive chooses the examples to match the target params (no inference on student beliefs)
 // This could be optimized without the Infer statement, but maintained for clarity on equivalent structure
 var getNaiveTeacherIG = function(students, targetParams, numExamples, exponent){
-  return Infer({method: 'forward', samples: 100}, function(){
+  return Infer({method: 'forward', samples: 20}, function(){
 
     //Use this to seed the prior likelihoods of examples
     var target = targetParams.alpha / (targetParams.alpha + targetParams.beta);
@@ -260,7 +260,7 @@ var getNaiveTeacherIG = function(students, targetParams, numExamples, exponent){
       var oldDKL = student.priorOldDKLs[targetParams.muIndex];
 
       var newDKL = DKL(student.priorAlpha + h, student.priorBeta + t, targetParams.alpha, targetParams.beta);
-      
+        
       var IG = oldDKL - newDKL;
 
       return Math.sign(IG) * Math.pow(Math.abs(IG), exponent);
@@ -401,7 +401,7 @@ var results = mapN(function(trialNum){
 
   return numAssessmentsMapping;
 
-}, 1); // Run 100 trials
+}, 10); // Run 100 trials
 
 
 multiPluck(_.flatten(results));
