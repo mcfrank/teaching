@@ -44,19 +44,39 @@ out2 <- as.data.frame(webppl(program_file = "~/Documents/teaching/sims_admin/scr
 out3 <- as.data.frame(webppl(program_file = "~/Documents/teaching/sims_admin/scripts/bayesianTeacher.js", packages = c("math-beta", "webppl-compute-digamma")))
 out4 <- as.data.frame(webppl(program_file = "~/Documents/teaching/sims_admin/scripts/bayesianTeacher.js", packages = c("math-beta", "webppl-compute-digamma")))
 out5 <- as.data.frame(webppl(program_file = "~/Documents/teaching/sims_admin/scripts/bayesianTeacher.js", packages = c("math-beta", "webppl-compute-digamma")))
-out2$trialNum = out2$trialNum + 20
-out3$trialNum = out3$trialNum + 40
-out4$trialNum = out4$trialNum + 60
-out5$trialNum = out5$trialNum + 80
-out <- rbind(out1, out2, out3, out4, out5)
+out6 <- as.data.frame(webppl(program_file = "~/Documents/teaching/sims_admin/scripts/bayesianTeacher.js", packages = c("math-beta", "webppl-compute-digamma")))
+out7 <- as.data.frame(webppl(program_file = "~/Documents/teaching/sims_admin/scripts/bayesianTeacher.js", packages = c("math-beta", "webppl-compute-digamma")))
+out8 <- as.data.frame(webppl(program_file = "~/Documents/teaching/sims_admin/scripts/bayesianTeacher.js", packages = c("math-beta", "webppl-compute-digamma")))
+out9 <- as.data.frame(webppl(program_file = "~/Documents/teaching/sims_admin/scripts/bayesianTeacher.js", packages = c("math-beta", "webppl-compute-digamma")))
+
+out2$trialNum = out2$trialNum + 10
+out3$trialNum = out3$trialNum + 20
+out4$trialNum = out4$trialNum + 40
+out5$trialNum = out5$trialNum + 50
+out6$trialNum = out6$trialNum + 60
+out7$trialNum = out7$trialNum + 70
+out8$trialNum = out8$trialNum + 80
+out9$trialNum = out9$trialNum + 90
+
+out <- rbind(out1, out2, out3, out4, out5, out6, out7, out8, out9)
 endTimeSmall100 <- Sys.time()
 ```
 
 ```{r}
-out3Per11Nu <- as.data.frame(webppl(program_file = "~/Documents/teaching/sims_admin/scripts/bayesianTeacher.js", packages = c("math-beta", "webppl-compute-digamma")))
-write_csv(out3Per, "cached_data/raw_data_013117_3Per11Nu_small.csv")
+out3Per11Nu_exp_opt <- as.data.frame(webppl(program_file = "~/Documents/teaching/sims_admin/scripts/bayesianTeacher.js", packages = c("math-beta", "webppl-compute-digamma")))
+ write_csv(out, "cached_data/raw_data_041017_3Per11Nu_exp_large.csv")
 ```
 
+```{r}
+studentTrackerOutput1 <- as.data.frame(webppl(program_file = "~/Documents/teaching/sims_admin/scripts/bayesianTeacher_studentTracker.js", packages = c("math-beta", "webppl-compute-digamma")))
+studentTrackerOutput2 <- as.data.frame(webppl(program_file = "~/Documents/teaching/sims_admin/scripts/bayesianTeacher_studentTracker.js", packages = c("math-beta", "webppl-compute-digamma")))
+studentTrackerOutput3 <- as.data.frame(webppl(program_file = "~/Documents/teaching/sims_admin/scripts/bayesianTeacher_studentTracker.js", packages = c("math-beta", "webppl-compute-digamma")))
+studentTrackerOutput4 <- as.data.frame(webppl(program_file = "~/Documents/teaching/sims_admin/scripts/bayesianTeacher_studentTracker.js", packages = c("math-beta", "webppl-compute-digamma")))
+studentTrackerOutput5 <- as.data.frame(webppl(program_file = "~/Documents/teaching/sims_admin/scripts/bayesianTeacher_studentTracker.js", packages = c("math-beta", "webppl-compute-digamma")))
+studentTrackerOutput6 <- as.data.frame(webppl(program_file = "~/Documents/teaching/sims_admin/scripts/bayesianTeacher_studentTracker.js", packages = c("math-beta", "webppl-compute-digamma")))
+
+write_csv(studentTrackerOutput4, "cached_data/raw_data_041017_studentTracker.csv")
+```
 Write the data to an intermediate caching csv for external/reproducibility use
 
 ```{r}

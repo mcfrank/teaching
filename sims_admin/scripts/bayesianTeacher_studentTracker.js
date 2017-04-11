@@ -2,13 +2,12 @@ var studentInitialNu = 11;
 var numQuestionsPerAssessment = 3;  
 var numTimeSteps = 12;
 //var numAssessments = 2;
-//var teacherMus = [.5, .6, .7, .8, .9];
-var teacherMus = [.5, .6];
+var teacherMus = [.5, .6, .7, .8];
 var teacherNu = 10;
 var numTeachersArray = [1, 2, 3, 5, 10];
 var numAssessmentsArray = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12];
 var factorials = [1, 1, 2, 6, 24, 120, 720, 5040, 40320, 362880, 3628800, 39916800, 479001600];
-var exponentsArray = [0.8, 0.9, 1, 1.1, 1.2];
+var exponentsArray = [1];
 
 // Generate a sequence of student priorAlphas and priorBetas
 var generateSequence = function(numStudents, min, max){
@@ -215,7 +214,7 @@ var getAdminIG = function(students, numTeachers, targetParams, numExamples, expo
 
       var studentInfo = map(function(student){
         var newDKL = DKL(student.priorAlpha + numHeadsToShow, student.priorBeta + numExamples - numHeadsToShow, targetParams.alpha, targetParams.beta);
-        return {studentID: student.studentID, priorAlpha: student.priorAlpha, priorBeta: student.priorBeta, guessAlpha: student.guessAlpha, guessBeta: student.guessBeta, oldDKL: student.guessOldDKLs[targetParams.muIndex], numHeadsShown: numHeadsToShow, newDKL: newDKL};
+        return {studentID: student.studentID, priorAlpha: student.priorAlpha, priorBeta: student.priorBeta, guessAlpha: student.guessAlpha, guessBeta: student.guessBeta, oldDKL: student.priorOldDKLs[targetParams.muIndex], numHeadsShown: numHeadsToShow, newDKL: newDKL};
       }, studentsInClassroom)
 
       return studentInfo;
@@ -267,7 +266,7 @@ var getTrueAdminIG = function(students, numTeachers, targetParams, numExamples, 
 
       var studentInfo = map(function(student){
         var newDKL = DKL(student.priorAlpha + numHeadsToShow, student.priorBeta + numExamples - numHeadsToShow, targetParams.alpha, targetParams.beta);
-        return {studentID: student.studentID, priorAlpha: student.priorAlpha, priorBeta: student.priorBeta, guessAlpha: student.guessAlpha, guessBeta: student.guessBeta, oldDKL: student.guessOldDKLs[targetParams.muIndex], numHeadsShown: numHeadsToShow, newDKL: newDKL};
+        return {studentID: student.studentID, priorAlpha: student.priorAlpha, priorBeta: student.priorBeta, guessAlpha: student.guessAlpha, guessBeta: student.guessBeta, oldDKL: student.priorOldDKLs[targetParams.muIndex], numHeadsShown: numHeadsToShow, newDKL: newDKL};
       }, studentsInClassroom)
 
       return studentInfo;
@@ -323,10 +322,13 @@ var getNaiveAdminIG = function(students, numTeachers, targetParams, numExamples,
       var teacherIG = getNaiveTeacherIG(studentsInClassroom, targetParams, numExamples, exponent);
       var numHeadsToShow = MAP(teacherIG).val;
 
+      //console.log("Generating student-by-student data");
+
       var studentInfo = map(function(student){
         var newDKL = DKL(student.priorAlpha + numHeadsToShow, student.priorBeta + numExamples - numHeadsToShow, targetParams.alpha, targetParams.beta);
-        return {studentID: student.studentID, priorAlpha: student.priorAlpha, priorBeta: student.priorBeta, guessAlpha: student.guessAlpha, guessBeta: student.guessBeta, oldDKL: student.guessOldDKLs[targetParams.muIndex], numHeadsShown: numHeadsToShow, newDKL: newDKL};
-      }, studentsInClassroom)
+
+        return {studentID: student.studentID, priorAlpha: student.priorAlpha, priorBeta: student.priorBeta, guessAlpha: student.guessAlpha, guessBeta: student.guessBeta, oldDKL: student.priorOldDKLs[targetParams.muIndex], numHeadsShown: numHeadsToShow, newDKL: newDKL};
+      }, studentsInClassroom);
 
       return studentInfo;
 
@@ -370,7 +372,7 @@ var results = mapN(function(trialNum){
 
   console.log("Starting trial " + trialNum);
 
-	var studentsArray = generateStudentsArray(10); // Unsorted array of students, (1,1) guesses
+	var studentsArray = generateStudentsArray(100); // Unsorted array of students, (1,1) guesses
   // Do distribution of studentsArray once across all parameterizations of assessments and mus.
   var studentsArray_rosters_byNumTeachers = map(function(numTeachers){
     return distributeStudents(studentsArray, numTeachers);
@@ -417,6 +419,7 @@ var results = mapN(function(trialNum){
         var trueSortedStudents_roster = trueSortedStudents_rosters_byNumTeachers[i];
 
         var exponentsMapping = map(function(exponent){
+
           // No sorting, naive teachers (teachers show examples proportional to target, without inference on student beliefs)
           //var unsortedNaiveIG = sum(getNaiveAdminIG(studentsArray_roster, numTeachers, targetParams, numExamples, exponent));
           var unsortedNaiveIG = getNaiveAdminIG(studentsArray_roster, numTeachers, targetParams, numExamples, exponent);
