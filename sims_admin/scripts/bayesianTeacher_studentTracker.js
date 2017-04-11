@@ -175,7 +175,7 @@ var getTeacherIG = function(students, targetParams, numExamples, exponent){
 
       return Math.sign(IG) * Math.pow(Math.abs(IG), exponent);
       //return Math.pow(IG2(targetParams.alpha, targetParams.beta, student.guessAlpha, student.guessBeta, h, t), exponent);
-    }, students)
+    }, students);
 
     var actualIGs = map(function(student){
 
@@ -188,7 +188,7 @@ var getTeacherIG = function(students, targetParams, numExamples, exponent){
 
       return Math.sign(IG) * Math.pow(Math.abs(IG), exponent);
       //return Math.pow(IG2(targetParams.alpha, targetParams.beta, student.priorAlpha, student.priorBeta, h, t), exponent);
-    }, students)
+    }, students);
 
     //console.log("Believed IGs: " + believedIGs);
     //console.log("Actual IGs: " + actualIGs);
@@ -214,8 +214,8 @@ var getAdminIG = function(students, numTeachers, targetParams, numExamples, expo
       var numHeadsToShow = MAP(teacherIG).val;
 
       var studentInfo = map(function(student){
-        var newDKL = DKL(student.priorAlpha + h, student.priorBeta + t, targetParams.alpha, targetParams.beta);
-        return {studentID: student.studentID, priorAlpha: student.priorAlpha, priorBeta: student.priorBeta, guessAlpha: student.guessAlpha, guessBeta: student.guessBeta, priorOldDKLs: student.priorOldDKLs, numHeads: numHeadsToShow, newDKL: newDKL};
+        var newDKL = DKL(student.priorAlpha + numHeadsToShow, student.priorBeta + numExamples - numHeadsToShow, targetParams.alpha, targetParams.beta);
+        return {studentID: student.studentID, priorAlpha: student.priorAlpha, priorBeta: student.priorBeta, guessAlpha: student.guessAlpha, guessBeta: student.guessBeta, oldDKL: student.guessOldDKLs[targetParams.muIndex], numHeadsShown: numHeadsToShow, newDKL: newDKL};
       }, studentsInClassroom)
 
       return studentInfo;
@@ -345,8 +345,10 @@ var appendRegimeData = function(studentArray, numTeachers, numAssessments, numEx
 
   var output = map(function(student){
 
-    return {trialNum: trialNum, numTeachers: numTeachers, numAssessments: numAssessments, numExamples: numExamples, teacherMu: mu, exponent: exponent, simType: simType, IG: unsortedNaiveIG, studentID: student.studentID, priorAlpha: student.priorAlpha, priorBeta: student.priorBeta, guessAlpha: student.guessAlpha, guessBeta: student.guessBeta, priorOldDKLs: student.priorOldDKLs, numHeads: student.numHeadsToShow, newDKL: student.newDKL};
+    return {numTeachers: numTeachers, numAssessments: numAssessments, numExamples: numExamples, teacherMu: mu, exponent: exponent, simType: simType, studentID: student.studentID, priorAlpha: student.priorAlpha, priorBeta: student.priorBeta, guessAlpha: student.guessAlpha, guessBeta: student.guessBeta, oldDKL: student.oldDKL, numHeadsShown: student.numHeadsShown, newDKL: student.newDKL};
   }, studentArray);
+
+  return output;
 }
 
 var results = mapN(function(trialNum){
