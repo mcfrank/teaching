@@ -28,6 +28,7 @@ library(png)
 library(grid)
 library(ggplot2)
 library(xtable)
+library(knitr)
 library(tidyverse)
 library(directlabels)
 library(forcats)
@@ -106,7 +107,8 @@ In each simulation, we report the total information gain over baseline for 100 s
 
 ```{r}
 NUM_STUDENTS <- 100
-df <- read_csv("../sims_admin/cached_data/raw_data_030117_3Per11Nu_small.csv") 
+df <- read_csv("../sims_admin/cached_data/raw_data_041017_3Per11Nu_exp_large.csv") 
+studentByStudent_df <- read_csv("../sims_admin/cached_data/raw_data_041017_studentTracker.csv")
 ```
 
 We next present a set of four analyses of simulation data examining the effects of factors including grouping students into classess by their prior beliefs, changing class sizes, and the use of assessments to help teachers tailor their teaching to their specific students. In our first two analyses, we focus on the *perfect knowledge* case, in which teachers and administrators have full knowledge of students' knowledge state. In the subsequent two analyses, we relax this assumption and explore . 
@@ -169,9 +171,24 @@ In our second analysis, again a replication of our prior work, we explored the e
 
 ## Analysis 3: Noisy students and assessments
 
+In our third analysis, we relax the assumption that teachers have perfect knowledge about students. Instead, we assume that they start with a na\"ive, uniform representation of each student and learn about the student's prior beliefs via the administration of assessments. In assessments, students are called upon to demonstrate their knowledge by sampling from their own (true) distribution. These samples then serve to update the teacher's estimate about student knowledge. In this sense, the teachers and administrator are modeled as a perfect Bayesian agent that updates its beliefs about student knowledge based on evidence it sees from student performance on aassessments.
+
+By construction, our uncertain teachers have very weak and inaccurate beliefs about student knowledge, and we assume that increasing assessments will help them improve the accuracy of their representation of student knowledge. To be more consistent with real-world constraints, we introduce the notion of time--each student spends a fixed amount of 12 time steps in the system, and any single time step can be devoted to assessing the student (3 samples from the student's prior distribution about the learning concept) or a teacher showing the student one piece evidence (a heads or a tails). By modeling the tradeoff between increasing assessments and increasing teaching opportunities, measuring information gain as the number of assessments increase is no longer trivial.
+
+We simulate information gain in four conditions in a 2x2 design:
+```{r,include=F}
+# conditions <- matrix(c("Sorted Perfect: teachers and administrators who have perfect knowledge of students and sort them into classrooms via this knowledge","Sorted Uncertain", "Unsorted Perfect", "Unsorted Uncertain" ), ncol=2)
+# colnames(conditions) <- c('Perfect Teacher/Admin Knowledge', 'Uncertain Teacher/Admin Knowledge')
+# rownames(conditions) <- c('Sorted', 'Unsorted')
+# conditions.table <- as.table(conditions)
+# kable(conditions.table)
+```
+1) teachers and administrators who have perfect knowledge of students and sort them into classrooms via this knowledge, 2) teachers who have perfect knowledge, but with students randomly assigned to their classroom, 3) teachers and administrators both have uncertainty about student knowledge, with administrators sorting students and teachers selecting examples based on assessment results, and 4) teachers who have uncertainty about student knowledge and select examples based on assessment results, with students randomly assigned to their classroom
+
 ```{r sim_noisy_students, fig.cap="Information gain plotted by number of assessments (out of 12) for teachers with perfect and uncertain student knowledge. Results shown are for 5 teachers.", fig.width=5.9, fig.height=3.1, fig.env = "figure*"}
 
 ig_by_sim_type <- df %>%
+  filter(exponent == 1.0) %>%
   group_by(numAssessments, numTeachers, teacherMu, trialNum) %>%
   mutate(sorted_perfect = IG[simType == "sortedPerfectTeachers"] - 
            IG[simType == "unsortedNaiveTeachers"], 
@@ -210,6 +227,11 @@ ggplot(ig_by_sim_type,
   geom_hline(yintercept = 0, lty = 2, col = "black")
 ```
 
+We hypothesized that with uncertainty about student knowledge, teachers should perform strictly worse at all numbers of assessments.  there exists a non-linear effect of number of assessments on information gain. Having too few assessments would be non-optimal because teachers and administrators cannot accurately gauge student learning, causing administrators to make more errors in sorting students by ability level and teachers to select examples that don't maximize student learning within their classrooms. Having too many assessments would also be non-optimal because teachers do not have enough opportunities to precisely teach the examples they would want. In other words, there are diminishing returns to the number of assessments performed.
+
+As expected, we found that the uncertain teachers performed strictly worse than the omniscient teachers when controlling for every other feature (number of teacher, teacher mu, sorting). Furthermore, consistent with Analysis 1, sorting the students produced greater gains for student learning relative to not sorting the closer the teacher mu is to 0.5. Even with the uncertainty in teacher beliefs about student knowledge, students learned more when the classrooms were sorted by ability than when the teachers had perfect knowledge in unsorted classrooms. Consistent with Analysis 2, decreasing class size also improves student learning, though also with diminishing returns.
+
+Additionally, we found a concave down shape in the student IG based on number of assessments. Between teacher mus of 0.5 and 0.7, the optimal number of assessments is greater than 0 and less than 12. As teacher mu approached 0.5, i.e. as greater variation in student beliefs relative to the true learning concept increased, the higher the number of optimal number of assessments. The optimal number of assessments also decreases as the number of teachers increase. In both cases, it appears that the optimal number of assessments increases when there exists a possibility of greater intra-classroom variation on student prior beliefs.
 
 
 ```{r}
@@ -300,10 +322,7 @@ ggplot(filter(ig, teacherMu == .7),
   ggthemes::theme_few()
 ```
 
-In our third analysis, we relax the assumption that teachers have perfect knowledge about students. Instead, we assume that they start with a na\"ive, uniform representation of each student and learn via the administration of assessments. In assessments, students are called upon to demonstrate their knowledge by sampling from their own (true) distribution. These samples then serve to update the teacher's estimate aboutstudent knowledge. 
-
-We characterize information gain in four conditions: 
-1) teachers and administrators who have perfect knowledge of students and sort them into classrooms via this knowledge, 2) teachers who have perfect knowledge, but with students randomly assigned to their classroom, 3) teachers and administrators who have uncertainty about students and learn about them via assessments. 
+ 
 
 The admin uses these estimates to sort students into classrooms, and teachers use these estimates to customize the set of teaching lessons to a particular student group.
 
