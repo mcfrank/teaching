@@ -238,14 +238,14 @@ studentByStudent_df <- studentByStudent_df %>%
   mutate(simType = as.factor(simType))
 
 studentByStudent_df_small <- studentByStudent_df %>%
-  filter(numAssessments == 6) %>%
+#   filter(numAssessments == 6) %>%
   filter(numTeachers == 10)
 
 ggplot(studentByStudent_df_small,
-       aes(x = studentID)) +
+       aes(x = fct_reorder(factor(studentID), oldDKL))) +
   geom_point(aes(y=oldDKL)) +
   geom_point(aes(y=newDKL, col = simType)) +
-  facet_grid(teacherMu~.)
+  facet_grid(teacherMu~numAssessments)
 
 ggplot(studentByStudent_df_small,
        aes(x = oldDKL, y=newDKL, col=simType)) +
@@ -260,7 +260,7 @@ ig_by_sim <- df %>%
   group_by(simType, numTeachers, numAssessments, teacherMu) %>%
   summarise(IG = mean(IG))
 
-ggplot(ig_by_sim, 
+ggplot(filter(ig_by_sim, teacherMu < .8),
        aes(x = numAssessments, y = IG, col = simType)) +
   geom_line() + 
   facet_grid(teacherMu ~ numTeachers) + 
