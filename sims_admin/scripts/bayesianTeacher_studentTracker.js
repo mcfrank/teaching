@@ -250,7 +250,7 @@ var getTrueTeacherIG = function(students, targetParams, numExamples, exponent){
     factor(sum(actualIGs));
     
     //Return as the score what the actual IGs will be
-    return sum(actualIGs);
+    return h;
 
   });
 }
@@ -263,12 +263,19 @@ var getTrueAdminIG = function(students, numTeachers, targetParams, numExamples, 
   // Assign teachers to teach each classroom
     var classroomExpectations = map(function(studentsInClassroom){
       var teacherIG = getTrueTeacherIG(studentsInClassroom, targetParams, numExamples, exponent);
-      return MAP(teacherIG).val;
+      var numHeadsToShow = MAP(teacherIG).val;
+
+      var studentInfo = map(function(student){
+        var newDKL = DKL(student.priorAlpha + numHeadsToShow, student.priorBeta + numExamples - numHeadsToShow, targetParams.alpha, targetParams.beta);
+        return {studentID: student.studentID, priorAlpha: student.priorAlpha, priorBeta: student.priorBeta, guessAlpha: student.guessAlpha, guessBeta: student.guessBeta, oldDKL: student.guessOldDKLs[targetParams.muIndex], numHeadsShown: numHeadsToShow, newDKL: newDKL};
+      }, studentsInClassroom)
+
+      return studentInfo;
 
     }, students);
     //}, distributedStudents);
 
-    return classroomExpectations;
+    return _.flatten(classroomExpectations);
 }
 
 // Get the information gain if the teacher naive chooses the examples to match the target params (no inference on student beliefs)
@@ -302,7 +309,7 @@ var getNaiveTeacherIG = function(students, targetParams, numExamples, exponent){
     //console.log("Naive teacher IG calculated...");
     
     //Return as the score what the actual IGs will be
-    return sum(actualIGs);
+    return h;
   });
 }
 
@@ -314,11 +321,19 @@ var getNaiveAdminIG = function(students, numTeachers, targetParams, numExamples,
   // Assign teachers to teach each classroom
     var classroomExpectations = map(function(studentsInClassroom){
       var teacherIG = getNaiveTeacherIG(studentsInClassroom, targetParams, numExamples, exponent);
-      return MAP(teacherIG).val;
+      var numHeadsToShow = MAP(teacherIG).val;
+
+      var studentInfo = map(function(student){
+        var newDKL = DKL(student.priorAlpha + numHeadsToShow, student.priorBeta + numExamples - numHeadsToShow, targetParams.alpha, targetParams.beta);
+        return {studentID: student.studentID, priorAlpha: student.priorAlpha, priorBeta: student.priorBeta, guessAlpha: student.guessAlpha, guessBeta: student.guessBeta, oldDKL: student.guessOldDKLs[targetParams.muIndex], numHeadsShown: numHeadsToShow, newDKL: newDKL};
+      }, studentsInClassroom)
+
+      return studentInfo;
+
     }, students);
     //}, distributedStudents);
 
-    return classroomExpectations;
+    return _.flatten(classroomExpectations);
 
 }
 
@@ -404,6 +419,8 @@ var results = mapN(function(trialNum){
         var exponentsMapping = map(function(exponent){
           // No sorting, naive teachers (teachers show examples proportional to target, without inference on student beliefs)
           //var unsortedNaiveIG = sum(getNaiveAdminIG(studentsArray_roster, numTeachers, targetParams, numExamples, exponent));
+          var unsortedNaiveIG = getNaiveAdminIG(studentsArray_roster, numTeachers, targetParams, numExamples, exponent);
+          var unsortedNaiveIGWithRegimeData = appendRegimeData(unsortedNaiveIG, numTeachers, numAssessments, numExamples, mu, exponent, "unsortedNaiveTeachers");
 
           // No sorting, examples chosen with guessed beliefs
           //var unsortedIG = sum(getAdminIG(assessedStudents_roster, numTeachers, targetParams, numExamples, exponent));
@@ -417,16 +434,20 @@ var results = mapN(function(trialNum){
 
           // No sorting, examples chosen with true beliefs
           //var trueUnsortedIG = sum(getTrueAdminIG(studentsArray_roster, numTeachers, targetParams, numExamples, exponent));
+          var trueUnsortedIG = getTrueAdminIG(studentsArray_roster, numTeachers, targetParams, numExamples, exponent);
+          var trueUnsortedIGWithRegimeData = appendRegimeData(trueUnsortedIG, numTeachers, numAssessments, numExamples, mu, exponent, "unsortedPerfectTeachers");
 
           // Sorted on true student beliefs, examples chosen with true beliefs
           //var trueSortedIG = sum(getTrueAdminIG(trueSortedStudents_roster, numTeachers, targetParams, numExamples, exponent));
+          var trueSortedIG = getTrueAdminIG(trueSortedStudents_roster, numTeachers, targetParams, numExamples, exponent);
+          var trueSortedIGWithRegimeData = appendRegimeData(trueSortedIG, numTeachers, numAssessments, numExamples, mu, exponent, "sortedPerfectTeachers");
 
           // return [{trialNum: trialNum, numTeachers: numTeachers, numAssessments: numAssessments, numExamples: numExamples, teacherMu: mu, exponent: exponent, simType: "unsortedNaiveTeachers", IG: unsortedNaiveIG},
           // {trialNum: trialNum, numTeachers: numTeachers, numAssessments: numAssessments, numExamples: numExamples, teacherMu: mu, exponent: exponent, simType: "unsortedUncertainTeachers", IG: unsortedIG},
           // {trialNum: trialNum, numTeachers: numTeachers, numAssessments: numAssessments, numExamples: numExamples, teacherMu: mu, exponent: exponent, simType: "sortedUncertainTeachers", IG: sortedIG},
           // {trialNum: trialNum, numTeachers: numTeachers, numAssessments: numAssessments, numExamples: numExamples, teacherMu: mu, exponent: exponent, simType: "unsortedPerfectTeachers", IG: trueUnsortedIG},
           // {trialNum: trialNum, numTeachers: numTeachers, numAssessments: numAssessments, numExamples: numExamples, teacherMu: mu, exponent: exponent, simType: "sortedPerfectTeachers", IG: trueSortedIG}];
-          return unsortedIGWithRegimeData.concat(sortedIGWithRegimeData);
+          return unsortedNaiveIGWithRegimeData.concat(unsortedIGWithRegimeData.concat(sortedIGWithRegimeData.concat(trueUnsortedIGWithRegimeData.concat(trueSortedIGWithRegimeData))));
       
         }, exponentsArray);
 
