@@ -233,6 +233,27 @@ As expected, we found that the uncertain teachers performed strictly worse than 
 
 Additionally, we found a concave down shape in the student IG based on number of assessments. Between teacher mus of 0.5 and 0.7, the optimal number of assessments is greater than 0 and less than 12. As teacher mu approached 0.5, i.e. as greater variation in student beliefs relative to the true learning concept increased, the higher the number of optimal number of assessments. The optimal number of assessments also decreases as the number of teachers increase. In both cases, it appears that the optimal number of assessments increases when there exists a possibility of greater intra-classroom variation on student prior beliefs.
 
+```{r}
+studentByStudent_df <- studentByStudent_df %>%
+  mutate(simType = as.factor(simType))
+
+studentByStudent_df_small <- studentByStudent_df %>%
+  filter(numAssessments == 6) %>%
+  filter(numTeachers == 10)
+
+ggplot(studentByStudent_df_small,
+       aes(x = studentID)) +
+  geom_point(aes(y=oldDKL)) +
+  geom_point(aes(y=newDKL, col = simType)) +
+  facet_grid(teacherMu~.)
+
+ggplot(studentByStudent_df_small,
+       aes(x = oldDKL, y=newDKL, col=simType)) +
+  geom_point()
+  facet_grid(teacherMu~.)
+  # geom_pointrange(aes(ymin = ci_lower, ymax = ci_upper)) +
+```
+
 
 ```{r}
 ig_by_sim <- df %>%
