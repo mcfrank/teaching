@@ -171,11 +171,17 @@ In our second analysis, again a replication of our prior work, we explored the e
 
 ## Analysis 3: Noisy students and assessments
 
-In our third analysis, we relax the assumption that teachers have perfect knowledge about students. Instead, we assume that they start with a na\"ive, uniform representation of each student and learn about the student's prior beliefs via the administration of assessments. In assessments, students are called upon to demonstrate their knowledge by sampling from their own (true) distribution. These samples then serve to update the teacher's estimate about student knowledge. In this sense, the teachers and administrator are modeled as a perfect Bayesian agent that updates its beliefs about student knowledge based on evidence it sees from student performance on aassessments.
+In our third analysis, we relax the assumption that teachers have perfect knowledge about students. In the real world, neither the admin nor the teacher is an omniscient being that knows the true prior student belief parameters. Instead, they diagnose student beliefs by administering assessments (e.g. placement exams). Using the outcome of these assessments, school faculty can estimate the existing beliefs that students hold, and teach to those beliefs.
 
-By construction, our uncertain teachers have very weak and inaccurate beliefs about student knowledge, and we assume that increasing assessments will help them improve the accuracy of their representation of student knowledge. To be more consistent with real-world constraints, we introduce the notion of time--each student spends a fixed amount of 12 time steps in the system, and any single time step can be devoted to assessing the student (3 samples from the student's prior distribution about the learning concept) or a teacher showing the student one piece evidence (a heads or a tails). By modeling the tradeoff between increasing assessments and increasing teaching opportunities, measuring information gain as the number of assessments increase is no longer trivial.
+To model these agent behaviors, we assume that the admin and teachers start with a na\"ive, uniform representation of each student (i.e. $Beta(1,1)$) and learn about the student's prior beliefs via the administration of assessments. In assessments, students are called upon to demonstrate their knowledge by sampling from their own true distribution. These samples then serve to update the teacher's estimate about student knowledge. In this sense, the teachers and administrator are modeled as a perfect Bayesian agent that updates its beliefs about student knowledge based on evidence it sees from student performance on assessments.
 
-We simulate information gain in four conditions in a 2x2 design:
+For instance, a student may have a true prior belief represented by $Beta(9,2)$. When assessed, they are extremely likely to respond with $H$ (or $1$) to each question on the assessment. If they are asked 6 questions, the most common outcome will be ${H, H, H, H, H, T}$. The teachers and administrator starts with the naive $Beta(1,1)$ representation of the student beliefs, but then updates it for seeing 5 heads and 1 tail in the assessment phase. Their *guessed belief* of student learning becomes $Beta(6,2)$ after the Bayesian update. By construction, our uncertain teachers have very weak and inaccurate beliefs about student knowledge, captured by the low magnitude of the initial Beta parameters, and we assume that increasing assessments will help them improve the accuracy of their representation of student knowledge.
+
+We hypothesize that increasing the number of assessments monotonically improves student learning on average, though with diminishing returns. As such, simply measuring information gain as the number of assessments increases is rather trivial. In this simulation, we introduce the currency of time--each student spends a fixed amount of 12 time steps in the school system, and any single time step can be devoted to assessing the student (3 samples from the student's prior distribution about the learning concept) or a teacher showing the student one piece evidence (a heads or a tails). By modeling the tradeoff between increasing assessments and increasing teaching opportunities, we attempt to identify a tipping point at which giving teachers more opportunities to show examples outweight the diminishing returns on information gain of increasing assessments.
+
+We have a baseline model that uses a non-inferential admin and teacher. This admin and teacher does not take their students' prior beliefs into consideration, and simply selects a set of examples that they believe is an accurate representation of the target concept. **TODO: ELABORATE HERE**
+
+We continue to embed our Simulation 1 and Simulation 2 in our simulation of noisy students. Simulation 3 ends up having a 2 (sorted vs. unsorted) x 2 ()
 ```{r,include=F}
 # conditions <- matrix(c("Sorted Perfect: teachers and administrators who have perfect knowledge of students and sort them into classrooms via this knowledge","Sorted Uncertain", "Unsorted Perfect", "Unsorted Uncertain" ), ncol=2)
 # colnames(conditions) <- c('Perfect Teacher/Admin Knowledge', 'Uncertain Teacher/Admin Knowledge')
@@ -300,47 +306,47 @@ ggplot(ig_by_sim_type,
 ```
 
 ```{r}
-
-ggplot(filter(ig_by_sim_type, teacherMu == .5, numTeachers == 5,
-              sim_type != "unsorted_uncertain"),
-       aes(x = numAssessments, y = mean, lty = sim_type)) +
-  geom_line() +
-  geom_point() +
-  ggthemes::theme_few() +
-  # langcog::scale_color_solarized(name = "Target Concept") +
-  # geom_pointrange(aes(ymin = ci_lower, ymax = ci_upper)) +
-  # theme(legend.position = "bottom") +
-  ylab("Info Gain Over Unsorted Baseline (nats)") +
-  xlab("Number of Assessments") +
-  scale_linetype(guide=FALSE) +
-  geom_dl(aes(label = sim_type), method = "smart.grid") +
-  scale_x_continuous(breaks = c(0, 3, 6, 9, 12))
-
-il_by_sim_type <- df_spread %>%
-  filter(numAssessments < 12, 
-         numTeachers > 2) %>%
-  mutate(IL = sortedUncertainTeachers - sortedPerfectTeachers) %>%
-  group_by(numAssessments, teacherMu) %>%
-  summarise(mean = mean(IL))
-  # multi_boot_standard(col = "IL")
-
-ggplot(filter(il_by_sim_type, numAssessments < 12),
-       aes(x = numAssessments, y = mean, col = factor(teacherMu))) + 
-  geom_line() + 
-  # geom_linerange(aes(ymin = ci_lower, ymax = ci_upper)) +
-  ggthemes::theme_few() + 
-  langcog::scale_color_solarized(name = "Target Concept") +
-  theme(legend.position = "bottom") + 
-  ylab("Info Loss Relative to Perfect Knowledge (nats)") + 
-  xlab("Number of Assessments") + 
-  scale_x_continuous(breaks = c(0, 3, 6, 9, 12))
-
-ggplot(filter(ig, teacherMu == .7), 
-       aes(x = numTeachers, y = IG, col = factor(simType))) +
-  geom_line() + 
-  facet_wrap(~ numAssessments)  + 
-  scale_colour_solarized() + 
-  ggthemes::theme_few()
+# 
+# ggplot(filter(ig_by_sim_type, teacherMu == .5, numTeachers == 5,
+#               sim_type != "unsorted_uncertain"),
+#        aes(x = numAssessments, y = mean, lty = sim_type)) +
+#   geom_line() +
+#   geom_point() +
+#   ggthemes::theme_few() +
+#   # langcog::scale_color_solarized(name = "Target Concept") +
+#   # geom_pointrange(aes(ymin = ci_lower, ymax = ci_upper)) +
+#   # theme(legend.position = "bottom") +
+#   ylab("Info Gain Over Unsorted Baseline (nats)") +
+#   xlab("Number of Assessments") +
+#   scale_linetype(guide=FALSE) +
+#   geom_dl(aes(label = sim_type), method = "smart.grid") +
+#   scale_x_continuous(breaks = c(0, 3, 6, 9, 12))
+# 
+# il_by_sim_type <- df_spread %>%
+#   filter(numAssessments < 12, 
+#          numTeachers > 2) %>%
+#   mutate(IL = sortedUncertainTeachers - sortedPerfectTeachers) %>%
+#   group_by(numAssessments, teacherMu) %>%
+#   summarise(mean = mean(IL))
+#   # multi_boot_standard(col = "IL")
+# 
+# ggplot(filter(il_by_sim_type, numAssessments < 12),
+#        aes(x = numAssessments, y = mean, col = factor(teacherMu))) + 
+#   geom_line() + 
+#   # geom_linerange(aes(ymin = ci_lower, ymax = ci_upper)) +
+#   ggthemes::theme_few() + 
+#   langcog::scale_color_solarized(name = "Target Concept") +
+#   theme(legend.position = "bottom") + 
+#   ylab("Info Loss Relative to Perfect Knowledge (nats)") + 
+#   xlab("Number of Assessments") + 
+#   scale_x_continuous(breaks = c(0, 3, 6, 9, 12))
+# 
+# ggplot(filter(ig, teacherMu == .7), 
+#        aes(x = numTeachers, y = IG, col = factor(simType))) +
+#   geom_line() + 
+#   facet_wrap(~ numAssessments)  + 
+#   scale_colour_solarized() + 
+#   ggthemes::theme_few()
 ```
 
  
