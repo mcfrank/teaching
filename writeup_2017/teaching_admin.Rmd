@@ -255,8 +255,10 @@ ggplot(studentByStudent_df_small,
 
 ggplot(studentByStudent_df_small,
        aes(x = oldDKL, y=newDKL, col=simType)) +
-  geom_point() +
-  facet_grid(. ~ teacherMu)
+  geom_jitter(alpha=0.1, width=.3, height = 0) +
+  facet_grid(. ~ teacherMu) + 
+  geom_abline(slope =1, lty =2) +
+  geom_smooth(method="lm")
   # geom_pointrange(aes(ymin = ci_lower, ymax = ci_upper)) +
 ```
 
