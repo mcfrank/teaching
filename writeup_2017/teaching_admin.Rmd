@@ -107,7 +107,8 @@ In each simulation, we report the total information gain over baseline for 100 s
 
 ```{r}
 NUM_STUDENTS <- 100
-df <- read_csv("../sims_admin/cached_data/raw_data_041017_3Per11Nu_exp_large.csv") 
+df <- read_csv("../sims_admin/cached_data/raw_data_041017_3Per11Nu_exp_large.csv")
+df2 <- read_csv("../sims_admin/cached_data/raw_data_050917_highResMus.csv")
 studentByStudent_df <- read_csv("../sims_admin/cached_data/raw_data_041017_studentTracker.csv")
 ```
 
@@ -173,11 +174,21 @@ In our second analysis, again a replication of our prior work, we explored the e
 
 In our third analysis, we relax the assumption that teachers have perfect knowledge about students. In the real world, neither the admin nor the teacher is an omniscient being that knows the true prior student belief parameters. Instead, they diagnose student beliefs by administering assessments (e.g. placement exams). Using the outcome of these assessments, school faculty can estimate the existing beliefs that students hold, and teach to those beliefs.
 
+###Simulation details
+
+###Student noisiness
+
 To model these agent behaviors, we assume that the admin and teachers start with a na\"ive, uniform representation of each student (i.e. $Beta(1,1)$) and learn about the student's prior beliefs via the administration of assessments. In assessments, students are called upon to demonstrate their knowledge by sampling from their own true distribution. These samples then serve to update the teacher's estimate about student knowledge. In this sense, the teachers and administrator are modeled as a perfect Bayesian agent that updates its beliefs about student knowledge based on evidence it sees from student performance on assessments.
 
 For instance, a student may have a true prior belief represented by $Beta(9,2)$. When assessed, they are extremely likely to respond with $H$ (or $1$) to each question on the assessment. If they are asked 6 questions, the most common outcome will be ${H, H, H, H, H, T}$. The teachers and administrator starts with the naive $Beta(1,1)$ representation of the student beliefs, but then updates it for seeing 5 heads and 1 tail in the assessment phase. Their *guessed belief* of student learning becomes $Beta(6,2)$ after the Bayesian update. By construction, our uncertain teachers have very weak and inaccurate beliefs about student knowledge, captured by the low magnitude of the initial Beta parameters, and we assume that increasing assessments will help them improve the accuracy of their representation of student knowledge.
 
+####Effects of sorting in a noisy setting
+
+###Currency of time
+
 We hypothesize that increasing the number of assessments monotonically improves student learning on average, though with diminishing returns. As such, simply measuring information gain as the number of assessments increases is rather trivial. In this simulation, we introduce the currency of time--each student spends a fixed amount of 12 time steps in the school system, and any single time step can be devoted to assessing the student (3 samples from the student's prior distribution about the learning concept) or a teacher showing the student one piece evidence (a heads or a tails). By modeling the tradeoff between increasing assessments and increasing teaching opportunities, we attempt to identify a tipping point at which giving teachers more opportunities to show examples outweight the diminishing returns on information gain of increasing assessments.
+
+###Baseline
 
 We have a baseline model that uses a non-inferential admin and teacher. This admin and teacher does not take their students' prior beliefs into consideration, and simply selects a set of examples that they believe is an accurate representation of the target concept. **TODO: ELABORATE HERE**
 
