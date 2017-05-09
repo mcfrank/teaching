@@ -136,6 +136,26 @@ ggplot(sorted_over_unsorted, aes(x = numTeachers, y = mean, col = factor(teacher
   theme(legend.position = "bottom") +
   xlab("Number of Teachers") + 
   scale_x_continuous(breaks = c(1, 2, 3, 5, 10))
+
+df_spread2 <- spread(df2, simType, IG)
+
+#LOOK HERE - It appears that 0.62-0.64 is simply the most potent...?
+sorted_over_unsorted2 <- df_spread2 %>%
+  filter(numAssessments == 0, teacherMu != .9) %>%
+  mutate(IG_over_baseline = sortedPerfectTeachers - unsortedPerfectTeachers) %>%
+  group_by(numTeachers, teacherMu) %>%
+  multi_boot_standard(col = "IG_over_baseline")
+
+ggplot(sorted_over_unsorted2, aes(x = teacherMu, y=mean)) + 
+  geom_line() + 
+  geom_linerange(aes(ymin = ci_lower, ymax = ci_upper)) + 
+  facet_grid(. ~ numTeachers) + 
+  ggthemes::theme_few() + 
+  langcog::scale_color_solarized(name = "Target Concept") +
+  ylab("Information Gain Over Unsorted (nats)") + 
+  theme(legend.position = "bottom") +
+  xlab("TeacherMu") + 
+  scale_x_continuous(breaks = c(.5, .52, .54, .56, .58, .6, .62, .64, .66, .68))
 ```
 
 In our first analysis, we explored the effects of grouping students by their *true prior beliefs* (admins with perfect knowledge), so that teachers can tailor the examples they teach to that particular group. This analysis is a replication of results reported in @frank2014 using the multi-classroom model developed here. We hypothesized that sorting students by their true beliefs would increase information gain compared to random classroom assignment. Our baseline for this analysis was the unsorted information gain under the same parameters. For instance, the sorted aggregate IG of a school with 5 teachers and a target bias of .6 is compared to the unsorted aggregate IG for a school with 5 teachers and a target bias of .6 using the same school of students.
