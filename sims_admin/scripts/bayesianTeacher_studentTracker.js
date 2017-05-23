@@ -9,6 +9,24 @@ var numAssessmentsArray = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12];
 var factorials = [1, 1, 2, 6, 24, 120, 720, 5040, 40320, 362880, 3628800, 39916800, 479001600];
 var exponentsArray = [1];
 
+var fixedStudentsArray = mapN(function(studentID){
+    
+    var priorAlpha = studentID + 1;
+    var priorBeta = studentInitialNu - studentID;
+
+    //Get the priorOldDKLs for all Mu levels
+    var priorOldDKLs = mapN(function(muIndex){
+      
+      var mu = teacherMus[muIndex];
+      var teacherAlpha = teacherNu * mu;
+      var teacherBeta = teacherNu - teacherAlpha;
+      var priorOldDKL = DKL(priorAlpha, priorBeta, teacherAlpha, teacherBeta);
+      return priorOldDKL;
+    }, teacherMus.length);
+
+    return {studentID: studentID, priorAlpha: priorAlpha, priorBeta: priorBeta, guessAlpha: guessAlpha, guessBeta: guessBeta, priorOldDKLs: priorOldDKLs}
+  }, 10);
+
 // Generate a sequence of student priorAlphas and priorBetas
 var generateSequence = function(numStudents, min, max){
   
@@ -289,15 +307,15 @@ var getNaiveTeacherIG = function(students, targetParams, numExamples, exponent){
     //var h = uniformDraw(_.range(0, numExamples + 1));
     var t = numExamples - h;
 
-    var actualIGs = map(function(student){
-      var oldDKL = student.priorOldDKLs[targetParams.muIndex];
+    // var actualIGs = map(function(student){
+    //   var oldDKL = student.priorOldDKLs[targetParams.muIndex];
 
-      var newDKL = DKL(student.priorAlpha + h, student.priorBeta + t, targetParams.alpha, targetParams.beta);
+    //   var newDKL = DKL(student.priorAlpha + h, student.priorBeta + t, targetParams.alpha, targetParams.beta);
         
-      var IG = oldDKL - newDKL;
+    //   var IG = oldDKL - newDKL;
 
-      return Math.sign(IG) * Math.pow(Math.abs(IG), exponent);
-    }, students);
+    //   return Math.sign(IG) * Math.pow(Math.abs(IG), exponent);
+    // }, students);
 
     //Weight choice of examples by what teacher believes the IGs will be, weighted by the numExamples choose h
     // var numExamplesFactorial = factorials[numExamples];
@@ -372,7 +390,8 @@ var results = mapN(function(trialNum){
 
   console.log("Starting trial " + trialNum);
 
-	var studentsArray = generateStudentsArray(100); // Unsorted array of students, (1,1) guesses
+	//var studentsArray = generateStudentsArray(100); // Unsorted array of students, (1,1) guesses
+  var studentsArray = fixedStudentsArray; // Test what each student sees
   // Do distribution of studentsArray once across all parameterizations of assessments and mus.
   var studentsArray_rosters_byNumTeachers = map(function(numTeachers){
     return distributeStudents(studentsArray, numTeachers);
