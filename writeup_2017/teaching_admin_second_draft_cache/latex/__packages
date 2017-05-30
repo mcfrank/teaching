@@ -1,0 +1,15 @@
+base
+png
+ggplot2
+xtable
+knitr
+tidyverse
+tibble
+tidyr
+readr
+purrr
+dplyr
+directlabels
+forcats
+cogsci2016
+langcog
