@@ -220,7 +220,11 @@ For each trial, we test students in two conditions of faculty knowledge: omnisci
 # conditions.table <- as.table(conditions)
 # kable(conditions.table)
 ```
-1) teachers and administrators who have perfect knowledge of students and sort them into classrooms via this knowledge, 2) teachers who have perfect knowledge, but with students randomly assigned to their classroom, 3) teachers and administrators both have uncertainty about student knowledge, with administrators sorting students and teachers selecting examples based on assessment results, and 4) teachers who have uncertainty about student knowledge and select examples based on assessment results, with students randomly assigned to their classroom
+
+teachers and administrators who have perfect knowledge of students and sort them into classrooms via this knowledge
+teachers who have perfect knowledge, but with students randomly assigned to their classroom
+teachers and administrators both have uncertainty about student knowledge, with administrators sorting students and teachers selecting examples based on assessment results, and
+teachers who have uncertainty about student knowledge and select examples based on assessment results, with students randomly assigned to their classroom
 
 ```{r sim_noisy_students, fig.cap="Information gain plotted by number of assessments (out of 12) for teachers with perfect and uncertain student knowledge. Results shown are for 5 teachers.", fig.width=5.9, fig.height=3.1, fig.env = "figure*"}
 
