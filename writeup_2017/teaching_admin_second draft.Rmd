@@ -92,21 +92,6 @@ In that previous work and the current work, the fundamental unit of analysis is 
 
 In the current work, we consider issues of student variability and imperfect teacher knowlege through the lens of *optimal school administration*. We describe a generalization of the model presented in @frank2014 and use this framework to investigate how an optimal adminstrator might make decisions. Our first two simulations replicate and extend results from the previous paper. Then our next two generalize the model to the case of imperfect information about students and finite resources for hiring teachers and conducting assessments. Our final simulation maps out a Pareto frontier for allocation of instructional time and teaching resources.
 
-<!---Old stuff--->
-<!--
- 
-Teaching is the process of knowledge transmission from teachers to students. A teacher attempts to provide information to students -- whether facts, skills, generalizations, or another type of knowledge -- in a form that will be most likely to result in the student learning. But even when students are motivated to learn, and teachers are motivated to teach, information transmission in the classroom is imperfect. Classroom teachers must teach to students with different abilities and backgrounds, making the perfect lesson for one child less accessible to another (the problem of *student variability*). Adding to this issue, teachers don't have perfect knowledge of what students know or how they learn (the problem of *imperfect knowledge*). 
-
-Educators have a variety of strategies to address these problems. If students are too diverse in their knowledge, they can be grouped by ability and provided with different lessons [e.g., @slavin1987;@tomlinson1999]. And formative assessments -- tests that reveal a student's starting state -- can help teachers know what level students start at [e.g., @sadler1989;@fuchs1986]. But breaking students up into groups or separate classes is resource intensive and can be inefficient -- in the limit, it would be impossible to give every single student a separate tutor, even if it might learn to better learning. And every assessment has a cost in terms of lost instructional time. When should educators use these tools? The goal of the current paper is to provide a formal analysis of these questions. We refer to this process as the process of "optimal school administration."
-
-In our previous work, we conceptualized the teacher's task as one of optimal communication [@frank2014]. Following models of pragmatic reasoning in langauge comprehension [@goodman2016;@frank2012], we modeled teachers as reasoning about what evidence would best change student beliefs to more closely correspond to a target. Teachers -- with perfect knowledge about each of their students -- would then choose the learning example that maximized information gain across their students. Using this conceptualization, we were able to derive a number of results through simulation. For example, we found that individual student outcomes were inversely related to class size, since in smaller classes, teachers could customize their teaching better to the idiosynrasies of their particular student group.^[Ability grouping has a complicated history in education [e.g., @slavin1990], and we return to  motivational issues related to this finding in the General Discussion.]
-
-In that previous work and the current work, the fundamental unit of analysis is a teaching game. In each teacher-class unit, a teacher tries to guide the students to discover a particular concept by presenting examples. We use a very simple concept, the weight of a biased coin. Teachers must choose particular examples of heads and tails that will alter the beliefs of the students in the class so that their updated estimate of the coin weight is closer to the teacher's target concept. 
-
-In the current work, we consider issues of student variability and imperfect teacher knowlege through the lens of *optimal school administration*. Given finite resources, what arrangement of teachers and students, and assessements and lessons, produces the greatest information gain? We describe a generalization of the model presented in @frank2014 and use this framework to investigate how an optimal adminstrator might make decisions. Our first two simulations replicate and extend results from the previous paper. Then our next two generalize the model to the case of imperfect information about students and finite resources for hiring teachers and conducting assessments. Our final simulation maps out a Pareto frontier for allocation of instructional time and teaching resources. Taken together, this work describes a first-principles attempt at a framework for understanding resource allocation in classroom education.
-
--->
-
 # Model
 
 We model three types of agents: *students*, *teachers*, and *administrators*. A school consists of an administrator, at least one teacher, and at least one student. Every teacher has at least one student (so there are always at least as many students as teachers). Each agent's functions are described below.
@@ -142,7 +127,7 @@ In real-world education settings, students are in a school environment for a (ro
 
 ### Money
 
-Certain educational policies that may be most effective are simply too monetarily expensive to implement. For instance, while one-to-one instruction (i.e. class sizes of 1) may be most beneficial for student learning outcomes [e.g., @cohen1982], it is unrealistic to expect schools to be able afford hiring as many teachers as they have students. To account for this kind of limitation, we introduce the resource of money into our model. In Analysis 4, the administrator is constrained by a fixed budget. This budget can be used to hire teachers at a one-time expense $C_T$ per teacher. We then assume an additional monetary cost per assessment $C_A$, corresponding to the costs of implementing a school-wide assessment. We report the optimal allocation of money at varying budget levels towards teachers and assessments.
+Certain educational policies that may be most effective are simply too monetarily expensive to implement. For instance, while one-to-one instruction (i.e. class sizes of 1) may be most beneficial for student learning outcomes [e.g., @cohen1982], it is unrealistic to expect schools to be able afford hiring as many teachers as they have students. To account for this kind of limitation, we introduce the resource of money into our model. In Simulation 3, the administrator is constrained by a fixed budget. The cost structure is described in detail in Simulation 3. We report what the optimal allocation of money is at every budget level and what the actual information gain is given that allocation of money.
 
 ## Information gain
 
@@ -152,16 +137,16 @@ $$IG(e) = D_{KL}(B_T ||B_S) - D_{KL}(B_T || B_{S+e})$$
 
 We derived a closed form expression for information gain that generalizes to any number of examples in an example set $e$. Derivation details can be found in our linked repository. The final form for $h$ heads and $t$ tails is:
 
-\begin{multline}
-IG(E) = \sum_{k=0}^{h+t-1} {log(\alpha_S + \beta_S + k)} - \\
-\sum_{i=0}^{h-1} {log (\alpha_S + i)} - \sum_{j=0}^{t-1} {log(\beta_S +j)} + \\
-\psi(\alpha_T)h + \psi(\beta_T)t +  \psi(\alpha_T + \beta_T)(h+t).
-\end{multline}
+<!-- \begin{multline}-->
+$$IG(E) = \sum_{k=0}^{h+t-1} {log(\alpha_S + \beta_S + k)} - \\$$
+$$\sum_{i=0}^{h-1} {log (\alpha_S + i)} - \sum_{j=0}^{t-1} {log(\beta_S +j)} + \\$$
+$$\psi(\alpha_T)h + \psi(\beta_T)t +  \psi(\alpha_T + \beta_T)(h+t).$$
+<!--\end{multline}-->
 
 \noindent where $\psi$ represents the digamma function, and $\alpha_S$, $\beta_S$, $\alpha_T$, and $\beta_T$ are student and teacher priors respectively. 
 
 <!-- TODO: Does this terminology make sense? -->
-## Belief Softmax and Belief Strength
+## Belief Expectation and Belief Strength
 
 As discussed earlier, we represent the target knowledge, student knowledge, and teacher beliefs about the student knowledge as Beta distributions $Beta(\alpha, \beta)$. Frank (2014) presented an alternative parameterization of the Beta-Bernoulli distribution in terms of shape $\mu$ and scale $\nu$ that is useful for its intuitive conceptual analogs[@frank2014]. $\mu$ and $\nu$ are defined as:
 
@@ -171,16 +156,6 @@ $$\nu = \alpha + \beta$$
 In this parameterization, $\mu$ directly controls the mean of the distribution. In the target knowledge distribution, this can be regarded as the *true weight* of the coin. In the student knowledge distribution, $\mu$ represents the student's *best guess* for the true weight of the coin. In the teacher belief distribution, $\mu$ represents what the teacher believes the student's best guess for the true weight of the coin would be (i.e. given the teacher belief about the student knowledge). Since Beta-Bernoulli distributions are symmetric around $\mu = 0.5$ (e.g. for the same $\nu$, the probability distribution for $\mu = 0.3$ is the same as $\mu = 0.7$ flipped across 0.5), we only look at $\mu \geq 0.5$, where the true weight or best guess is more extreme for $\mu$ values further away from 0.5. In each case, $\nu$ captures the *belief strength* or confidence. The larger $\nu$ is, the greater the number of examples of Heads or Tails that would be necessary to alter the belief.
 
 For example, a student with student knowledge $Beta(5,5)$ and another student with student knowledge $Beta(10,10)$ would both have a best guess that the coin weight is 0.5, i.e. $\mu$ = 0.5, but fewer teaching examples would be required to convince the former student that the true weight actually is not 0.5 than the latter because the former has weaker beliefs in that $\mu$ value at $\nu$ = 10 compared to the the latter's stronger beliefs at $\nu$ = 20. Similarly, one students with student knowledge $Beta(1,9)$ and another with student knowledge $Beta(9,1)$ have vastly different best guesses for the true weight of the coin ($\mu$ = 0.1 and $\mu$ = 0.9 respectively). However, because both share the same belief strengths at $\nu$ = 11, their beliefs about the coin's weight could be shifted to 0.5 with an equal number examples (8 tails for the former and 8 heads for the latter to achieve $Beta(9,9)$).
-
-<!--
-
-## Simulation details
-
-For simplicity, we adopt a set of parameters uniformly across our simulations. While changes to these parameters will have some impact on the effect sizes we recover, to our knowledge all qualitative results are general across parameter sets. Teacher target concepts are selected via pseudocounts on a Beta distribution such that $\alpha + \beta = 10$ (thus target concepts can be .1, .2, .3, etc.).\footnote{These pseudocounts are slightly offset from the pseudocount of the prior student belief distributions, 11, to avoid edge cases where a student belief distribution perfectly matches the teaching concept.} Each student has 12 learning opportunity time steps that can be used for showing a teaching example or for assessment in later simulations.
-
-In each simulation, we report the total information gain over baseline for 100 students given any particular school design. The particular design parameters (number of teachers, number of assessments, teaching concept, perfect vs. imperfect teacher knowledge, and sorting) and baseline configuration differs in each simulation. Each simulation is tested on 100 random sets (*trial*s) of 100 students and performance is averaged across these trials. All simulations were conducted using the probabilistic programming language \texttt{webppl} [@goodman2017]; code is available at [http://github.com/mcfrank/teaching].
-
--->
 
 # Simulations
 
@@ -225,10 +200,11 @@ TODO: FIGURE OUT HOW TO LINEBREAK
 
 ```{r fig.cap="Student information gain, plotted by target concept and number of teachers in the school. Information gain represents the gain when students are sorted into classrooms based on knowledge compared with an unsorted baseline. Error bars show 95\\% confidence intervals by non-parametric bootstrap."}
 
-df_spread <- spread(df, simType, IG)
+df_spread <- spread(df, simType, IG) %>%
+  filter(exponent == 1) # Thesis does not do anything with exponent parameter
 
 df_sim1a <- df_spread %>%
-  filter(numAssessments == 0, exponent == 1) %>%
+  filter(numAssessments == 0) %>%
   mutate(sorted = sortedPerfectTeachers, unsorted = unsortedPerfectTeachers) %>%
   select(-c(sortedPerfectTeachers, sortedUncertainTeachers, unsortedNaiveTeachers, unsortedPerfectTeachers, unsortedUncertainTeachers)) %>%
   gather(key = simType, value = IG, sorted, unsorted)
@@ -247,11 +223,46 @@ df_sim1a_means <- df_sim1a %>%
 
 ggplot(df_sim1a_means, aes(x = simType, y = mean, col = factor(teacherMu))) +
   geom_point() +
+  geom_linerange(aes(ymin = ci_lower, ymax = ci_upper)) +
   facet_grid(teacherMu ~ numTeachers, scales="free_y") +
   ylab("Information Gain (nats)") + 
-  theme(legend.position = "bottom") +
-  xlab("Number of Teachers")
+  theme(legend.position = "bottom",plot.title = element_text(hjust = 0.5)) +
+  xlab("Number of Teachers") +
+  ggtitle("Sorted vs. Unsorted Information Gains\nfor all # of Teachers vs. Target Knowledge levels")
 
+ggplot(df_sim1a_means, aes(x = numTeachers, y = mean, col = factor(teacherMu), lty = simType, pch = simType)) +
+  geom_line() +
+  geom_linerange(aes(ymin = ci_lower, ymax = ci_upper)) +
+  facet_grid(. ~ simType, scales="free_y") +
+  ylab("Information Gain (nats)") + 
+  xlab("Number of Teachers") +
+  ggtitle("Sorted vs. Unsorted Information Gains\nfor all # of Teachers vs. Target Knowledge levels") +
+  ggthemes::theme_few() + 
+  langcog::scale_color_solarized(name = "Target Knowledge") +
+  theme(legend.position = "bottom",plot.title = element_text(hjust = 0.5)) + 
+  scale_y_continuous(limits = c(0, 600))
+
+
+```
+
+```{r fig.cap="Student information gain, plotted by target concept and number of teachers in the school. Information gain represents the gain when students are sorted into classrooms based on knowledge compared with an unsorted baseline. Error bars show 95\\% confidence intervals by non-parametric bootstrap."}
+
+df_sim1a_percent <- df_spread %>%
+  filter(numAssessments == 0) %>%
+  mutate(percentImprovement = sortedPerfectTeachers / unsortedPerfectTeachers) %>%
+  select(-c(sortedPerfectTeachers, sortedUncertainTeachers, unsortedNaiveTeachers, unsortedPerfectTeachers, unsortedUncertainTeachers)) %>%
+  group_by(numTeachers, teacherMu) %>%
+  multi_boot_standard(col = "percentImprovement")
+
+ggplot(df_sim1a_percent, aes(x = numTeachers, y = mean, col = factor(teacherMu))) +
+  geom_line() +
+  geom_linerange(aes(ymin = ci_lower, ymax = ci_upper)) +
+  ylab("% Improvement to IG") + 
+  ggthemes::theme_few() + 
+  langcog::scale_color_solarized(name = "Target Knowledge") +
+  theme(legend.position = "bottom",plot.title = element_text(hjust = 0.5)) +
+  xlab("Number of Teachers") +
+  ggtitle("% Improvement of Sorted over Unsorted Information Gain")
 
 ```
 
@@ -397,45 +408,6 @@ Results are shown in Figure 2. We observed the predicted pattern. Increasing the
 In our second analysis, again a replication of our prior work, we explored the effects of adding teachers to the simulated school, leading to lower class sizes. We hypothesized that increasing the number of teachers would strictly improve student learning rate (again assuming perfect knowledge about students):  Our baseline for this analysis was the sorted information gain under the same target bias parameters. 
 
 
-## Simulation 1c: Prioritizing different students
-
-
-
-```{r}
-sorted_by_exponent <- df_spread %>%
-  filter(numAssessments == 0, teacherMu != .9) %>%
-  select(-sortedUncertainTeachers, -unsortedPerfectTeachers, -unsortedUncertainTeachers) %>%
-  group_by(teacherMu, trialNum) %>%
-  mutate(IG_over_baseline = sortedPerfectTeachers^(1/exponent) -
-           sortedPerfectTeachers[numTeachers == 1]) %>%
-  group_by(teacherMu, exponent, numTeachers) %>%
-  multi_boot_standard(col = "IG_over_baseline")
-
-
-##This graph doesn't work very well.
-ggplot(sorted_by_exponent, aes(x = exponent, y = mean, col = factor(exponent))) + 
-  geom_line() + 
-  geom_linerange(aes(ymin = ci_lower, ymax = ci_upper)) +
-  ggthemes::theme_few() + 
-  langcog::scale_color_solarized(name = "Exponent") +
-  theme(legend.position = "bottom") + 
-  ylab("Info Gain Over 1 Teacher (nats)") + 
-  xlab("Class Size") +
-  scale_x_continuous(breaks = c(10, 20, 33, 50, 100)) 
-
-```
-
-*Research Question.    *
-Placeholder
-
-*Design and Hypotheses.    *
-Placeholder
-
-*Results.    *
-Placeholder
-
-In our third analysis, we try to capture what in academic circles is called the proficiency vs. growth debate. We do so by varying the teachers' heuristics for selecting an example. A higher exponent term means that the teacher prioritizes sets of examples that result in worse-performing students making large gains at the expense of students who are already very close to the target knowledge making small gains. 
-
 ## Imperfect Teacher Beliefs
 
 In our second set of analyses, we relax the assumption that teachers have perfect teacher beliefs about students' prior personal knowledge. In the real world, neither the admin nor the teacher is an omniscient being that knows the true prior personal knowledge parameters. Instead, they diagnose student beliefs by administering formative assessments (e.g. placement exams). The assessment phase is a necessary step that enables the administrator and teachers to form teacher beliefs about what the students' prior personal knowledge may be -- these beliefs are not perfect, but will be correlated with the students' personal knowledge. Only after these assessments are conducted can the administrator effectively sort students. The teachers can also then select examples guided by these teaching beliefs.
@@ -507,13 +479,12 @@ ggplot(df_sim2,
   geom_hline(yintercept = 0, lty = 2, col = "black")
 ```
 
-```{r}
+```{r, echo=T}
 #TODO: Determine if this needs to be in there.
 df_lm <- ig_by_sim_type %>%
   separate(sim_type, into = c("sorting","knowledge"))
 
 model <- lm(IG_over_baseline ~ numTeachers + sorting * teacherMu * numAssessments, df_lm)
-anova(model)
 
 ```
 
@@ -575,22 +546,14 @@ Next, we hypothesized that there would be a concave down shape in the effect tha
 We further hypothsized that this effect would interact with the number of teachers, where having a the optimal number of assessments for increasing information gain would be particularly high for more teachers because having more classrooms should demand more accurate sorting. Finally, we hypothesized that the effect of assessments would interact with the extremity of the target knowledge concept (i.e. the true weight of the coin), where more extreme target knowledge concepts would have a lower optimal number of assessments. We suspected that extreme targets require fewer assessments to accurately discern which classroom a student belongs in, since most students will require the same set of teaching examples to reach extreme target knowledge concepts anyway.
 
 *Results.    *
-As predicted,  we continue to find that with imperfect teacher beliefs, teachers perform strictly worse in any given regime of number of teachers, target knowledge concept, and assessment parameters. We also found the hypothesized concave down relationship between the number of assessments and information gain for target knowledge concepts between 0.5 and 0.8. We also see support for the hypothesized interaction the target knowledge concept, where higher target knowledge concepts have a lower optimal number of assessments. We did not find evidence of the hypothesized interaction between assessments and number of teachers. 
+As predicted, we continue to find that with imperfect teacher beliefs, teachers perform strictly worse in any given regime of number of teachers, target knowledge concept, and assessment parameters. We also found the hypothesized concave down relationship between the number of assessments and information gain for target knowledge concepts between 0.5 and 0.8. We also see support for the hypothesized interaction the target knowledge concept, where higher target knowledge concepts have a lower optimal number of assessments. We did not find evidence of the hypothesized interaction between assessments and number of teachers. 
 
 These non-linear results hint at an interesting tradeoff between assessments and teaching. When there is a moderate target knowledge concept, the average distance to the target knowledge concept is lower than when there is an extreme target knowledge concept, and students can fall on either side of the target. This favors conducting more assessments for two reasons. First, it is more important to have high accuracy in the assessment phase to discern whether students' best guess of the weight of the coin based on their prior personal knowledge falls below or above the target knowledge concept. Secondly, there is less teaching to be done because fewer teaching examples are necessary to calibrate the students' personal knowledge to be close to the target knowledge. When the target is extreme, you may need many more teaching examples in order to calibrate a student who has a very distant best guess (e.g. 0.1) to the extreme target (e.g. 0.9), and you do not need to precisely measure the students' best guess (e.g. is it 0.1 or 0.2 or 0.3?) to know that you must show many heads.
 
 This is consistent with the seemingly aberrant results for a target knowledge concept of 0.9. With such an extreme target concept, no assessment is even necessary between 1 through 5 teachers to know that you will be showing mostly Heads regardless of the students' prior personal knowledge distributions. Only when there are 10 teachers will there be a class of students who may all consistently benefit from seeing tails because they fall at or above 0.9 in their own prior personal knowledge. As such, there is asymptotic behavior as the number of assessments increases, because the improvement over the baseline approaches zero.
 
-```{r,include=F}
-# conditions <- matrix(c("Sorted Perfect: teachers and administrators who have perfect knowledge of students and sort them into classrooms via this knowledge","Sorted Uncertain", "Unsorted Perfect", "Unsorted Uncertain" ), ncol=2)
-# colnames(conditions) <- c('Perfect Teacher/Admin Knowledge', 'Uncertain Teacher/Admin Knowledge')
-# rownames(conditions) <- c('Sorted', 'Unsorted')
-# conditions.table <- as.table(conditions)
-# kable(conditions.table)
-```
 
-
-```{r, include = F}
+```{r, include = F, fig.cap="Student by student information gains"}
 studentByStudent_df <- studentByStudent_df %>%
   mutate(simType = as.factor(simType))
 
@@ -622,6 +585,7 @@ ggplot(studentByStudent_df_small,
 
 ```{r, fig.cap="Might be good for showing how sortedPerfect and naive provide upper and lower bounds for the unsortedUncertain teachers"}
 ig_by_sim <- df %>%
+  filter(exponent == 1) %>%
   group_by(simType, numTeachers, numAssessments, teacherMu) %>%
   summarise(IG = mean(IG))
 
@@ -636,88 +600,17 @@ ggplot(filter(ig_by_sim, teacherMu < .8),
 
 ```
 
-```{r eval = FALSE, fig.cap="Probably not used"}
-ggplot(filter(df_sim2),
-       aes(x = numTeachers, y = mean, col = factor(teacherMu))) +
-  geom_line() +
-  # geom_pointrange(aes(ymin = ci_lower, ymax = ci_upper)) +
-  ggthemes::theme_few() +
-  facet_grid(interaction(sorting,knowledge)~numAssessments) +
-  langcog::scale_color_solarized(name = "Target Concept") +
-  theme(legend.position = "bottom") +
-  ylab("Info Gain Over Naive Baseline (nats)") +
-  xlab("Number of Teachers") +
-  scale_x_continuous(breaks = c(0, 3, 6, 9, 12))
-```
 
-```{r, fig.cap="Temp"}
-ggplot(df_sim2,
-       aes(x = numTeachers, y = mean, col = sorting, pch = knowledge, lty = knowledge)) +
-  geom_line() +
-  # geom_pointrange(aes(ymin = ci_lower, ymax = ci_upper)) +
-  ggthemes::theme_few() +
-  facet_grid(teacherMu~numAssessments) +
-  langcog::scale_color_solarized(name = "Target Concept") +
-  theme(legend.position = "bottom") +
-  ylab("Info Gain Over Naive Baseline (nats)") +
-  xlab("Number of Teachers") +
-  scale_x_continuous(breaks = c(0, 3, 6, 9, 12))
-```
+## Simulation 3: Pareto frontier with imposed budget constraints
 
-```{r, include = F}
-# 
-# ggplot(filter(ig_by_sim_type, teacherMu == .5, numTeachers == 5,
-#               sim_type != "unsorted_uncertain"),
-#        aes(x = numAssessments, y = mean, lty = sim_type)) +
-#   geom_line() +
-#   geom_point() +
-#   ggthemes::theme_few() +
-#   # langcog::scale_color_solarized(name = "Target Concept") +
-#   # geom_pointrange(aes(ymin = ci_lower, ymax = ci_upper)) +
-#   # theme(legend.position = "bottom") +
-#   ylab("Info Gain Over Unsorted Baseline (nats)") +
-#   xlab("Number of Assessments") +
-#   scale_linetype(guide=FALSE) +
-#   geom_dl(aes(label = sim_type), method = "smart.grid") +
-#   scale_x_continuous(breaks = c(0, 3, 6, 9, 12))
-# 
-# il_by_sim_type <- df_spread %>%
-#   filter(numAssessments < 12, 
-#          numTeachers > 2) %>%
-#   mutate(IL = sortedUncertainTeachers - sortedPerfectTeachers) %>%
-#   group_by(numAssessments, teacherMu) %>%
-#   summarise(mean = mean(IL))
-#   # multi_boot_standard(col = "IL")
-# 
-# ggplot(filter(il_by_sim_type, numAssessments < 12),
-#        aes(x = numAssessments, y = mean, col = factor(teacherMu))) + 
-#   geom_line() + 
-#   # geom_linerange(aes(ymin = ci_lower, ymax = ci_upper)) +
-#   ggthemes::theme_few() + 
-#   langcog::scale_color_solarized(name = "Target Concept") +
-#   theme(legend.position = "bottom") + 
-#   ylab("Info Loss Relative to Perfect Knowledge (nats)") + 
-#   xlab("Number of Assessments") + 
-#   scale_x_continuous(breaks = c(0, 3, 6, 9, 12))
-# 
-# ggplot(filter(ig, teacherMu == .7), 
-#        aes(x = numTeachers, y = IG, col = factor(simType))) +
-#   geom_line() + 
-#   facet_wrap(~ numAssessments)  + 
-#   scale_colour_solarized() + 
-#   ggthemes::theme_few()
-```
-
-
-## Simulation 4: Pareto frontier with imposed budget constraints 
-
+LINEBREAK
 <!-- - when assessment dominates, get lots of teachers. (uninteresting) -->
 <!-- - when teaching cost dominates,  -->
 <!--   - perfect teachers have a pareto frontier where it's still worth assessing sometimes -->
 <!--   - but uncertain teachers don't usually - seems there you just hire one. -->
 <!-- - tradeoff - you see frontiers in both -->
 
-```{r}
+```{r, include = F}
 ig_by_cost <- df %>%
   mutate(cost = numAssessments * 50 + numTeachers * numExamples * 2) %>%
   mutate(teacherMu = factor(teacherMu)) %>%
@@ -736,6 +629,101 @@ ggplot(filter(ig_by_cost, teacherMu == .5,
   xlab("Cost") + 
   ylab("Information Gain (nats)")
 ```
+```{r, fig.cap="Optimal"}
+optimal_ig_by_cost <- df %>%
+  filter(exponent == 1) %>%
+  mutate(cost = numAssessments * 50 + numTeachers * (10 + numExamples * 2)) %>%
+  group_by(numTeachers, numAssessments, teacherMu, simType, cost) %>%
+  summarise(IG = mean(IG)) %>%
+  filter(simType == "sortedUncertainTeachers") %>%
+  arrange(cost) %>%
+  group_by(teacherMu) %>%
+  filter(IG == cummax(IG))
+
+ggplot(filter(optimal_ig_by_cost, teacherMu < 0.8),
+       aes(x = cost, y = IG)) + 
+  geom_text(aes(label = numAssessments, col = factor(numTeachers))) + 
+  geom_line() + 
+  facet_grid(.~teacherMu)+
+  scale_colour_solarized(name = "Number of Teachers") + 
+  ggthemes::theme_few() + 
+  theme(legend.position = "bottom",plot.title = element_text(hjust = 0.5)) + 
+  xlab("Cost") + 
+  ylab("Information Gain (nats)") + 
+  ggtitle("IG under Optimal Spending Policy per Cost\nat 0.5 to 0.7 Target Knowledge Levels")
+
+```
+
+
+```{r, fig.cap="Pareto frontiers"}
+ig_by_cost <- df %>%
+  filter(exponent == 1) %>%
+  mutate(cost = numAssessments * 50 + numTeachers * (10 + numExamples * 2)) %>%
+  group_by(numTeachers, numAssessments, teacherMu, simType, cost) %>%
+  summarise(IG = mean(IG))
+
+dummy <- data.frame(teacherMu = c(0.5, 0.6, 0.7), Z = c(400, NA, NA))
+
+ggplot(filter(ig_by_cost, teacherMu < 0.8,
+              simType %in% c("sortedUncertainTeachers")),
+       aes(x = cost, y = IG, col = factor(numTeachers))) + 
+  geom_text(aes(label = numAssessments)) + 
+  geom_line() + 
+  facet_grid(.~factor(teacherMu))+
+  scale_colour_solarized(name = "Number of Teachers") + 
+  ggthemes::theme_few() + 
+  theme(legend.position = "bottom",plot.title = element_text(hjust = 0.5)) + 
+  xlab("Cost") + 
+  ylab("Information Gain (nats)") + 
+  ggtitle("Cost vs. Information Gain at 0.5 to 0.7 Target Knowledge Levels") +
+  geom_vline(data=dummy, aes(xintercept = Z), linetype="dashed")
+
+# ig_by_cost <- df %>%
+#   filter(exponent == 1) %>%
+#   mutate(cost = numAssessments * 50 + numTeachers * (10 + numExamples * 10)) %>%
+#   group_by(numTeachers, numAssessments, teacherMu, simType, cost) %>%
+#   summarise(IG = mean(IG))
+# 
+# ggplot(filter(ig_by_cost, teacherMu < 0.8,
+#               simType %in% c("sortedUncertainTeachers")),
+#        aes(x = cost, y = IG, col = factor(numTeachers))) + 
+#   geom_text(aes(label = numAssessments)) + 
+#   geom_line() + 
+#   facet_grid(.~teacherMu)+
+#   scale_colour_solarized(name = "Number of Teachers") + 
+#   ggthemes::theme_few() + 
+#   theme(legend.position = "bottom") + 
+#   xlab("Cost") + 
+#   ylab("Information Gain (nats)")
+```
+
+*Research Question.    *
+How does information gain vary by their cost? What does the pareto frontier at any cost level look like?
+
+*Design and Hypotheses.    *
+The first model design step was to define the heuristics for our cost structure. These were the heuristics that we wanted our cost structure to abide by and the reasoning behind them:
+
+* Each assessment has a fixed cost $C_A$ independent of the number of teachers. In the real world, there is a fixed cost of designing each assessment (e.g. writing a standardized test). Additionally, there is the fixed cost of administrating an assessment. This is a fixed cost because the environment under which an assessment is administered to the students (e.g. a standardized test in a classroom with a faculty member monitoring for academic integrity) is not affected by the number of teachers hired to actually teach lessons. We jointly consider these as a single fixed cost of each assessment $C_A$.
+
+* Teachers should receive greater compensation for teaching more teaching periods (i.e. showing more teaching examples). Though our model uses a highly simplified lesson, in the real world, a lesson could involve lesson planning, preparing teaching materials, providing feedback, etc. For every teaching example, each teacher will receive an additional $C_E$ in compensation.
+
+* Hiring each teacher has a fixed cost $C_T$. Regardless of the number of lessons a teacher ends up teaching, there should be some overhead cost of interviewing and hiring a teacher, paying their benefits, etc. Hiring 10 teachers to teach 1 lesson each should cost more than hiring 5 teachers to teach 2 lessons each.
+
+Thus, given $A$ assessments administered school-wide, $T$ teachers hired, and $E$ time periods dedicated showing teaching examples in teaching periods, the total cost $C$ of the school design policy is $C = A * C_A + T * (C_T + C_E * E)$. (Recall that the number of assessment periods is inversely proportional to the teaching periods by construction due to the limited resource of time. $E$ could be rewritten as $12 - A$, but we use the unique variable $E$ for clarity.)
+
+We hypothesize that overall, if money is being spent optimally, spending more money will produce better learning outcomes but with diminishing returns because we saw in our earlier simulations that while hiring more teachers will improve information gain, each additional teacher results in much smaller improvements to information gain. We further hypothesize that with an infinite budget, hiring more teachers is trivially most effective but at smaller cost levels, the pareto frontier involves a moderate number of assessments and a moderate number of teachers; neither hiring more teachers nor conducting more assessments is necessarily always the most effective way to improve information gain.
+
+*Results.    *
+As predicted, information gain increases over time under optimal spending policies with massive diminishing returns (Figure 8). Additionally, as predicted, we found that the optimal policy at any smaller budget level within any target knowledge concept level frequently involved a moderate number of assessments and teachers. For instance, at the target knowledge $\mu = 0.5$ level, with \$400  (Figure 9, dashed vertical line), you could afford hiring 10 teachers if you only have 2 assessment periods, but having only 3 teachers and 6 assessment periods or having 5 teachers with 7 assessment periods both produced superior information gain outcomes for the same \$400 cost.
+
+We importantly observe that smaller budgets approach the apparent global optimal information gain much more quickly (see Figure 8). when teaching extreme target knowledge concepts (visually, this is represented by how low a cost the information gain plateau begins). As we saw in Simulation 1b and 2b, hiring more teachers is only useful when there is a need for different classrooms to show different sets of teaching examples, and that need only exists with moderate (closer to $\mu = 0.5$) target knowledge concepts since with extreme target concepts many teachers end up showing the same sets of examples anyway. Hiring teachers is extremely expensive and offer little improvement to information gain outcomes at extreme target knowledge concepts, so doing so becomes an inefficient use of money.
+
+Of course, $C_A$, $C_T$, and $C_E$ would vary in the real world (e.g. respectively by subject matter, cost of living, and minimum wage). Our goal is not to advise a definitive number of teachers and assessments, but rather to point out qualitative effects after controlling for those costs. To do so, we acknowledge that we pick arbitrary costs, but to the authors' knowledge the qualititative results are true for every reasonable choice of costs. Figures 8 and 9 show results using $C_A = 50$, $C_T = 10$, and $C_E = 2$, but the appendix contains a few graphs of optimal spending curves and pareto frontier lines for different costs. <!--TODO: -->
+
+As predicted, increasing the number of teachers increases the information gain with diminishing returns as the number of teachers increases. Specifically, we observe that there is a massive improvement to learning outcomes going from 1 teacher to 2 teachers especially for more moderate target knowledge concepts of 0.5, 0.6, and 0.7, and smaller and smaller improvements as additional teachers are used. As expected, having more classrooms does not particularly help teachers teach extreme target knowledge concepts, as there is no difference between few and many teachers all showing mostly Heads. Again, we note that this effect only exists with a sorted school policy; without sorting, increasing the number of classrooms does not guarantee a significant drop in within-classroom variance in student personal knowledge.
+
+
+
 
 We hypothesized that for a particular budget constraint and fixed costs of teachers and assessment, there will be a Pareto frontier of possible allocations of that budget towards teachers and assessments on which there will be an optimal allocation that maximizes student learning. Furthermore, we hypothesized that the individual results about number of teachers number of assessments would hold within levels of the other. This is the unification of all previous simulations into one model that allows us to introduce a real-world constraint of budget.
 
