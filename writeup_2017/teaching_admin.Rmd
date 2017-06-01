@@ -2,11 +2,16 @@
 title: "Optimal Models for Resource Allocation in Classroom Teaching"
 bibliography: teaching.bib
 csl: apa6.csl
-document-params: "10pt, letterpaper"
+document-params: "man"
 
-author-information: > 
-    \author{{\large \bf Larry Liu} \\ \texttt{hrlarry@stanford.edu} \\ Department of Psychology \\ Stanford University
-    \And {\large \bf Michael C. Frank} \\ \texttt{mcfrank@stanford.edu} \\ Department of Psychology \\ Stanford University}
+author-information: 
+    - \author{Larry Liu}
+
+affiliation-information:
+    - \affiliation{Department of Psychology, Stanford University}
+
+author-note:
+    "The Author Note, containing contact information, acknowledgements, etc"
 
 abstract: 
     "Teaching is the transmission of knowledge from teacher to student. 
@@ -15,7 +20,7 @@ abstract:
 keywords:
     "Teaching; learning; education; pragmatics; Bayesian modeling; social cognition"
     
-output: cogsci2016::cogsci_paper
+output: kmr::apa_manuscript
 ---
 
 ```{r global_options, include=FALSE}
@@ -32,7 +37,7 @@ library(knitr)
 library(tidyverse)
 library(directlabels)
 library(forcats)
-library(cogsci2016) #requires devtools::install_github("kemacdonald/cogsci2016")
+# library(cogsci2016) #requires devtools::install_github("kemacdonald/cogsci2016")
 library(langcog) #requires devtools::install_github("langcog/langcog")
 ```
 

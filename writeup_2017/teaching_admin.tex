@@ -1,16 +1,11 @@
-% Template for Cogsci submission with R Markdown
+% Template for APA submission with R Markdown
 
-% Stuff changed from original Markdown PLOS Template
-\documentclass[10pt, letterpaper]{article}
-
-\usepackage{cogsci}
-\usepackage{pslatex}
-\usepackage{float}
-\usepackage{caption}
+% Stuff changed from PLOS Template
+\documentclass[man]{apa6}
+\usepackage{apacite}
 
 % amsmath package, useful for mathematical formulas
 \usepackage{amsmath}
-
 % amssymb package, useful for mathematical symbols
 \usepackage{amssymb}
 
@@ -42,24 +37,47 @@
 %\doublespacing
 
 
-% % Text layout
-% \topmargin 0.0cm
-% \oddsidemargin 0.5cm
-% \evensidemargin 0.5cm
-% \textwidth 16cm
-% \textheight 21cm
+% Text layout
+\topmargin 0.0cm
+\oddsidemargin 0.5cm
+\evensidemargin 0.5cm
+\textwidth 16cm
+\textheight 21cm
 
-\title{Optimal Models for Resource Allocation in Classroom Teaching}
+% Bold the 'Figure #' in the caption and separate it with a period
+% Captions will be left justified
+\usepackage[labelfont=bf,labelsep=period,justification=raggedright]{caption}
 
 
-\author{{\large \bf Larry Liu} \\ \texttt{hrlarry@stanford.edu} \\ Department of Psychology \\ Stanford University \And {\large \bf Michael C. Frank} \\ \texttt{mcfrank@stanford.edu} \\ Department of Psychology \\ Stanford University}
+% Remove brackets from numbering in List of References
+\makeatletter
+\renewcommand{\@biblabel}[1]{\quad#1.}
+\makeatother
 
-\begin{document}
 
-\maketitle
+% Leave date blank
+\date{}
 
-\begin{abstract}
-Teaching is the transmission of knowledge from teacher to student. How
+%\pagestyle{myheadings}
+%% ** EDIT HERE **
+
+
+%% ** EDIT HERE **
+%% PLEASE INCLUDE ALL MACROS BELOW
+
+%% END MACROS SECTION
+
+
+% ALL OF THE TITLE PAGE INFORMATION IS SPECIFIED IN THE YAML
+\title{\textbf{Optimal Models for Resource Allocation in Classroom Teaching}}
+\shorttitle{}
+
+\author{Larry Liu}
+
+\affiliation{Department of Psychology, Stanford University}
+
+\authornote{The Author Note, containing contact information, acknowledgements, etc}
+\abstract{Teaching is the transmission of knowledge from teacher to student. How
 should a school administrator allocate a fixed budget towards increasing
 the number of classrooms and increasing student assessment to best
 increase student learning? This paper investigates how stochastic models
@@ -78,12 +96,12 @@ learning. We also demonstrate how the effectiveness of class sizes and
 assessment is contingent upon the learning concept being taught. We
 believe that the insights about stu- dent learning in multi-classroom
 settings that we've found and can continue to surface are difficult to
-surface in real-world studies with human subjects.
+surface in real-world studies with human subjects.}
+\keywords{Teaching; learning; education; pragmatics; Bayesian modeling; social
+cognition}
 
-\textbf{Keywords:}
-Teaching; learning; education; pragmatics; Bayesian modeling; social
-cognition
-\end{abstract}
+\begin{document}
+\maketitle
 
 Teaching is the process of knowledge transmission from teachers to
 students. A teacher attempts to provide information to students --
@@ -332,22 +350,24 @@ students}\label{analysis-1-grouping-students}
 
 \begin{CodeChunk}
 \begin{figure}[t]
-\includegraphics[width=3.25in,height=2.6in]{figs/unnamed-chunk-2-1} \caption[Student information gain, plotted by target concept and number of teachers in the school]{Student information gain, plotted by target concept and number of teachers in the school. Information gain represents the gain when students are sorted into classrooms based on knowledge compared with an unsorted baseline. Error bars show 95\% confidence intervals by non-parametric bootstrap.}\label{fig:unnamed-chunk-2}
+\includegraphics[width=3.25in,height=2.6in]{figs/unnamed-chunk-2-1} \caption[Student information gain, plotted by target concept and number of teachers in the school]{Student information gain, plotted by target concept and number of teachers in the school. Information gain represents the gain when students are sorted into classrooms based on knowledge compared with an unsorted baseline. Error bars show 95\% confidence intervals by non-parametric bootstrap.}\label{fig:unnamed-chunk-21}
+\end{figure}
+\begin{figure}[t]
+\includegraphics[width=3.25in,height=2.6in]{figs/unnamed-chunk-2-2} \caption[Student information gain, plotted by target concept and number of teachers in the school]{Student information gain, plotted by target concept and number of teachers in the school. Information gain represents the gain when students are sorted into classrooms based on knowledge compared with an unsorted baseline. Error bars show 95\% confidence intervals by non-parametric bootstrap.}\label{fig:unnamed-chunk-22}
 \end{figure}
 \end{CodeChunk}
 
-In our first simulation, we explored the effects of grouping students by
+In our first analysis, we explored the effects of grouping students by
 their \emph{true prior beliefs} (admins with perfect knowledge), so that
 teachers can tailor the examples they teach to that particular group.
-This simulation is a replication of results reported in Frank (2014)
-using the multi-classroom model developed here. We hypothesized that
-sorting students by their true beliefs would increase information gain
-compared to random classroom assignment. Our baseline for this
-simulation was the unsorted information gain under the same parameters.
-For instance, the sorted aggregate IG of a school with 5 teachers and a
-target bias of .6 is compared to the unsorted aggregate IG for a school
-with 5 teachers and a target bias of .6 using the same school of
-students.
+This analysis is a replication of results reported in Frank (2014) using
+the multi-classroom model developed here. We hypothesized that sorting
+students by their true beliefs would increase information gain compared
+to random classroom assignment. Our baseline for this analysis was the
+unsorted information gain under the same parameters. For instance, the
+sorted aggregate IG of a school with 5 teachers and a target bias of .6
+is compared to the unsorted aggregate IG for a school with 5 teachers
+and a target bias of .6 using the same school of students.
 
 Results are shown in Figure 1. Sorted students show greater information
 gain than if the same set of students are distributed into unsorted
@@ -367,7 +387,7 @@ assignment.
 \end{figure}
 \end{CodeChunk}
 
-In our second simulation, again a replication of our prior work, we
+In our second analysis, again a replication of our prior work, we
 explored the effects of adding teachers to the simulated school, leading
 to lower class sizes. We hypothesized that increasing the number of
 teachers would strictly improve student learning rate (again assuming
@@ -375,33 +395,153 @@ perfect knowledge about students): more teachers in a school means that
 students are in smaller classes and hence receive better customized sets
 of examples from the teacher that appropriately helps students calibrate
 their prior beliefs towards the target concept. Our baseline for this
-simulation was the sorted information gain under the same target bias
+analysis was the sorted information gain under the same target bias
 parameters. We observed the predicted pattern (Figure 2), although there
 were diminishing returns. After a certain number of teachers, additional
 lesson customization becomes less helpful.
 
-\subsection{Simulation 3: Noisy students and
-assessments}\label{simulation-3-noisy-students-and-assessments}
+\subsection{Analysis 3: Noisy students and
+assessments}\label{analysis-3-noisy-students-and-assessments}
+
+In our third analysis, we relax the assumption that teachers have
+perfect knowledge about students. In the real world, neither the admin
+nor the teacher is an omniscient being that knows the true prior student
+belief parameters. Instead, they diagnose student beliefs by
+administering assessments (e.g.~placement exams). Using the outcome of
+these assessments, school faculty can estimate the existing beliefs that
+students hold, and teach to those beliefs.
+
+\subsubsection{Simulation details}\label{simulation-details-1}
+
+\subsubsection{Student noisiness}\label{student-noisiness}
+
+To model these agent behaviors, we assume that the admin and teachers
+start with a na"ive, uniform representation of each student (i.e.
+\(Beta(1,1)\)) and learn about the student's prior beliefs via the
+administration of assessments. In assessments, students are called upon
+to demonstrate their knowledge by sampling from their own true
+distribution. These samples then serve to update the teacher's estimate
+about student knowledge. In this sense, the teachers and administrator
+are modeled as a perfect Bayesian agent that updates its beliefs about
+student knowledge based on evidence it sees from student performance on
+assessments.
+
+For instance, a student may have a true prior belief represented by
+\(Beta(9,2)\). When assessed, they are extremely likely to respond with
+\(H\) (or \(1\)) to each question on the assessment. If they are asked 6
+questions, the most common outcome will be \({H, H, H, H, H, T}\). The
+teachers and administrator starts with the naive \(Beta(1,1)\)
+representation of the student beliefs, but then updates it for seeing 5
+heads and 1 tail in the assessment phase. Their \emph{guessed belief} of
+student learning becomes \(Beta(6,2)\) after the Bayesian update. By
+construction, our uncertain teachers have very weak and inaccurate
+beliefs about student knowledge, captured by the low magnitude of the
+initial Beta parameters, and we assume that increasing assessments will
+help them improve the accuracy of their representation of student
+knowledge.
+
+\paragraph{Effects of sorting in a noisy
+setting}\label{effects-of-sorting-in-a-noisy-setting}
+
+\subsubsection{Currency of time}\label{currency-of-time}
+
+We hypothesize that increasing the number of assessments monotonically
+improves student learning on average, though with diminishing returns.
+As such, simply measuring information gain as the number of assessments
+increases is rather trivial. In this simulation, we introduce the
+currency of time--each student spends a fixed amount of 12 time steps in
+the school system, and any single time step can be devoted to assessing
+the student (3 samples from the student's prior distribution about the
+learning concept) or a teacher showing the student one piece evidence (a
+heads or a tails). By modeling the tradeoff between increasing
+assessments and increasing teaching opportunities, we attempt to
+identify a tipping point at which giving teachers more opportunities to
+show examples outweight the diminishing returns on information gain of
+increasing assessments.
+
+\subsubsection{Baseline}\label{baseline}
+
+We have a baseline model that uses a non-inferential admin and teacher.
+This admin and teacher does not take their students' prior beliefs into
+consideration, and simply selects a set of examples that they believe is
+an accurate representation of the target concept. \textbf{TODO:
+ELABORATE HERE}
+
+For each trial, we test students in two conditions of faculty knowledge:
+omniscient teachers with perfect knowledge vs.~uncertain teachers with
+noisy knowledge. The full set of control parameters spans 2 (sorted
+vs.~unsorted students) x 5 (target concepts) x 5 (number of teachers) x
+13 (number of assessments = 12 - number of teaching periods) = 650
+different regimes.
+
+teachers and administrators who have perfect knowledge of students and
+sort them into classrooms via this knowledge teachers who have perfect
+knowledge, but with students randomly assigned to their classroom
+teachers and administrators both have uncertainty about student
+knowledge, with administrators sorting students and teachers selecting
+examples based on assessment results, and teachers who have uncertainty
+about student knowledge and select examples based on assessment results,
+with students randomly assigned to their classroom
 
 \begin{CodeChunk}
 \begin{figure*}[t]
-\includegraphics[width=3.25in,height=2.6in]{figs/sim_noisy_students-1} \caption[Information gain plotted by number of assessments (out of 12) for teachers with perfect and uncertain student knowledge]{Information gain plotted by number of assessments (out of 12) for teachers with perfect and uncertain student knowledge. Results shown are for 5 teachers.}\label{fig:sim_noisy_students1}
-\end{figure*}
-\begin{figure*}[t]
-\includegraphics[width=3.25in,height=2.6in]{figs/sim_noisy_students-2} \caption[Information gain plotted by number of assessments (out of 12) for teachers with perfect and uncertain student knowledge]{Information gain plotted by number of assessments (out of 12) for teachers with perfect and uncertain student knowledge. Results shown are for 5 teachers.}\label{fig:sim_noisy_students2}
+\includegraphics[width=3.25in,height=2.6in]{figs/sim_noisy_students-1} \caption[Information gain plotted by number of assessments (out of 12) for teachers with perfect and uncertain student knowledge]{Information gain plotted by number of assessments (out of 12) for teachers with perfect and uncertain student knowledge. Results shown are for 5 teachers.}\label{fig:sim_noisy_students}
 \end{figure*}
 \end{CodeChunk}
 
-In our third simulation, we relax the assumption that teachers have
-perfect knowledge about students. Instead, we assume that the school
-faculty starts with a naive uniform representation of the students and
-must learn about them via the administration of assessments. In
-assessments, students are called upon to demonstrate their knowledge by
-sampling from their own distribution. These samples then serve to update
-the faculty's estimates of student knowledge. The admin uses these
-estimates to sort students into classrooms, and teachers use these
-estimates to customize the set of teaching lessons to a particular
-student group.
+We hypothesized that with uncertainty about student knowledge, teachers
+should perform strictly worse in any given regimes of control parameters
+than if they had omniscient, perfect knowledge about the student prior
+beliefs. We further hypothesized that there would be a non-linear effect
+of number of assessments on information gain. Having too few assessments
+would be non-optimal because teachers and administrators cannot
+accurately gauge student learning, causing administrators to make more
+errors in sorting students by ability level and teachers to select
+examples that don't maximize student learning within their classrooms.
+Having too many assessments would also be non-optimal because teachers
+do not have enough opportunities to precisely teach the examples they
+would want. In other words, there are diminishing returns to the number
+of assessments performed.
+
+As expected, we found that the uncertain teachers performed strictly
+worse than the omniscient teachers when controlling for every other
+feature (sorting, target concept, number of teachers, number of
+assessments). Furthermore, consistent with Analysis 1, sorting the
+students produced greater gains for student learning relative to not
+sorting the closer the teacher mu is to 0.5. Even with the uncertainty
+in teacher beliefs about student knowledge, students learned more when
+the classrooms were sorted by ability than when the teachers had perfect
+knowledge in unsorted classrooms. Consistent with Analysis 2, decreasing
+class size also improves student learning, though also with diminishing
+returns.
+
+Additionally, we found a concave down shape in the student IG based on
+number of assessments that is consistent with our non-linearity
+hypotheses. Between teacher mus of 0.5 and 0.7, the optimal number of
+assessments is greater than 0 and less than 12. As teacher mu approached
+0.5, i.e.~as greater variation in student beliefs relative to the true
+learning concept increased, the higher the number of optimal number of
+assessments. The optimal number of assessments also decreases as the
+number of teachers increase. In both cases, it appears that the optimal
+number of assessments increases when there exists a possibility of
+greater intra-classroom variation on student prior beliefs.
+
+\begin{CodeChunk}
+
+\includegraphics[width=3.25in,height=2.6in]{figs/unnamed-chunk-4-1} 
+\includegraphics[width=3.25in,height=2.6in]{figs/unnamed-chunk-4-2} \end{CodeChunk}
+
+\begin{CodeChunk}
+
+\includegraphics[width=3.25in,height=2.6in]{figs/unnamed-chunk-5-1} \end{CodeChunk}
+
+\begin{CodeChunk}
+
+\includegraphics[width=3.25in,height=2.6in]{figs/unnamed-chunk-7-1} \end{CodeChunk}
+
+The admin uses these estimates to sort students into classrooms, and
+teachers use these estimates to customize the set of teaching lessons to
+a particular student group.
 
 In the simulation, the students have a limited number of learning
 opportunities. We found that increasing aggregate IG converges quick
@@ -446,7 +586,7 @@ constraints}\label{simulation-4-pareto-frontier-with-imposed-budget-constraints}
 
 \begin{CodeChunk}
 
-\includegraphics[width=3.25in,height=2.6in]{figs/unnamed-chunk-4-1} \end{CodeChunk}
+\includegraphics[width=3.25in,height=2.6in]{figs/unnamed-chunk-9-1} \end{CodeChunk}
 
 We hypothesized that for a particular budget constraint and fixed costs
 of teachers and assessment, there will be a Pareto frontier of possible
@@ -677,5 +817,7 @@ Educational Research}, \emph{60}(3), 471--499.
 Tomlinson, C. A. (1999). \emph{The differentiated classroom: Responding
 to the needs of all learners}. Association for Supervision \& Curriculum
 Development.
+
+\bibliography{}
 
 \end{document}
