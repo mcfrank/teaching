@@ -4,12 +4,14 @@ bibliography: teaching.bib
 csl: apa6.csl
 document-params: "10pt, letterpaper"
 
-#This doesn't work
+
 author-information:
-  - \author{{\large \bf Lawrence Liu} \\ \texttt{hrlarry@stanford.edu} \\ Department of Psychology \\ Stanford University"
-  - \And {\large \bf Michael C. Frank} \\ \texttt{mcfrank@stanford.edu} \\ Department of Psychology \\ Stanford University}"
-  #This works:
-  #-"\\author{\\\large \bf Lawrence Liu}"
+  - "\\author{\\large \\bf Lawrence Liu}"
+
+#This doesn't work
+  #- \author{{\large \bf Lawrence Liu} \\ \texttt{hrlarry@stanford.edu} \\ Department of Psychology \\ Stanford University"
+  #- \And {\large \bf Michael C. Frank} \\ \texttt{mcfrank@stanford.edu} \\ Department of Psychology \\ Stanford University}"
+  
    
 abstract: 
     "How should a school administrator allocate a fixed budget towards increasing the number of classrooms and increasing student assessment to best increase student learning? This paper investigates how stochastic models accounting for the inherent uncertainty in student beliefs and teacher communication can help school administrators figure out how to maximize student learning by optimally allocating resources. We replicate existing results from education literature about the effect of class sizes, homogenous ability classrooms, and assessment on student learning using computer simulation. We also unify these different determinants of student learning into a more holistic model and report the tradeoffs that committing budget to these design features presents, examining interactions between these constructs not explored and not feasible in human subjects research. Crucially, we found that sorting students by ability level is a dominant strategy for improving learning outcomes. We also report how the effectiveness of class sizes and assessment is contingent upon the learning concept being taught. Finally, we demonstrated that we can create a pareto frontier of the affordable number of teachers and assessments for any budget and exhaustively explore these configurations to find an optimal allocation of each budget for increasing student learning. We believe that the insights about student learning in multi-classroom settings that we've found and can continue to surface are difficult to surface in real-world studies with human subjects."
