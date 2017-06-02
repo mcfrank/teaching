@@ -4,18 +4,20 @@ bibliography: teaching.bib
 csl: apa6.csl
 document-params: "10pt, letterpaper"
 
-author-information: > 
-    \author{{\large \bf Larry Liu} \\ \texttt{hrlarry@stanford.edu} \\ Department of Psychology \\ Stanford University
-    \And {\large \bf Michael C. Frank} \\ \texttt{mcfrank@stanford.edu} \\ Department of Psychology \\ Stanford University}
-
+#This doesn't work
+author-information:
+  - \author{{\large \bf Lawrence Liu} \\ \texttt{hrlarry@stanford.edu} \\ Department of Psychology \\ Stanford University"
+  - \And {\large \bf Michael C. Frank} \\ \texttt{mcfrank@stanford.edu} \\ Department of Psychology \\ Stanford University}"
+  #This works:
+  #-"\\author{\\\large \bf Lawrence Liu}"
+   
 abstract: 
-    "Teaching is the transmission of knowledge from teacher to student. 
-    How should a school administrator allocate a fixed budget towards increasing the number of classrooms and increasing student assessment to best increase student learning? This paper investigates how stochastic models accounting for the inherent uncertainty in student beliefs and teacher communication in teacher-student dyads can help school administrators figure out how to maximize student learning by optimally allocating resources. We replicate existing results from edu- cation literature about the effect of class sizes, homogenous ability classrooms, and assessment on student learning using computer simulation. We also unify these different determi- nants of student learning into a more holistic model and report the tradeoffs that committing budget to these design features presents. We demonstrated that we can create a pareto frontier for the number of teachers and assessments against a fixed bud- get, and find an optimal allocation of the budget for increasing student learning. We also demonstrate how the effectiveness of class sizes and assessment is contingent upon the learning concept being taught. We believe that the insights about stu- dent learning in multi-classroom settings that we've found and can continue to surface are difficult to surface in real-world studies with human subjects."
+    "How should a school administrator allocate a fixed budget towards increasing the number of classrooms and increasing student assessment to best increase student learning? This paper investigates how stochastic models accounting for the inherent uncertainty in student beliefs and teacher communication can help school administrators figure out how to maximize student learning by optimally allocating resources. We replicate existing results from education literature about the effect of class sizes, homogenous ability classrooms, and assessment on student learning using computer simulation. We also unify these different determinants of student learning into a more holistic model and report the tradeoffs that committing budget to these design features presents, examining interactions between these constructs not explored and not feasible in human subjects research. Crucially, we found that sorting students by ability level is a dominant strategy for improving learning outcomes. We also report how the effectiveness of class sizes and assessment is contingent upon the learning concept being taught. Finally, we demonstrated that we can create a pareto frontier of the affordable number of teachers and assessments for any budget and exhaustively explore these configurations to find an optimal allocation of each budget for increasing student learning. We believe that the insights about student learning in multi-classroom settings that we've found and can continue to surface are difficult to surface in real-world studies with human subjects."
     
 keywords:
     "Teaching; learning; education; pragmatics; Bayesian modeling; social cognition"
     
-output: cogsci2016::cogsci_paper
+output: kmr::apa_manuscript
 ---
 
 ```{r global_options, include=FALSE}
@@ -58,7 +60,7 @@ Because our work builds on some fields of research that have different vocabular
 
 ### Types of knowledge
 
-Every student possesses their own malleable *personal knowledge* about any knowledge concept, which could be facts, skills, beliefs, or any other type of knowledge. Coloquially, personal knowledge is often referred to as ability or mastery level, and we use these terms interchangeably.
+Every student possesses their own malleable *personal knowledge* about any knowledge concept, which could be facts, skills, beliefs, or any other type of knowledge. Coloquially, personal knowledge is often referred to as *ability level* or *mastery level*, and we use these terms interchangeably.
 
 Teachers can identify a static *target knowledge* about any knowledge concept, and a student's personal knowledge can be close to or far from the target knowledge, representing accuracy or inaccuracy respectively. The goal of education, therefore, is to adjust the student's personal knowledge to be as close to the target knowledge as possible.
 
@@ -678,23 +680,23 @@ ggplot(filter(ig_by_cost, teacherMu < 0.8,
   ggtitle("Cost vs. Information Gain at 0.5 to 0.7 Target Knowledge Levels") +
   geom_vline(data=dummy, aes(xintercept = Z), linetype="dashed")
 
-# ig_by_cost <- df %>%
-#   filter(exponent == 1) %>%
-#   mutate(cost = numAssessments * 50 + numTeachers * (10 + numExamples * 10)) %>%
-#   group_by(numTeachers, numAssessments, teacherMu, simType, cost) %>%
-#   summarise(IG = mean(IG))
-# 
-# ggplot(filter(ig_by_cost, teacherMu < 0.8,
-#               simType %in% c("sortedUncertainTeachers")),
-#        aes(x = cost, y = IG, col = factor(numTeachers))) + 
-#   geom_text(aes(label = numAssessments)) + 
-#   geom_line() + 
-#   facet_grid(.~teacherMu)+
-#   scale_colour_solarized(name = "Number of Teachers") + 
-#   ggthemes::theme_few() + 
-#   theme(legend.position = "bottom") + 
-#   xlab("Cost") + 
-#   ylab("Information Gain (nats)")
+ig_by_cost <- df %>%
+  filter(exponent == 1) %>%
+  mutate(cost = numAssessments * 50 + numTeachers * (10 + numExamples * 10)) %>%
+  group_by(numTeachers, numAssessments, teacherMu, simType, cost) %>%
+  summarise(IG = mean(IG))
+
+ggplot(filter(ig_by_cost, teacherMu < 0.8,
+              simType %in% c("sortedUncertainTeachers")),
+       aes(x = cost, y = IG, col = factor(numTeachers))) +
+  geom_text(aes(label = numAssessments)) +
+  geom_line() +
+  facet_grid(.~teacherMu)+
+  scale_colour_solarized(name = "Number of Teachers") +
+  ggthemes::theme_few() +
+  theme(legend.position = "bottom") +
+  xlab("Cost") +
+  ylab("Information Gain (nats)")
 ```
 
 *Research Question.    *
@@ -707,7 +709,7 @@ The first model design step was to define the heuristics for our cost structure.
 
 * Teachers should receive greater compensation for teaching more teaching periods (i.e. showing more teaching examples). Though our model uses a highly simplified lesson, in the real world, a lesson could involve lesson planning, preparing teaching materials, providing feedback, etc. For every teaching example, each teacher will receive an additional $C_E$ in compensation.
 
-* Hiring each teacher has a fixed cost $C_T$. Regardless of the number of lessons a teacher ends up teaching, there should be some overhead cost of interviewing and hiring a teacher, paying their benefits, etc. Hiring 10 teachers to teach 1 lesson each should cost more than hiring 5 teachers to teach 2 lessons each.
+* Hiring each teacher has a fixed cost $C_T$. Regardless of the number of lessons a teacher ends up teaching, there should be some overhead cost of interviewing a teacher, one-off training and professional development programs, stocking their classroom with school supplies, utilities, etc. Hiring 10 teachers to teach 1 lesson each should cost more than hiring 5 teachers to teach 2 lessons each.
 
 Thus, given $A$ assessments administered school-wide, $T$ teachers hired, and $E$ time periods dedicated showing teaching examples in teaching periods, the total cost $C$ of the school design policy is $C = A * C_A + T * (C_T + C_E * E)$. (Recall that the number of assessment periods is inversely proportional to the teaching periods by construction due to the limited resource of time. $E$ could be rewritten as $12 - A$, but we use the unique variable $E$ for clarity.)
 
@@ -720,10 +722,9 @@ We importantly observe that smaller budgets approach the apparent global optimal
 
 Of course, $C_A$, $C_T$, and $C_E$ would vary in the real world (e.g. respectively by subject matter, cost of living, and minimum wage). Our goal is not to advise a definitive number of teachers and assessments, but rather to point out qualitative effects after controlling for those costs. To do so, we acknowledge that we pick arbitrary costs, but to the authors' knowledge the qualititative results are true for every reasonable choice of costs. Figures 8 and 9 show results using $C_A = 50$, $C_T = 10$, and $C_E = 2$, but the appendix contains a few graphs of optimal spending curves and pareto frontier lines for different costs. <!--TODO: -->
 
+
+<!--
 As predicted, increasing the number of teachers increases the information gain with diminishing returns as the number of teachers increases. Specifically, we observe that there is a massive improvement to learning outcomes going from 1 teacher to 2 teachers especially for more moderate target knowledge concepts of 0.5, 0.6, and 0.7, and smaller and smaller improvements as additional teachers are used. As expected, having more classrooms does not particularly help teachers teach extreme target knowledge concepts, as there is no difference between few and many teachers all showing mostly Heads. Again, we note that this effect only exists with a sorted school policy; without sorting, increasing the number of classrooms does not guarantee a significant drop in within-classroom variance in student personal knowledge.
-
-
-
 
 We hypothesized that for a particular budget constraint and fixed costs of teachers and assessment, there will be a Pareto frontier of possible allocations of that budget towards teachers and assessments on which there will be an optimal allocation that maximizes student learning. Furthermore, we hypothesized that the individual results about number of teachers number of assessments would hold within levels of the other. This is the unification of all previous simulations into one model that allows us to introduce a real-world constraint of budget.
 
@@ -744,10 +745,42 @@ An interesting result, however, is that having noisy students diminishes the eff
 students's prior belief will fall on one side of that target, in- creasing the number of teachers might actually reduce the effectiveness of the teacher's choice of examples.
 A novel finding that emerged not described in existing educa- tion literature is that there are different patterns of optimality along the pareto frontiers. As the extremity of the target bias moves from 0.5 to 0.7, we see that the IG-optimal allocation of budget shifts from about 5-6 teachers and 2 assessments towards more assessments at the expense of the number of teachers.
 
+-->
+
 # Discussion
 
-Summary
+## Summary
 
+Our research sought to create a stochastic model of a classroom environment in which we can explore how different school design policies affects student information gain. In our simulations, a school consisted of an administrator, at least one teacher, and 100 students with randomly generated ability levels, and the fundamental unit of learning involves learning the weight of a biased coin. Each agent is a perfect Bayesian actor that performs inferences on the behavior of other agents in the system. The administrator chooses how to distribute students into classrooms, and then teachers selecting teaching examples that they think will best calibrate students' personal knowledge towards the target knowledge concept, a process that generates *information gain*. A particular school design is considered more effective if it produces greater aggregate information gain.
+
+In education literature, school design dimensions of sorting, number of teachers or class size, and assessments and their effects on learning outcomes have only been considered in isolation. Our simulations attempt to exhaustively consider all combinations of these three dimensions, ultimately spanning 2 (perfect teacher knowledge vs imperfect teacher knowledge) x 2 (sorting vs. not sorting students into classrooms by ability level) x 5 (1, 2, 3, 5, or 10 teachers) x 5 (0.5 to 0.9 target knowledge concepts) x 13 (0 to 12 assessment periods) = 1300 different school design configurations. We perform 100 trials of each configuration, testing their efficacy at improving information gain on 100 students each time. In total, our full experimental design required 13,000,000 students. While our model simplifies a lot of aspects of teaching, we believe that if we can reproduce classroom dynamics from real-world settings, our virtual model empowers us to explore the interactions that these different constructs have on each other that would be impossible to test with human subjects and real-world classrooms.
+
+In order to validate that our model behaves comparably to real-world education settings, we first replicated some findings that exist in the education literature. In Simulations 1a and 1b, we use our simplest model where we have an "omniscient" administrator and teachers with *perfect teacher beliefs*--that is, they know every students' prior personal knowledge distributions with perfect accuracy. Though this simple model ignores inherent human errors in knowledge, communication, and inference, it validated the information theory behind our model and replicate findings from [@frank2014], which used the change in the Kullback-Leibler divergence between the student's personal knowledge and the target concept pre- and post-lesson as the measure of information gain. In these simulations, we were able to replicate real-world findings that sorting students into ability-level classrooms improves information gain (Simulation 1a), and increasing the number of teachers decreases class sizes and improves information gain with diminishing returns for higher numbers of additional teachers (Simulation 1b). Both of these main effect interacted with the extremity or difficulty of the target knowledge concept, where the effects were stronger for moderate targets and weaker for extreme targets.
+
+Having validated the information theory in our model, we then novelly introduce stochastic processes into our model to simulate inherent noise in real-world classrooms. Despite introducing sources of error that represents student human error during formative assessments, administrator error in sorting students by ability level, and teacher error in choosing effective teaching examples, we were again able to replicate many findings from education literature. In simulation 2a, we again found that sorting students into ability-level classrooms significantly improves information gain. In Simulation 2b, we again found that increasing the number of teachers to reduce class sizes improves information gain. Again, each of these effects interacted with the extremity of the target knowledge concept, where each effects was more pronounced for moderate targets.
+
+In Simulation 2c, introduced the fixed resource of time. We forced teachers to choose between assessing and teaching students, since both of those occupy students' limited amount of time in school. Consistent with past education literature, we found that formative assessments help administrators and teachers better understand what each students' ability levels are, which helped them sort students into ability-level classrooms with fewer errors and pick more optimal teaching examples for their classrooms, ultimately leading to higher information gain over scenarios where no assessments are conducted. However, when limited time periods are considered, formative assessments actually have a quadratic effect on information gain, because dedicating too much time to assessing students' personal knowledge cuts into valuable time that should be used showing teaching examples to actually adjust students' personal knowledge. The optimal number of assessments was smaller the more extreme the target knowledge concept was, because at heavily biased target concepts, most students would benefit from the same teaching examples.
+
+Perhaps most importantly, Simulations 2a through 2c demonstrated just how dominant of a policy sorting students by ability level can be, especially for moderate target knowledge concepts. Sorting heavily attenuates the effects of number of teachers and assessments on information gain. No matter how many teachers you hire or how much assessment you perform to accurately measure student personal knowledge, if the administrator does not sort students and simply randomly assigns students to classrooms, each classroom remains a microcosm of the overall variation in student ability levels at the school level. This suggests that assessments and class size do not intrinsically have effects on student learning outcomes, but rather they do because smaller class sizes and sorting students by their ability levels, which is determined through assessment, on average reduce variability of student ability levels within classrooms.
+
+In Simulation 3, we apply a cost structure to our model to calculate the cost of implementing any one school design policy. There are three primary costs: the cost per assessment, which in the real world would include the expenses associated with writing and developing the assessment (e.g. a placement exam) and proctoring costs; a fixed cost per teacher, which in the real world would include professional development training and classroom materials; and a cost per teacher per teaching period, which would be their wages. We demonstrate that given a particular cost scheme for assessments and teachers, our model can exhaustively identify the optimal school design for any particular budget.
+
+We found that there are diminishing returns on information gain for spending money, and that the returns diminished most quickly for extreme target knowledge concepts. Furthermore, we use our Simulation 3 model to challenge existing conventional wisdom about the ways to improve learning outcomes because we are able to identify some of the interactions that exist between sorting, the number of teachers, and the number of assessments. We found that there existed certain budget levels at which the school design policy that maximized student learning was not whatever policy minimized classroom size or maximized the number of assessments. By looking at each configuration along the pareto frontier for any budget level, we found that very often, the best way to improve information gain per unit cost involved some moderate number of assessments and some moderate number of teachers.
+
+## Limitations and Future Work
+
+Our model is by no means perfect. 
+
+
+# Conclusion
+
+Ultimately, we find that sorting students by their ability level is the design aspect most instrumental to improving student information gain. Schools should not hesitate to re-sort students for each subject domain to maximize student learning. For example, if an elementary school distributes all 5th graders to three 5th grade teachers, there should be a unique distribution for each of math, reading, science, etc. where each distribution re-sorts students within the particular subject matter.
+
+Our findings also paint a promising picture for underprivileged schools and school districts in particular. We found that because there are diminishing returns on hiring additional teachers and increasing assessments, with effective resource allocation, school administrators and teachers and achieve near-maximal learning outcomes that would require exponentially higher costs (a la private schools). Crucially, we find that information gain is predicted by variability in student ability level within the classroom, *not* something intrinsic about hiring more teachers or conducting more assessments.
+
+At a more general level, we were able to replicate many real-world findings from education literature but also to discover unexpected effects that were too subtle to detect in real-world classrooms. We demonstrated that computer modelling can be an effective way to explore classroom dynamics and test hypotheses about pragmatic communication and how they affect education policy that would be cost- and time-prohibitive in the real world, setting the groundwork to motivate future educational psychology research using virtual environments.
+
+<!--
 In our simulations, we refer to the entire group of students as a "school," broken into "classrooms," and students are given "assessments" and "lessons." These mappings are inexact, however, and the analogical correspondence can be made at a lower level. For example, the same set of ideas could be applied *within a classroom*, for example to the decision whether to split the class into smaller groups and divide the teachers time amongst supervising them. And similarly, what we describe "assessments" and "lessons" could be either multi-item tests and then several days of instruction or -- again at a more micro scale -- a single question posed to the class followed by several pieces of related content within a single class session. Our goal is to elucidate general principles that govern the process of teaching rather than to claim a correspondence with specific phenomena or teaching methodology. 
 
 Overall, we were able to replicate many real-world findings from education literature. We found that sorting students into ability level classrooms, increasing assessment, and decreasing class size all increase information gain.
@@ -767,7 +800,7 @@ make when designing their schools can help improve education. This would be part
 
 Some of the limitations of the present work is in the assump- tions that we make to build our model. Most obvious is the simplicity of the learning task we described during the intro- duction. Most real-world learning tasks are more complicated and may have multiple objectives. Furthermore learning in the real-world is affected by a lot of more abstract facets: peer learning and social environment, parenting styles, stereotype threat, among other things. These are not captured in the model, and would be difficult to capture in any model.
 The agnostic prior beliefs we 1) use for teachers to generate examples from; 2) generate student prior beliefs from; and 3) create target bias distributions with are all uniform distri- butions. These are not necessarily the case. Respectively, 1) teachers may have prior beliefs about which examples are more effective, akin to pedagogical knowledge or pedagogical content knowledge (Cochran, 1991); 2) students may tend towards certain common prior beliefs/misconceptions about a particular learning concept; 3) more extreme learning concepts may be more rare, and thus the admin should weight more heavily the pareto frontier of moderate target bias values.
-
+-->
 
 # Acknowledgements
 
