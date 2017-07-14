@@ -1,71 +1,69 @@
-var studentInitialNu = 11;
-var numQuestionsPerAssessment = 3;  
-var numTimeSteps = 12;
-//var numAssessments = 2;
-var teacherMus = [.5, .6, .7, .8, .9];
-var teacherNu = 10;
-var numTeachersArray = [1, 2, 3, 5, 10];
-var numAssessmentsArray = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12];
-var factorials = [1, 1, 2, 6, 24, 120, 720, 5040, 40320, 362880, 3628800, 39916800, 479001600];
-var exponentsArray = [0.8, 0.9, 1, 1.1, 1.2];
+var studentInitialNu = 11; //Initial sum of studentAlpha + studentBeta parameters
+var numQuestionsPerAssessment = 3; //Number of questions asked per assessment period
+var numTimeSteps = 12; //Total number of timesteps per simulation
+var teacherMus = [.5, .6, .7, .8, .9]; //Possible target concepts tested
+var teacherNu = 10; //Initial sum of targetAlpha + targetBeta parameters
+var numTeachersArray = [1, 2, 3, 5, 10]; //Possible number of teachers tested
+var numAssessmentsArray = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]; //Possible assessments tested
+//var factorials = [1, 1, 2, 6, 24, 120, 720, 5040, 40320, 362880, 3628800, 39916800, 479001600];
+var exponentsArray = [0.8, 0.9, 1, 1.1, 1.2]; //Exponents tested, not used in final thesis
 
-// Generate a sequence of student priorAlphas and priorBetas
+
+// Generate a sequence of numbers by sampling a uniform distribution, used for generating studentAlphas
 var generateSequence = function(numStudents, min, max){
-  
   return repeat(numStudents, function(){uniformDraw(_.range(min, max))});
 }
 
 // Returns numStudents students with true and guessed Alpha and Betas
 var generateStudentsArray = function(numStudents){
 
-  //Alphas and betas initially sum to studentInitialNu
-  var priorAlphas = generateSequence(numStudents, 1, studentInitialNu - 1);
-  var priorBetas = map(function(alpha){
-    return studentInitialNu-alpha;
-  }, priorAlphas);
+  //Alphas and betas initially sum to studentInitialNu. These are the true alpha and beta parameters for each student.
+  var priorAlphas = generateSequence(numStudents, 1, studentInitialNu - 1); //Alphas are generated between 1 and studentInitialNu-1
+  var priorBetas = map(function(alpha){return studentInitialNu-alpha;}, priorAlphas); //Betas are calculated from the alphas
 
-  //Guessed alphas and betas are initially set to 1
+  //Guessed alphas and betas are initially set to 1. These are the teachers' guess of what the students' parameters are, initially seeded as 1-1
   var guessAlpha = 1;
   var guessBeta = 1;
 
-  //Generate array of students
+  //Generate array of students by consolidating all parameters into a single object.
   var students = map2(function(priorAlpha, priorBeta){
     
-    //Get the priorOldDKLs for all Mu levels
-    var priorOldDKLs = mapN(function(muIndex){
-      
-      var mu = teacherMus[muIndex];
-      var teacherAlpha = teacherNu * mu;
-      var teacherBeta = teacherNu - teacherAlpha;
-      var priorOldDKL = DKL(priorAlpha, priorBeta, teacherAlpha, teacherBeta);
+    //Get the DKLs between the student prior distribution and the target distribution for all Mu levels. Calculation occurs at this step because
+    //priorDKL never changes regardless of school parameterization and examples shown, so this optimization reduces redundantly repeating this calculation.
+
+    var priorOldDKLs = mapN(function(muIndex){ //This function calculates the prior DKLs for all Mus
+
+      var mu = teacherMus[muIndex]; //Select the mu for this iteration
+      var teacherAlpha = teacherNu * mu; //Calcuate alpha value for this mu
+      var teacherBeta = teacherNu - teacherAlpha; //Calculate beta value for this mu
+      var priorOldDKL = DKL(priorAlpha, priorBeta, teacherAlpha, teacherBeta); //Calculate the DKL using the WebPPL library (must be installed)
       return priorOldDKL;
     }, teacherMus.length);
 
-    return {priorAlpha: priorAlpha, priorBeta: priorBeta, guessAlpha: guessAlpha, guessBeta: guessBeta, priorOldDKLs: priorOldDKLs}
+    return {priorAlpha: priorAlpha, priorBeta: priorBeta, guessAlpha: guessAlpha, guessBeta: guessBeta, priorOldDKLs: priorOldDKLs}; //Return full student object
   }, priorAlphas, priorBetas);
   
 
   return students; 
 }
 
-// Seeds the guessed params of each student by sampling a Bernoulli variable with the student's true belief as the bias
+// Seeds the teacher beliefs (Called guessAlpha and guessBeta) of each student by sampling a Bernoulli variable with the student's true belief as the bias
 var assess = function(students, numAssessments){
-	var numQuestionsToAsk = numAssessments * numQuestionsPerAssessment;
+	var numQuestionsToAsk = numAssessments * numQuestionsPerAssessment; //Calculate number of questions that need to be asked
 
 	var assessedStudents = map(function(student){
-		var studentMu = student.priorAlpha / (student.priorAlpha + student.priorBeta);
+		var studentMu = student.priorAlpha / (student.priorAlpha + student.priorBeta); //Calculate student mu from alpha and beta parameters
 
 		//Sample from student's beliefs numQuestionsToAsk times
 		var answers = sum(repeat(numQuestionsToAsk, function(){ 
-				return flip(studentMu);}
+				return flip(studentMu);} //Stochastically determine answers by flipping a coin weighted equal to student mu.
 			));
 
-    //Smoothing, in case of extremes
-    
+    //Add-one smoothing, in case of extremes
     var guessAlpha = answers + 1;
     var guessBeta = numQuestionsToAsk - answers + 1;
 
-    //Get the guessOldDKLs for all Mu levels
+    //Get the DKLs based on teacher beliefs about student knowledge for all Mu levels
     var guessOldDKLs = mapN(function(muIndex){
       
       var mu = teacherMus[muIndex];
@@ -76,25 +74,18 @@ var assess = function(students, numAssessments){
     }, teacherMus.length);
 
 		//Seed admin beliefs about student
-		return {priorAlpha: student.priorAlpha, priorBeta: student.priorBeta, guessAlpha: guessAlpha, guessBeta: guessBeta, priorOldDKLs: student.priorOldDKLs, guessOldDKLs: guessOldDKLs};
+		return {priorAlpha: student.priorAlpha, priorBeta: student.priorBeta, guessAlpha: guessAlpha, guessBeta: guessBeta, priorOldDKLs: student.priorOldDKLs, guessOldDKLs: guessOldDKLs}; //Return full student object
 	}, students);
 
 	return assessedStudents;
 }
-
-// var calculateOldDKLs = function(students, targetAlpha, targetBeta){
-
-//   var studentsWithOldDKLs = 
-//   //Store their oldDKL at this phase
-//   return {priorAlpha: student.priorAlpha, priorBeta: student.priorBeta, guessAlpha: student.guessAlpha, guessBeta: student.guessBeta, priorOldDKL: oldDKL}
-// }
 
 // Helper function to sort students by true or guessed prior distribution
 var sortStudents = function(students, trueValue) {
   //Sort on true alphas/betas
   var trueBetaMeanFn = function(x){return x.priorAlpha / (x.priorAlpha + x.priorBeta + 0.0)};
 
-  //Sort on guessed alphas/betas
+  //Sort on teacher beliefs of student knowledge (guessAlpha and guessBeta)
   var guessBetaMeanFn = function(x){return x.guessAlpha / (x.guessAlpha + x.guessBeta + 0.0)};
 
   if(trueValue){
@@ -115,12 +106,15 @@ var distributeStudents = function(students, N){
 
   var len = students.length;
   
+  //Recursive calls to distributeStudents
   if (len % N === 0) {
+    //If number of students is perfectly divisble by remaining number of classrooms
     var size = Math.floor(len / N);
     return [students.slice(0, size)].concat(distributeStudents(students.slice(size), N-1))
   }
 
   else {
+    //If number of students is not perfectly divisible by remaining number of classrooms
     var size = Math.ceil(len / N);
     return [students.slice(0, size)].concat(distributeStudents(students.slice(size), N-1))
   }
@@ -140,12 +134,6 @@ var getTeacherIG = function(students, targetParams, numExamples, exponent){
     //console.log("target params: alpha: " + targetParams.alpha + " ; beta: " + targetParams.beta);
 
     var believedIGs = map(function(student){
-      //console.log("--------");
-      //console.log("Student: priorAlpha: " + student.priorAlpha + " ; priorBeta: " + student.priorBeta + " ; guessAlpha: " + student.guessAlpha + " ; guessBeta: " + student.guessBeta);
-
-      //var score = IG2(targetParams.alpha, targetParams.beta, student.guessAlpha, student.guessBeta, h, t)
-      ///console.log("Score: " + score);
-      //return score;
 
       //Retrieve guessOldDKL calculated earlier for this mu
       var oldDKL = student.guessOldDKLs[targetParams.muIndex];
