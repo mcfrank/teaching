@@ -70,6 +70,11 @@ library(stringr)
 library(langcog) #requires devtools::install_github("langcog/langcog")
 ```
 
+```{r}
+# CONSTANTS
+EXAMPLE_TEACHERMU <- .6
+```
+
 A good teacher is a good communicator, choosing explanations and examples that allow students to learn concepts effectively. But just as a message that is intended for one particular person can be incomprehensible to another, a lesson that is appropriate for one student can be inappropriate for another. The perfect pace for one student is too fast or too slow for the second; a helpful analogy for one is confusing to another other. More generally, the broader the audience for a lesson, the more difficult it can be to ensure that every student learns. In this paper, we explore this intuition formally, creating a framework for understanding the role of student variability in educational outcomes. 
 
 Managing student variability is a central issue in educational policy and practice. Should schools group students into classrooms by ability ["tracking"; @glass1979;@slavin1989]? Should policymakers invest resources in decreasing class size, allowing for smaller classes with more opportunities to tailor instruction to individual students [@slavin1987,@tomlinson1999]? Should teachers conduct formative assessments to learn more about the range of knowledge and abilities in a classroom [@fuchs1986;@sadler1989]? Each of these questions has been the focus of intense debate. Randomized trials can provide real-world evidence for the effects of particular interventions on class size or åbility grouping [e.g., @duflo2011, @duflo2015], but such experiments can tell us only what *does* work, not what could or could not work, in principle. Yet, to our knowledge, no body of theory provides guidance on this issue. Our goal here is to take a first step towards such a framework.
@@ -139,7 +144,7 @@ available at [http://github.com/mcfrank/teaching]().
 
 ```{r, fig.cap="\\label{fig:ex} Average information gain plotted by the number of assessments. Colors show whether students are grouped by ability or randomly, and line-type shows teacher knowledge (uncertain, perfect, or naive). The dots show the number of assessments that produces the maximal information gain."}
 ig <- d %>%
-  filter(exponent == 1, teacherMu %in% .6, numTeachers %in% c(5)) %>%
+  filter(exponent == 1, teacherMu %in% EXAMPLE_TEACHERMU, numTeachers %in% c(5)) %>%
   group_by(grouping, knowledge, numTeachers, numAssessments, teacherMu) %>%
   summarise(IG = mean(IG))
 
@@ -160,7 +165,7 @@ ggplot(ig,
   xlab("Number of Assessments") +
   ylab("Information Gain (nats)") + 
   ggthemes::theme_few() + 
-  theme(legend.position = "bottom") 
+  theme(legend.position = "bottom", legend.box = "vertical") 
   
 ```
 
@@ -168,46 +173,9 @@ Figure \ref{fig:ex} shows an example parameter regime (target concept = .6, 5 te
 
 In the following simulations, we attempt to quantify the advantages due to different decisions across parameter regimes. 
 
-## Ability grouping and class size
-
-## Perfect ability grouping yields large gains in performance
-
-Generalizing the result in Figure \ref{fig:ex}, we examine the effects of student grouping, in which students are placed in classes based on the teacher's evaluation of their knowledge or abilities. We begin by considering the case of perfect teachers, in order to estimate the maximal possible information gain based on grouping. We compute the proportional information gain due to sorting as a proportion of baseline information gain due to random examples: 
-
-$$\frac{IG_{sorted} - IG_{unsorted}}{IG_{naive}}$$
-
-```{r, fig.cap="\\label{fig:grouping} Proportional information gain due to grouping plotted by class size. Colors show different target concepts. Error bars show 95\\% confidence intervals computed by bootstrap resampling."}
-
-grouping_boost <- d %>%
-  filter(exponent == 1, numAssessments == 0, knowledge %in% c("perfect","naive")) %>%
-  select(trialNum, simType, IG, numTeachers, teacherMu) %>%
-  spread(simType, IG) %>%
-  group_by(trialNum, numTeachers, teacherMu) %>%
-  mutate(grouping_boost = (sortedPerfectTeachers - unsortedPerfectTeachers)/unsortedNaiveTeachers) %>%
-  group_by(numTeachers, teacherMu) %>%
-  multi_boot_standard(col = "grouping_boost")
-  
-ggplot(grouping_boost, 
-       aes(x = 100/numTeachers, y = mean, col = factor(teacherMu))) + 
-  geom_line() + 
-  geom_linerange(aes(ymin = ci_lower, ymax = ci_upper), 
-                 position = position_dodge(width = 2)) + 
-  geom_hline(yintercept = 0, lty = 2) + 
-  scale_x_reverse(breaks = round(100/c(1, 2, 3, 5, 10))) +
-  ylim(-.1,1.5) + 
-  scale_color_solarized(name="Target Concept") + 
-  xlab("Class Size (Students)") +
-  ylab("Proportional IG") + 
-  ggthemes::theme_few() + 
-  theme(legend.position = "bottom") 
-```
-
-Figure \ref{fig:grouping} shows the results of this analysis. Again, several trends are apparent. First, all trends are positive. As class sizes decrease, information gain increases over baseline, sometimes substantially (proportion increase > 1 indicates a more than doubling of information gain). Second, gains due to ability grouping are most apparent for less extreme target concepts -- that is, the more students differ in their intial knoewledge/abilities with respect to these concepts, the more grouping matters. Third, class size plays a relatively small role. Ability grouping is not possible in our games when there is only one teacher, but beyond two teachers, additional gains are marginal. Thus, within our teaching games, our simulations show that grouping students into two rough "tracks" will produce substantial benefits, especially for concepts where students' starting points are variable. 
-
 ### Class size reduction yields small effects
 
-
-```{r, fig.cap="\\label{fig:class_size} Proportional information gain due reduction in class size. Colors show different target concepts. Error bars show 95\\% confidence intervals computed by bootstrap resampling."}
+```{r, fig.cap="\\label{fig:grouping} Proportional information gain due reduction in class size, without (left) and with ability grouping (right). Colors show different target concepts. Error bars show 95\\% confidence intervals computed by bootstrap resampling."}
 
 baseline_boost <- d %>%
   filter(exponent == 1, numAssessments == 0, grouping == "random",
@@ -217,15 +185,30 @@ baseline_boost <- d %>%
   group_by(teacherMu, trialNum) %>%
   mutate(baseline_boost = (unsortedPerfectTeachers - unsortedPerfectTeachers[numTeachers==1]) / unsortedPerfectTeachers[numTeachers==1]) %>%
   group_by(numTeachers, teacherMu) %>%
-  multi_boot_standard(col = "baseline_boost")
+  multi_boot_standard(col = "baseline_boost") %>%
+  mutate(condition = "Class Size Reduction Alone")
+
+grouping_boost <- d %>%
+  filter(exponent == 1, numAssessments == 0, knowledge %in% c("perfect","naive")) %>%
+  select(trialNum, simType, IG, numTeachers, teacherMu) %>%
+  spread(simType, IG) %>%
+  group_by(trialNum, numTeachers, teacherMu) %>%
+  mutate(grouping_boost = (sortedPerfectTeachers - unsortedPerfectTeachers)/unsortedPerfectTeachers) %>%
+  group_by(numTeachers, teacherMu) %>%
+  multi_boot_standard(col = "grouping_boost") %>%
+  mutate(condition = "+ Ability Grouping")
+    
+size_grouping <- bind_rows(baseline_boost, grouping_boost) %>%
+  mutate(condition = fct_relevel(condition, "Class Size Reduction Alone"))
   
-ggplot(baseline_boost, 
+ggplot(size_grouping,  
        aes(x = 100/numTeachers, y = mean, col = factor(teacherMu))) + 
   geom_line() + 
   geom_linerange(aes(ymin = ci_lower, ymax = ci_upper)) + 
-  geom_hline(yintercept = 0, lty = 2) + 
+  # geom_hline(yintercept = 0, lty = 2) + 
   scale_x_reverse(breaks = round(100/c(1, 2, 3, 5, 10))) +
-  ylim(-.1,1.5) + 
+  # ylim(-.1,1.5) + 
+  facet_grid(.~condition)+ 
   scale_color_solarized(name="Target Concept") + 
   xlab("Class Size (Students)") +
   ylab("Proportional IG") + 
@@ -233,27 +216,33 @@ ggplot(baseline_boost,
   theme(legend.position = "bottom")
 ```
 
+Generalizing the result in Figure \ref{fig:ex}, we examine effects of class size on performnace. We begin by considering the case of perfect teachers, in order to estimate the maximal possible information gain based on reductions in class size. We compute the proportional information gain due to class size reduction, compared to a single large class as baseline:
 
-Figure \ref{fig:class_size} shows a reanalysis of the same data, but highlighting class size effects (absolute information gain) in the absence of ability grouping. Here the measure is information gain proportional to the case where there is only a single instructor, shown on the same scale as Figure \ref{fig:grouping}. Class size reductions lead to increases in information gain, especially for less extreme concepts, but increases are tiny compared to those due to ability grouping. 
+$$\frac{IG_{N~teachers} - IG_{1~teacher}}{IG_{1~teacher}}$$
 
-The intuition guiding this difference is relatively straightforward. Variance between students in our model is the primary factor governing information gain, with lower variance leading to greater IG. Thus,  class size effects in this model are due exclusively to chance reductions in variance. On average, the range of student abilities in a class will be somewhat smaller for a smaller class, leading to an increased ability for the teacher to customize to that class. But down to class sizes of only a handful of students, these effects are marginal compared with direct reductions of variance by ability grouping. 
 
-## Formative assessment
 
-In the next set of simulations, we examine the effects of formative assessment in more detail. In these simulations, teachers are uncertain about student knowledge and only gain information by sacrificing class time to conduct assessments. Each assessment provides a small increment of information (since assessment is modeled as random sampling from students' true distributions), but larger amounts of assessment are costly in terms of instruction time. 
+
+\noindent Figure \ref{fig:grouping}, left shows class size effects. Class size reductions lead to increases in information gain, especially for less extreme concepts, but they are small.
+
+The intuition guiding this difference is relatively straightforward. Variance between students in our model is the primary factor governing information gain, with lower variance leading to greater IG. Thus,  class size effects in this model are due exclusively to chance reductions in variance. On average, the range of student abilities in a class will be somewhat smaller for a smaller class, leading to an increased ability for the teacher to customize to that class. But this effect is typically small (a maximum of around 10% in our simulations.
+
+### Perfect ability grouping yields large gains in performance
+
+We next consider the effects of student grouping, in which students are placed in classes based on the teacher's evaluation of their knowledge or abilities. We compute the proportional information gain due to ability grouping similarly, comparing to the ungrouped condition as a baseline. Figure \ref{fig:grouping}, right shows the results of this analysis. Several trends are apparent. First, all trends are positive. As class sizes decrease, information gain increases over baseline, sometimes substantially (up to 80% in some conditions). Second, gains due to ability grouping are most apparent for less extreme target concepts -- that is, the more students differ in their intial knoewledge/abilities with respect to these concepts, the more grouping matters. Third, class size plays a relatively small role: beyond two teachers, additional gains are marginal. Thus, within our teaching games, our simulations show that -- for teachers with perfect knowledge -- grouping students into two rough "tracks" will produce substantial benefits, especially for concepts where students' starting points are variable. 
 
 ### Imperfect ability grouping yields lower effect sizes
 
-```{r, fig.cap="\\label{fig:imperfect_grouping} Proportional information gain due to grouping using imperfect information, for one target concept (.5). Colors show different numbers of assessments. Error bars show 95\\% confidence intervals computed by bootstrap resampling."}
+```{r, fig.cap="\\label{fig:imperfect_grouping} Proportional information gain due to grouping using imperfect information, for one target concept (.6). Colors show different numbers of assessments. Error bars show 95\\% confidence intervals computed by bootstrap resampling."}
 
 grouping_boost_imperfect <- d %>%
   filter(exponent == 1, knowledge %in% c("uncertain","naive"), 
-         teacherMu == .5,
+         teacherMu == EXAMPLE_TEACHERMU,
          numAssessments < 10) %>%
   select(trialNum, simType, IG, numTeachers, teacherMu, numAssessments) %>%
   spread(simType, IG) %>%
   group_by(trialNum, numTeachers, teacherMu, numAssessments) %>%
-  mutate(grouping_boost = (sortedUncertainTeachers - unsortedUncertainTeachers)/unsortedNaiveTeachers) %>%
+  mutate(grouping_boost = (sortedUncertainTeachers - unsortedUncertainTeachers)/unsortedUncertainTeachers) %>%
   group_by(numTeachers, teacherMu, numAssessments) %>%
   multi_boot_standard(col = "grouping_boost")
   
@@ -262,24 +251,26 @@ ggplot(grouping_boost_imperfect,
   geom_line() + 
   # geom_linerange(aes(ymin = ci_lower, ymax = ci_upper),
   #                position = position_dodge(width = 2)) +
-  geom_hline(yintercept = 0, lty = 2) + 
+  # geom_hline(yintercept = 0, lty = 2) + 
   scale_x_reverse(breaks = round(100/c(1, 2, 3, 5, 10))) +
-  ylim(-.1,3) +
+  ylim(0,.8) +
   # facet_wrap(~teacherMu) + 
-  scale_color_gradient(name="Proportion Assessment", breaks = c(0,.25,.5, .75)) + 
+  scale_color_gradient2(name="Proportion Assessment", breaks = c(0,.25,.5, .75), midpoint = .5) + 
   xlab("Class Size (Students)") +
   ylab("Proportional IG") + 
   ggthemes::theme_few() + 
   theme(legend.position = "bottom") 
 ```
 
-Although perfect ability grouping yields large increases in information gain, as shown above, these increases are mostly not realized in cases of imperfect knowledge. Figure \ref{fig:imperfect_grouping} shows proportional information gain due to ability grouping for uncertain teachers. Gains grow with additional assessment, but maximal gains are not achieved until nearly all class time is used for assessment. More modest amounts of assessment lead to much more limited proportional gains, however. In addition, by devoting class time to assessment, absolute information gain may decrease.
+In the next simulation, we examine the effects of formative assessment in more detail. In this simulation, teachers are uncertain about student knowledge and only gain information by sacrificing class time to conduct assessments. Each assessment provides a small increment of information (since assessment is modeled as random sampling from students' true distributions), but larger amounts of assessment are costly in terms of instruction time. 
+ 
+Although perfect ability grouping yields large increases in information gain, these increases are mostly not realized in cases of imperfect knowledge. Figure \ref{fig:imperfect_grouping} shows proportional information gain due to ability grouping for uncertain teachers. Gains grow with additional assessment, but maximal gains are not achieved until nearly all class time is used for assessment. More modest amounts of assessment lead to much more limited proportional gains, however. In addition, by devoting class time to assessment, absolute information gain may decrease.
 
 ### A small amount of assessment produces maximal absolute gains
 
 How much assessment produces the best possible information gain, optimizing the tradeoff between assessment and instruction? Figure \ref{fig:temporal_tradeoff} shows the number of assessments that yielded the maximal information gain for each target concept, for both ability-grouped and random class assignemnts. In both cases, the optimal number of assessments is relatively limited, especially for more extreme concepts. For concepts with more student variability (e.g., $\mu = .5$), performance in random classes increases somewhat. This increase is steeper for classes with ability grouping, supporting the result described above: to see maximal performance in ability grouping, teachers must know a large amount about each individual student's abilities.   
 
-```{r, fig.cap="\\label{fig:temporal_tradeoff} Absolute information gain plotted by the optimal number of assessments, for students either grouped by ability or randomly assigned to classes. Colors show different target concepts, and dashed lines show the best fitting quadratic.}
+```{r, fig.cap="\\label{fig:temporal_tradeoff} Absolute information gain plotted by the optimal number of assessments, for students either grouped by ability or randomly assigned to classes. Colors show different target concepts, and dashed lines show the best fitting quadratic."}
 
 ig_maxes <- d %>%
   filter(exponent == 1, knowledge == "uncertain") %>%
@@ -302,146 +293,100 @@ ggplot(ig_maxes,
 ```
 
 
-## Decision-Theoretic Applications
+## Decision-Theoretic Applications: A Handful of Teachers and Assessments is Typically Optimal
 
-<!-- - when assessment dominates, get lots of teachers. (uninteresting) -->
-<!-- - when teaching cost dominates,  -->
-<!--   - perfect teachers have a pareto frontier where it's still worth assessing sometimes -->
-<!--   - but uncertain teachers don't usually - seems there you just hire one. -->
-<!-- - tradeoff - you see frontiers in both -->
+In our final set of simulations, we consider an additional factor in making decisions: the costs and payoffs of different interventions.
+<!-- We first consider how cost structures can be assigned to decisions and discuss different cost regimes. This analysis suggests that across a wide range of circumstances, a small number of assessments and a small number of teachers together lead to the majority of gains in learning performance.  -->
+<!-- We also consider value functions that maximize students' learning differently, including a "remedial" value function that privileges students who have the most to learn. Under this value function, assessment is more valuable, because proper identification and class assignment for remedial students is critical. -->
+Interventions to change class size are costly: they require resources to be allocated to hire more teachers. By assigning a notional "cost" $C_T$ (in arbitrary units) to teachers, it is possible to define a Pareto frontier -- a set of maximally efficient parameter settings -- between cost and information gain.
 
-In our final set of simulations, we consider an additional factor in making decisions: the costs and payoffs of different interventions. 
+```{r fig.cap="\\label{fig:pareto_teacher} Information gain by cost of number of teachers, with colors showing the number of assessments for each parameter setting. The optimal assessment value for each cost is outlined and connected with a black line to show the Pareto frontier. Subplots show different levels of teacher knowledge and ability grouping. Target concept shown is .6."}
 
-We consider how a range of different cost structures can be assigned to decisions, and consider different metrics for choosing information gain. 
-
-We also consider payoff functions that value different students' learning differently, including a "remedial" payoff that incentivizes a minimal level of 
-
-
-
-
-## Pareto frontier for assessments 
-
-Interventions to change class size are costly: they require resources to be allocated to hire more teachers. By assigning a notional "cost" (in arbitrary units) to teachers, it is possible to define a pareto frontier between assessments and teachers, giving the . 
-
-```{r}
 ig_by_cost <- d %>%
-  mutate(teacherMu = factor(teacherMu)) %>%
-  group_by(knowledge, grouping, teacherMu, numTeachers, numAssessments) %>%
-  summarise(IG = mean(IG)) %>%
-  group_by(knowledge, grouping, teacherMu, numTeachers) %>%
-  summarise(numAssessments = numAssessments[IG == max(IG)[1]][1],
-            IG = max(IG)[1])
+  filter(teacherMu == EXAMPLE_TEACHERMU, knowledge == "uncertain", grouping == "by ability") %>%
+  mutate(cost = numTeachers) %>%
+  group_by(knowledge, grouping, cost, numTeachers, numAssessments) %>%
+  summarise(IG = mean(IG)) 
+
+
+maxes_per_cost <- ig_by_cost %>%
+  group_by(knowledge, grouping, cost, numTeachers) %>%
+  summarise(max_IG = max(IG)[1],
+            numAssessments = numAssessments[IG == max_IG][1])
   
 
 ggplot(ig_by_cost,
-       aes(x = numTeachers, y = numAssessments, col = teacherMu)) + 
-  # geom_text(aes(label = numAssessments), nudge_y = .6) + 
-  geom_line() + 
-  facet_wrap(~knowledge*grouping)+
-  scale_colour_solarized(name = "Target Concept") + 
+       aes(x = numTeachers, y = IG, fill = numAssessments)) + 
+  geom_point(col = "white", pch = 21, size = 4, alpha = .5) + 
+  geom_line(data = maxes_per_cost, 
+             aes(y = max_IG)) + 
+  geom_point(data = maxes_per_cost, 
+             aes(y = max_IG), 
+             pch = 21, size = 4, alpha = 1, col = "black") + 
+  # geom_text(aes(label = numAssessments), nudge_y = .6) +
+  # geom_line() + 
+  # facet_grid(grouping~knowledge)+
+  ylim(c(0,200)) + 
+  scale_fill_gradient2(name = "Number of Assessments", midpoint = 6) + 
   scale_x_continuous(breaks = c(1,2,3,5,10)) + 
   ggthemes::theme_few() + 
   theme(legend.position = "bottom") + 
-  xlab("Number of Teachers") + 
-  ylab("Number of Assessments")
+  xlab("Cost (Number of Teachers)") + 
+  ylab("Information Gain (nats)")
 ```
+Figure \ref{fig:pareto_teacher} shows an example Pareto frontier for one target concept, assuming both teachers with uncertainty about students and assignment to classrooms by ability. As described above, for ability grouping, adding a second classroom improves performance markedly, but returns diminish with additional classrooms. In contrast, when students are randomly assigned to classes, increasing the number of teachers helps only marginally and a small number of assessments serves to maximize information gain within each classroom. 
 
-```{r, fig.cap="Optimal"}
-optimal_ig_by_cost <- d %>%
-  filter(exponent == 1) %>%
-  mutate(cost = numAssessments * 50 + numTeachers * (10 + numExamples * 2)) %>%
-  group_by(numTeachers, numAssessments, teacherMu, simType, cost) %>%
-  summarise(IG = mean(IG)) %>%
-  filter(simType == "sortedUncertainTeachers") %>%
-  arrange(cost) %>%
-  group_by(teacherMu) %>%
-  filter(IG == cummax(IG))
 
-ggplot(filter(optimal_ig_by_cost, teacherMu < 0.8),
-       aes(x = cost, y = IG)) + 
-  geom_text(aes(label = numAssessments, col = factor(numTeachers))) + 
+```{r fig.cap="\\label{fig:pareto_regimes} Pareto frontiers for three example cost function regimes (panels).  Line types show a range of target concepts, and point size shows the number of teachers. Other plotting conventions are as in Figure \\ref{fig:pareto_teacher}."}
+
+pareto <- function(settings) {
+  d %>%
+    filter(teacherMu == settings$teacherMu, exponent == settings$exponent, 
+           knowledge == "uncertain", grouping == "by ability") %>%
+    mutate(cost = numAssessments * settings$C_A + numTeachers * settings$C_T) %>%
+    group_by(knowledge, grouping, cost, numTeachers, numAssessments) %>%
+    summarise(IG = mean(IG)) %>%
+    ungroup %>%
+    arrange(cost) %>%
+    filter(IG == cummax(IG)) %>%
+    mutate(regime = settings$regime, 
+           teacherMu = settings$teacherMu,
+           exponent = settings$exponent)
+}
+
+
+regimes <- data_frame(exponent = 1, 
+                      C_A = c(500,250, 50),
+                      C_T = c(50,250, 500), 
+                      regime = c("Assessment Costs Dominate","Equal Costs","Teaching Cost Dominates")) %>%
+  merge(data_frame(teacherMu = c(.5, .6, .7))) %>% # makes use of outer join behavior from merge
+  mutate(index = 1:n()) %>%
+  split(.$index) %>% 
+  map_df(pareto)
+  
+ggplot(regimes,
+  # filter(regimes, regime == "Teaching dominates"),
+       aes(x = cost, y = IG, fill = numAssessments, lty = factor(teacherMu))) + 
   geom_line() + 
-  facet_grid(.~teacherMu)+
-  scale_colour_solarized(name = "Number of Teachers") + 
+  geom_point(aes(size = numTeachers), col = "black", pch = 21) +
+  # geom_point(pch = 21, size = 4, alpha = 1, col = "black") + 
+  # geom_text(aes(label = numAssessments), nudge_y = .6) +
+  # geom_line() + 
+  facet_wrap(~regime)+
+  # ylim(0,200) + 
+  # xlim(0,2000) + 
+  scale_size_continuous(name = "Number of Teachers", breaks = c(1,2,3,5,10))+ 
+  scale_linetype_discrete(name = "Target Concept") +
+  scale_fill_gradient2(name = "Number of Assessments", midpoint = 6, 
+                       limits = c(0,12), breaks = c(0,6,12)) + 
   ggthemes::theme_few() + 
-  theme(legend.position = "bottom",plot.title = element_text(hjust = 0.5)) + 
-  xlab("Cost") + 
-  ylab("Information Gain (nats)") + 
-  ggtitle("IG under Optimal Spending Policy per Cost\nat 0.5 to 0.7 Target Knowledge Levels")
-
-```
-
-
-```{r, fig.cap="Pareto frontiers"}
-ig_by_cost <- d %>%
-  filter(exponent == 1) %>%
-  mutate(cost = numAssessments * 50 + numTeachers * (10 + numExamples * 2)) %>%
-  group_by(numTeachers, numAssessments, teacherMu, simType, cost) %>%
-  summarise(IG = mean(IG))
-
-dummy <- data.frame(teacherMu = c(0.5, 0.6, 0.7), Z = c(400, NA, NA))
-
-ggplot(filter(ig_by_cost, teacherMu < 0.8,
-              simType %in% c("sortedUncertainTeachers")),
-       aes(x = cost, y = IG, col = factor(numTeachers))) + 
-  geom_text(aes(label = numAssessments)) + 
-  geom_line() + 
-  facet_grid(.~factor(teacherMu))+
-  scale_colour_solarized(name = "Number of Teachers") + 
-  ggthemes::theme_few() + 
-  theme(legend.position = "bottom",plot.title = element_text(hjust = 0.5)) + 
-  xlab("Cost") + 
-  ylab("Information Gain (nats)") + 
-  ggtitle("Cost vs. Information Gain at 0.5 to 0.7 Target Knowledge Levels") +
-  geom_vline(data=dummy, aes(xintercept = Z), linetype="dashed")
-
-ig_by_cost <- df %>%
-  filter(exponent == 1) %>%
-  mutate(cost = numAssessments * 50 + numTeachers * (10 + numExamples * 10)) %>%
-  group_by(numTeachers, numAssessments, teacherMu, simType, cost) %>%
-  summarise(IG = mean(IG))
-
-ggplot(filter(ig_by_cost, teacherMu < 0.8,
-              simType %in% c("sortedUncertainTeachers")),
-       aes(x = cost, y = IG, col = factor(numTeachers))) +
-  geom_text(aes(label = numAssessments)) +
-  geom_line() +
-  facet_grid(.~teacherMu)+
-  scale_colour_solarized(name = "Number of Teachers") +
-  ggthemes::theme_few() +
-  theme(legend.position = "bottom") +
-  xlab("Cost") +
+  theme(legend.position = "bottom", legend.box = "vertical") + 
+  xlab("Cost (Arbitrary Units)") + 
   ylab("Information Gain (nats)")
 ```
 
-### Alternative payoff functions 
 
-In our previous simulations, we have attempted to maximize total information gain. This payoff function assumes that all students' learning is treated equally. But it should be possible to consider alternatives that value student learning differently. We consider an expanded payoff function
-
-$$IG_{total}(E,\lambda) = \sum_{s \in S}{ (IG_s(E) ) ^\lambda}$$
-
-
-\noindent which produces a range of outcomes For $\lambda > 1$, students with higher information gain (who stand to learn more in a particular scenario) dominate the choice of strategy. Strategies chosen under this payoff are effectively "remedial": students who are far from the target concept can catch up more effectively. In contrast, payoffs with $\lambda < 1$ de-emphasize the gains of students who learn more and prioritize students who learn less (due to greater initial knowledge) more equally. 
-
-```{r}
-ig_maxes <- d %>%
-  filter(knowledge == "uncertain") %>%
-  group_by(exponent, teacherMu, grouping, numAssessments) %>%
-  summarise(IG = mean(IG)) %>%
-  summarise(numAssessments = numAssessments[IG == max(IG)[1]],
-            IG = max(IG))
-
-ggplot(ig_maxes, 
-       aes(x = numAssessments, y = IG, col = factor(exponent), group = factor(exponent))) + 
-  # geom_smooth(method = "lm", formula = y ~ x + I(x^2), se=FALSE, lty = 2) +
-  geom_line() + 
-  facet_grid(. ~ grouping) + 
-  ggthemes::scale_color_solarized(name=expression(lambda)) + 
-  xlab("Optimal number of assessments") +
-  ylab("Information Gain (nats)") + 
-  ggthemes::theme_few() + 
-  theme(legend.position = "bottom") 
-```
+Other cost structures are possible, however, leading to a number of different possible regimes. Assuming that assessments have a fixed cost $C_A$, due to classroom-exernal time or other resources expended in acquiring or creating them, then a number of regimes emerge. Figure \ref{fig:pareto_regimes} shows three sample regimes, in which assessment costs dominate ($C_A > C_T$), teaching costs dominate ($C_T > C_A$), or they are roughly similar ($C_A \approx C_T$), each shown for a range of target concepts. When assessment costs dominate, the most optimal choice is typically to hire many teachers. Interestingly, the converse is not true: even when teaching costs dominate, a quite small number of assessments is typically optimal. Across all simulations, most gains can be typically realized with a small number of assessments and a small number of teachers.^[This result mirrors a more general result due to @vul2014: under some sampling cost, a single sample from a binary variable -- in our case assessment -- is often enough for many decision problems.]
 
 # General Discussion
 
