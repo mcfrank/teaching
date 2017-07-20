@@ -218,7 +218,7 @@ $$\frac{IG_{N~teachers} - IG_{1~teacher}}{IG_{1~teacher}}.$$
 
 Class size reductions lead to increases in information gain, especially for less extreme concepts, but they are small (Figure \ref{fig:grouping}, left). Variance between students in our model is the primary factor governing information gain, with lower variance leading to greater IG. Thus, class size effects in this model are due exclusively to chance reductions in variance. On average, the range of student abilities in a class will be somewhat smaller for a smaller class, leading to an increased ability for the teacher to customize to that class. But this effect is not large, and reaches a maximum of around 10% of total information gain in our simulations. 
 
-### Perfect ability grouping yields large gains in performance
+### Ability grouping into a small number of classes can yield large gains in performance
 
 We next consider the effects of student grouping, in which students are placed in classes based on the teacher's evaluation of their priors. We compute proportional information gain due to ability grouping similarly to our computation above, except that we compare to the ungrouped condition as a baseline. Figure \ref{fig:grouping}, right shows the results of this analysis. Several trends are apparent. First, all trends are positive. As class sizes decrease, information gain increases over baseline, sometimes substantially (up to 80% in some conditions). Second, gains due to ability grouping are most apparent for less extreme target concepts -- that is, the more students differ in their intial knoewledge/abilities with respect to these concepts, the more grouping matters. Third, class size plays a relatively small role: beyond two teachers, additional gains are marginal. Thus, within our teaching games, our simulations show that -- for teachers with perfect knowledge -- grouping students into two rough "tracks" will produce substantial benefits, especially for concepts where students' starting points are variable. 
 
@@ -361,12 +361,12 @@ ggplot(regimes,
   facet_wrap(~regime)+
   # ylim(0,200) + 
   # xlim(0,2000) + 
-  scale_size_continuous(name = "Number of Teachers", breaks = c(1,2,3,5,10))+ 
+  scale_size_continuous(name = "Number of Teachers", breaks = c(1,5,10))+ 
   scale_linetype_discrete(name = "Target Concept") +
   scale_fill_gradient2(name = "Number of Assessments", midpoint = 6, 
                        limits = c(0,12), breaks = c(0,6,12)) + 
   ggthemes::theme_few() + 
-  theme(legend.position = "bottom", legend.box = "vertical") + 
+  theme(legend.position = "right", legend.box = "vertical") + 
   xlab("Cost (Arbitrary Units)") + 
   ylab("Information Gain (nats)")
 ```
@@ -376,26 +376,15 @@ Other cost structures are possible, however, leading to a number of different po
 
 # General Discussion
 
-We dferc
+What are the limits on learning in the educational context? We used optimal models of teaching and learning to investigate how structural features of the educational situation restrict learning. In particular, we focus on the role of student variability: the more variable the students in a class are, the less effective any particular lesson is, on average. Our simulations allow us to test the effectiveness of different educational interventions. Class size reduction alone yielded only small increases in learning alone. In combination with grouping students into a small number of classes, however, gains increased. These gains were moderated by teachers' knowledge about individual students' priors, though, and were typically optimal when done in combination with a handful of formative assessments to improve teachers' knowledge. To assist in decision-making, we added costs to the different actions in our model. Across a range of different cost regimes, most information gain was realized by conducting a small number of assessments and then splitting students into a small number of classes. In sum, this model takes a first step towards creating a framework for investigating theoretical limits on the benefits of educational interventions. 
 
-### Class size effects
+Results from our model can be used to help parse the complex and variable educational literature. The literature on class-size reduction in particular is extremely challenging to parse, with important studies suggesting null [@hoxby2000,@hanushek1997], moderate [@duflo2015, @krueger2003], and larger [@mosteller1995] effects. Our simulations suggest that there is no single effect of class size reduction that we should expect. Instead, improvements in performance should depend on a number of factors, including initial class size [with reductions more important for classes that are already small, cf. @glass1979] and student variability [with reductions more important for populations that are more variable, cf. @mosteller1995]. Rather than resolving conflicting measurements in the literature, our model suggests that different initial conditions should lead interventions to have substantially different effects. 
 
-Very controverisial
+As with any highly abstracted representation of a complex, multifaceted, and messy system, our model has a number of limitations. First, our model addresses exclusively "cognitive" aspects of the educational process - the communication of knowledge from teacher to students. It has no provision for the myriad non-cognitive factors that are well-known to be extremely important in educational outcomes [e.g., @blair2007, @blackwell2007, @duckworth2007]. One application of models like ours is in understanding the ways that their predictions *differ* from observed data -- this difference can be used as a measurement of the relative effect size for non-cognitive factors. 
 
-@hoxby2000 reports very small effects
-@mosteller1995 STARS reports larger effects. 
+Second, the model of teaching and learning we assume is direct communication between teacher and student. This model neglects peer effects on instruction [cf. @duflo2011], active learning by students, and myriad other interactive dynamics that at play in the classroom. These effects could either damp or accentuate the effect we investigated. For example, Montessori classrooms have been suggested to be effective in part because they leverage student variability as a strength in student-directed activities, for example via allowing older children to teach younger children [CITE]. 
 
-without coming to definitive judgment on the literature, we can say that expected effect sizes are probably relatively small. 
-
-(discuss populations farther from the mean)
-
-### Limitations
-
-* motivation
-* class dynamics
-* teaching game we choose
-* division of assessment and teaching, when actually teaching is informative
-
+Finally, the teaching game we assume is -- by design -- exceedingly simple. 
 
 # References 
 
