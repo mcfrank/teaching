@@ -18,3 +18,4 @@ packrat*
 packrat/*
 *.DS_Store
 
+.Rproj.user

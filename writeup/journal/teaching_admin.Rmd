@@ -3,10 +3,10 @@ title: "Modeling optimal classroom teaching as communication to variable listene
 
 # Use letters for affiliations, numbers to show equal authorship (if applicable) and to indicate the corresponding author
 author:
-  - name: Larry Liu
-    affiliation: a
   - name: Michael C. Frank
     affiliation: a,1
+  - name: Larry Liu
+    affiliation: a
 
 address:
   - code: a
@@ -16,10 +16,10 @@ corresponding_author:
   - code: 1
     text: "To whom correspondence should be addressed. Email: mcfrank@stanford.edu"
 
-lead_author_surname: Liu
+lead_author_surname: Frank
 
 author_contributions: |
-  Author contributions: LL and MCF designed models, wrote code, analyed data, and wrote the paper.
+  Author contributions: MCF and LL designed models, wrote code, analyed data, and wrote the paper.
 
 conflict_of_interest: |
   The authors declare no conflict of interest.
@@ -77,7 +77,7 @@ EXAMPLE_TEACHERMU <- .6
 
 A good teacher is a good communicator, choosing explanations and examples that allow students to learn concepts effectively. But just as a message that is intended for one particular person can be incomprehensible to another, a lesson that is appropriate for one student can be inappropriate for another. The perfect pace for one student is too fast or too slow for the second; a helpful analogy for one is confusing to another other. More generally, the broader the audience for a lesson, the more difficult it can be to ensure that every student learns. In this paper, we explore this intuition formally, creating a framework for understanding the role of student variability in educational outcomes. 
 
-Managing student variability is a central issue in educational policy and practice. Should schools group students into classrooms by ability ["tracking"; @glass1979;@slavin1989]? Should policymakers invest resources in decreasing class size, allowing for smaller classes with more opportunities to tailor instruction to individual students [@slavin1987,@tomlinson1999]? When should teachers conduct formative assessments to learn more about the range of knowledge and abilities in a classroom [@fuchs1986;@sadler1989]? Each of these questions has been the focus of intense discussion. Randomized trials can provide real-world evidence for the effects of particular interventions on class size or åbility grouping [e.g., @duflo2011, @duflo2015], but such experiments can tell us only what *does* work, not what could or couldn't work in principle. Yet, to our knowledge, no body of theory provides guidance on this issue. Our goal here is to take a first step towards such a framework.
+Managing student variability is a central issue in educational policy and practice. Should schools group students into classrooms by ability ["tracking"; @glass1979;@slavin1989]? Should policymakers invest resources in decreasing class size, allowing for smaller classes with more opportunities to tailor instruction to individual students [@slavin1987,@tomlinson1999]? When should teachers conduct formative assessments to learn more about the range of knowledge and abilities in a classroom [@fuchs1986;@sadler1989]? Each of these questions has been the focus of intense discussion. Randomized trials can provide real-world evidence for the effects of particular interventions on class size or åbility grouping [e.g., @duflo2011, @duflo2015], but such experiments can tell us only what *does* work, not what could or couldn't work in principle. Yet, to our knowledge, no body of theory provides guidance on this issue. Our goal here is to take a first step towards such a framework, which can then be used as a guide for interpreting the assumptions underlying intervention studies.
 
 We exploit parallel between teaching and communication that emerge in recent formal work using probabilistic models [@shafto2012,@goodman2016]. For example, @shafto2014 model the process of reasoning about which examples the teacher should choose and what inference the student should draw from the examples. The unit of their analysis is a "teaching game" [@shafto2014,@avrahami1997], by analogy to "signaling games" in linguistics [@lewis2008]: scenarios whose participants, rules, and parameters are known and hence which admit quantitative analysis. These abstractions can in turn be leveraged to  provide insight into more complex, messier situations. 
 
@@ -91,17 +91,19 @@ Uncertainty about student priors plays an important role in our framework. If te
 
 We begin by presenting the details of our modeling framework and then describe results that emerge from this framework through simulation. We next describe simulations focused on estimating effects of 1) reducing class size, 2) grouping students into classes by ability, and 3) conducting formative assessments to increase teacher knowledge about students. We end by discussing how our framework can be used for decision-making by assigning costs to individual aspects of an intervention. 
 
+Though the specifics of quantitative variation in our framework is of course dependent on our choice of teaching game as well as the parameters we choose, a variety of useful generalizations emerge quite clearly. Consideration of how these effects reflect our initial assumptions in turn can provide a framework for interpreting the success and failures of educational interventions.
+
 # Model
 
 In our teaching game, students $S = {s_1 ... s_n}$ attempt to learn the target concept $C$, the weight on a biased coin (a single Bernoulli variable). They do so by Bayesian estimation of a sequence of examples $E = {e_1 ... e_m}$, using a conjugate Beta-Bernoulli distribution. Their prior distribution is $Beta(\alpha,\beta)$, and the form of the posterior can be written $Beta(\alpha+x,\beta+y)$ where $x$ and $y$ represent the number of heads and tails observed in the data. Under this formulation, the priors $\alpha$ and $\beta$ represent students' prior knowledge and abilities. To the extent that their prior mean $\mu = \frac{\alpha}{\alpha + \beta}$ is distant from $C$ they will require more examples to estimate $C$. 
 
 Students are sampled so that their beliefs are uniform across the range of possible values for $C$. Thus, different true values of $C$ represent concepts about which students will have more or less variable priors. For example, for $C = .5$, half of students will have $\mu > C$ and half will have $\mu < C$. A single sample from $C$ (a 0 or 1) will lead half of students to adjust their estimates in the appropriate direction and half to adjust in the wrong direction. In contrast, for a more extreme value of $C$, say $C=.9$, a single sample (likely a 1) will lead nearly all students to adjust their estimates to be closer to the target. 
 
-In general, the teacher does not know students' priors and must represent them approximately as $\hat{S} = {\hat{s_1} ... \hat{s_m}}$. Teachers use these estimates to compute their object function, to maximize their estimate of students' *information gain* ($IG_T$):
+In general, the teacher does not know students' priors and must represent them approximately as $\hat{S} = {\hat{s_1} ... \hat{s_m}}$. Teachers use these estimates to compute their objective function, to maximize their estimate of students' *information gain* ($IG_T$) given a particular set of examples $E$:
 
 $$IG_T(E) = \sum_{s \in S}{D_{KL}(T || \hat{s}) - D_{KL}(T || {\hat{s}+E})}$$
 
-Intuitively, information gain captures the distance that students travel towards the target concept due to the examples the teacher chooses. The distance metric is the Kullback-Leibler divergence [$D_KL$; @cover2012]. Using the fact that both teacher and student beliefs are distributed as Betas, we derive a closed form expression for information gain, see Supplemental Information. Using this objective, they can then choose the examples that maximize their estimate of students' information gain.
+Intuitively, information gain captures the distance that students travel towards the target concept due to the examples the teacher chooses. The distance metric is the Kullback-Leibler divergence [$D_KL$; @cover2012]. Using the fact that both teacher and student beliefs are distributed as Betas, we derive a closed form expression for information gain (see Supplemental Information). Using this objective, they can then choose the examples that maximize their estimate of students' information gain.
 
 <!-- $$\underset{E}{\operatorname{argmax}}  {IG_T(E)}.$$ -->
 
@@ -120,7 +122,7 @@ d <- read_csv("../../sims_admin/cached_data/raw_data_041017_3Per11Nu_exp_large.c
 # studentByStudent_df <- read_csv("../../sims_admin/cached_data/raw_data_052317_studentTracker.csv")
 ```
 
-In our simulations, we investigate how different structural features of the teaching game affect the maximal possible information (the limits on optimal performance). We do this via numerical simulation. We generate random *schools* of 100 students and systematically vary five parameters:
+In our simulations, we investigate how different structural features of the teaching game affect the maximal possible information (the limits on optimal performance). We do this investigation via numerical simulation, choosing a representative set of structural values and exhaustively investigating different choice parameters within these. In particular, we generate random *schools* of 100 students and systematically vary five parameters:
 
 - The number of teachers in the school, from a single class of 100 to 10 classes of 10;
 - The number of formative assessments conducted by each teacher (out of 12 instructional periods), from 0 (0%) to 12 (100%);
@@ -161,9 +163,9 @@ ggplot(ig,
 
 Figure \ref{fig:ex} shows an example parameter regime (target concept = .6, 5 teachers) and the information gain values that result from different instructional settings within this regime. A number of trends are immediately apparent. First, the overall amount of possible information gain varies as a function of the number of assessments. In the limit (100% assessments), students are never taught anything and hence they do not learn at all. Second, there is a substantial boost in total information gain due to ability grouping (red vs. blue) for perfect teachers (dotted lines). Third, and perhaps most interesting, this gain is moderated in uncertain teachers, who must conduct assessments in order to group and to teach students successfully. With no assessments, ability grouping is no better than random grouping, but as the number of assessments is increased, the groupings approach the optimal (though instructional opportunities as a whole decline). In this parameter regime, the optimal solution is to group by ability and administer three assessments; this optimal solution is shown by the colored dots.
 
-## Initial simulations
+## Simulations
 
-In the following simulations, we quantify the advantages due to different decisions of type across parameter regimes, and give some generalizations that hold across regimes. 
+In the following simulations, we quantify the advantages due to different decisions, and give some generalizations that hold across parameter regimes. 
 
 ### Class size reduction yields small effects
 
@@ -208,9 +210,9 @@ ggplot(size_grouping,
   theme(legend.position = "bottom")
 ```
 
-One important decision that we can simulate for a population of students is the number of teachers that are available. The number of teachers determines class size, which may affect the extent to which teachers can customize instruction. We compare to a baseline in which all students in a school are in the same class. We begin by considering the case of perfect teachers, in order to estimate the maximal possible information gain based on reductions in class size. We compute the proportional information gain due to class size reduction, compared to the single-class baseline:
+We can simulate the number of teachers that are available for a population of students. The number of teachers determines class size, which in turn affects the extent to which teachers can customize instruction to their students. We compare to a baseline in which all students in a school are in the same class. We begin by considering the case of perfect teachers, in order to estimate the maximal possible information gain based on reductions in class size. We compute the proportional information gain due to class size reduction, compared to the single-class baseline:
 
-$$\frac{IG_{N~teachers} - IG_{1~teacher}}{IG_{1~teacher}}.$$
+$$\frac{IG_\text{N~teachers} - IG_\text{1~teacher}}{IG_\text{1~teacher}}.$$
 
 
 
@@ -376,15 +378,17 @@ Other cost structures are possible, however, leading to a number of different po
 
 # General Discussion
 
-What are the limits on learning in the educational context? We used optimal models of teaching and learning to investigate how structural features of the educational situation restrict learning. In particular, we focus on the role of student variability: the more variable the students in a class are, the less effective any particular lesson is, on average. Our simulations allow us to test the effectiveness of different educational interventions. Class size reduction alone yielded only small increases in learning alone. In combination with grouping students into a small number of classes, however, gains increased. These gains were moderated by teachers' knowledge about individual students' priors, though, and were typically optimal when done in combination with a handful of formative assessments to improve teachers' knowledge. To assist in decision-making, we added costs to the different actions in our model. Across a range of different cost regimes, most information gain was realized by conducting a small number of assessments and then splitting students into a small number of classes. In sum, this model takes a first step towards creating a framework for investigating theoretical limits on the benefits of educational interventions. 
+What are the limits on learning in the educational context? We used optimal models of teaching and learning to investigate how structural features of the educational situation restrict learning. In particular, we focus on the role of student variability: the more variable the students in a class are, the less effective any particular lesson is, on average. Our simulations allow us to test the effectiveness of different simulated educational interventions. Within our chosen initial conditions, class size reduction alone yielded only small increases in learning alone. In combination with grouping students into a small number of classes, however, gains increased. These gains were moderated by teachers' knowledge about individual students' priors, though, and were typically optimal when done in combination with a handful of formative assessments to improve teachers' knowledge. To assist in decision-making, we added costs to the different actions in our model. Across a range of different cost regimes, most information gain was realized by conducting a small number of assessments and then splitting students into a small number of classes. In sum, this model takes a first step towards creating a framework for investigating theoretical limits on the benefits of educational interventions. 
 
-Results from our model can be used to help parse the complex and variable educational literature. The literature on class-size reduction in particular is extremely challenging to parse, with important studies suggesting null [@hoxby2000,@hanushek1997], moderate [@duflo2015, @krueger2003], and larger [@mosteller1995] effects. Our simulations suggest that there is no single effect of class size reduction that we should expect. Instead, improvements in performance should depend on a number of factors, including initial class size [with reductions more important for classes that are already small, cf. @glass1979] and student variability [with reductions more important for populations that are more variable, cf. @mosteller1995]. Rather than resolving conflicting measurements in the literature, our model suggests that different initial conditions should lead interventions to have substantially different effects. 
+Results from our model could in principle be used to help parse the complex and variable educational literature. The literature on class-size reduction in particular is extremely challenging to parse, with important studies suggesting null [@hoxby2000,@hanushek1997], moderate [@duflo2015, @krueger2003], and larger [@mosteller1995] effects. Our simulations suggest that there is no single effect of class size reduction that we should expect. Instead, improvements in performance should depend on a number of factors, including initial class size [with reductions more important for classes that are already small, cf. @glass1979] and student variability [with reductions more important for populations that are more variable, cf. @mosteller1995]. Rather than resolving conflicting measurements in the literature, our model suggests that different initial conditions should lead interventions to have substantially different effects. 
 
-As with any highly abstracted representation of a complex, multifaceted, and messy system, our model has a number of limitations. First, our model addresses exclusively "cognitive" aspects of the educational process - the communication of knowledge from teacher to students. It has no provision for the myriad non-cognitive factors that are well-known to be extremely important in educational outcomes [e.g., @blair2007, @blackwell2007, @duckworth2007]. One application of models like ours is in understanding the ways that their predictions *differ* from observed data -- this difference can be used as a measurement of the relative effect size for non-cognitive factors. 
+As with any highly abstracted representation of a complex, multifaceted human system, our model has many limitations; we address a small number below. First, our model addresses exclusively "cognitive" aspects of the educational process -- the communication of knowledge from teacher to students. It has no provision for the myriad non-cognitive factors that are well-known to be extremely important in educational outcomes [e.g., @blair2007, @blackwell2007, @duckworth2007]. One application of models like ours is in understanding the ways that their predictions *differ* from observed data -- this difference can be used as a measurement of the relative effect size for non-cognitive factors. 
 
-Second, the model of teaching and learning we assume is direct communication between teacher and student. This model neglects peer effects on instruction [cf. @duflo2011], active learning by students, and myriad other interactive dynamics that at play in the classroom. These effects could either damp or accentuate the effect we investigated. For example, Montessori classrooms have been suggested to be effective in part because they leverage student variability as a strength in student-directed activities, for example via allowing older children to teach younger children [CITE]. 
+Second, the model of teaching and learning we assume is direct communication between teacher and student. This model neglects peer effects on instruction [cf. @duflo2011], active learning by students, and myriad other interactive dynamics that at play in the classroom. These effects could either damp or accentuate the effect we investigated. For example, Montessori classrooms have been suggested to be effective in part because they leverage student variability as a strength in student-directed activities [@lillard2006;@lillard2016]. 
 
-Finally, the teaching game we assume is -- by design -- exceedingly simple. 
+Finally, the teaching game we assume is -- by design -- exceedingly simple. In order to consider general dynamics of communication in a classroom environment, we have abstracted away almost completely from the specifics of what is being taught. We view this abstraction as a strength in that it allows for interpretable inferences about the structure of the game without complexities relating to content. Of course this assumption neglects the important dependencies within and across academic domains. In practice, learning any particular piece of knowledge depends on many others -- for example, learning content knowledge often presupposes language and literacy skills -- and these dependencies add immense complexity to the implementation of any intervention of the type schematically described here.
+
+Our model instantiates a linkage between a particular set of assumptions and their natural outcomes. The key structural assumption of our model is that education is fundamentally about the communication of knowledge from a rational speaker [@goodman2016] to an audience of variable size and with varying starting points. Once this assumption is adopted, a number of regularities regarding class size, ability grouping, and assessment emerge almost immediately. These linkages suggest future directions for both formal and empirical inquiry -- in particular, testing the relationship between quantities approximated in our model and student learning outcomes. 
 
 # References 
 
