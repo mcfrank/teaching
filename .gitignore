@@ -19,3 +19,5 @@ packrat/*
 *.DS_Store
 
 .Rproj.user
+
+old

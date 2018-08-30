@@ -5,7 +5,6 @@ var teacherMus = [.5, .6, .7, .8, .9]; //Possible target concepts tested
 var teacherNu = 10; //Initial sum of targetAlpha + targetBeta parameters
 var numTeachersArray = [1, 2, 3, 5, 10]; //Possible number of teachers tested
 var numAssessmentsArray = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]; //Possible assessments tested
-//var factorials = [1, 1, 2, 6, 24, 120, 720, 5040, 40320, 362880, 3628800, 39916800, 479001600];
 var exponentsArray = [0.8, 0.9, 1, 1.1, 1.2]; //Exponents tested, not used in final thesis
 
 
@@ -27,7 +26,7 @@ var generateStudentsArray = function(numStudents){
 
   //Generate array of students by consolidating all parameters into a single object.
   var students = map2(function(priorAlpha, priorBeta){
-    
+
     //Get the DKLs between the student prior distribution and the target distribution for all Mu levels. Calculation occurs at this step because
     //priorDKL never changes regardless of school parameterization and examples shown, so this optimization reduces redundantly repeating this calculation.
 
@@ -42,9 +41,9 @@ var generateStudentsArray = function(numStudents){
 
     return {priorAlpha: priorAlpha, priorBeta: priorBeta, guessAlpha: guessAlpha, guessBeta: guessBeta, priorOldDKLs: priorOldDKLs}; //Return full student object
   }, priorAlphas, priorBetas);
-  
 
-  return students; 
+
+  return students;
 }
 
 // Seeds the teacher beliefs (Called guessAlpha and guessBeta) of each student by sampling a Bernoulli variable with the student's true belief as the bias
@@ -55,7 +54,7 @@ var assess = function(students, numAssessments){
 		var studentMu = student.priorAlpha / (student.priorAlpha + student.priorBeta); //Calculate student mu from alpha and beta parameters
 
 		//Sample from student's beliefs numQuestionsToAsk times
-		var answers = sum(repeat(numQuestionsToAsk, function(){ 
+		var answers = sum(repeat(numQuestionsToAsk, function(){
 				return flip(studentMu);} //Stochastically determine answers by flipping a coin weighted equal to student mu.
 			));
 
@@ -65,7 +64,7 @@ var assess = function(students, numAssessments){
 
     //Get the DKLs based on teacher beliefs about student knowledge for all Mu levels
     var guessOldDKLs = mapN(function(muIndex){
-      
+
       var mu = teacherMus[muIndex];
       var teacherAlpha = teacherNu * mu;
       var teacherBeta = teacherNu - teacherAlpha;
@@ -90,12 +89,12 @@ var sortStudents = function(students, trueValue) {
 
   if(trueValue){
 	  var sortedStudents = sortOn(students, trueBetaMeanFn)
-	  
+
 	  return sortedStudents;
 	}
 	else{
 	  var sortedStudents = sortOn(students, guessBetaMeanFn)
-	  
+
 	  return sortedStudents;
 	}
 }
@@ -105,7 +104,7 @@ var distributeStudents = function(students, N){
   if (N < 2) { return [students]; };
 
   var len = students.length;
-  
+
   //Recursive calls to distributeStudents
   if (len % N === 0) {
     //If number of students is perfectly divisble by remaining number of classrooms
@@ -124,7 +123,7 @@ var distributeStudents = function(students, N){
 var getTeacherIG = function(students, targetParams, numExamples, exponent){
   return Infer({method: 'enumerate'}, function(){
     //console.log("Getting teacher IG...");
-    
+
     //Use this to seed the prior likelihoods of examples
     var target = targetParams.alpha / (targetParams.alpha + targetParams.beta);
 
@@ -161,21 +160,21 @@ var getTeacherIG = function(students, targetParams, numExamples, exponent){
 
     //console.log("Believed IGs: " + believedIGs);
     //console.log("Actual IGs: " + actualIGs);
-    
+
     //Weight choice of examples by what teacher believes the IGs will be
     factor(sum(believedIGs));
-    
+
     //Return as the score what the actual IGs will be
     return sum(actualIGs);
 
   });
 }
 
-// Get the total information gain of all students 
+// Get the total information gain of all students
 var getAdminIG = function(students, numTeachers, targetParams, numExamples, exponent){
   // Array of student distributed into subsets representing numTeachers classrooms
   //var distributedStudents = distributeStudents(students, numTeachers);
-  
+
   // Assign teachers to teach each classroom
     var classroomExpectations = map(function(studentsInClassroom){
       var teacherIG = getTeacherIG(studentsInClassroom, targetParams, numExamples, exponent);
@@ -190,7 +189,7 @@ var getAdminIG = function(students, numTeachers, targetParams, numExamples, expo
 // Get the information gain if the teacher chooses the examples based on student prior beliefs (i.e. perfect knowledge).
 var getTrueTeacherIG = function(students, targetParams, numExamples, exponent){
   return Infer({method: 'enumerate'}, function(){
-    
+
     //Use this to seed the prior likelihoods of examples
     var target = targetParams.alpha / (targetParams.alpha + targetParams.beta);
 
@@ -201,7 +200,7 @@ var getTrueTeacherIG = function(students, targetParams, numExamples, exponent){
       var oldDKL = student.priorOldDKLs[targetParams.muIndex];
 
       var newDKL = DKL(student.priorAlpha + h, student.priorBeta + t, targetParams.alpha, targetParams.beta);
-      
+
       var IG = oldDKL - newDKL;
 
       return Math.sign(IG) * Math.pow(Math.abs(IG), exponent);
@@ -209,7 +208,7 @@ var getTrueTeacherIG = function(students, targetParams, numExamples, exponent){
 
     //Weight choice of examples by what teacher believes the IGs will be
     factor(sum(actualIGs));
-    
+
     //Return as the score what the actual IGs will be
     return sum(actualIGs);
 
@@ -239,7 +238,7 @@ var getNaiveTeacherIG = function(students, targetParams, numExamples, exponent){
 
     //Use this to seed the prior likelihoods of examples
     var target = targetParams.alpha / (targetParams.alpha + targetParams.beta);
-    
+
     var h = sum(repeat(numExamples, function(){ flip(target)}));
     //var h = uniformDraw(_.range(0, numExamples + 1));
     var t = numExamples - h;
@@ -248,7 +247,7 @@ var getNaiveTeacherIG = function(students, targetParams, numExamples, exponent){
       var oldDKL = student.priorOldDKLs[targetParams.muIndex];
 
       var newDKL = DKL(student.priorAlpha + h, student.priorBeta + t, targetParams.alpha, targetParams.beta);
-        
+
       var IG = oldDKL - newDKL;
 
       return Math.sign(IG) * Math.pow(Math.abs(IG), exponent);
@@ -261,7 +260,7 @@ var getNaiveTeacherIG = function(students, targetParams, numExamples, exponent){
     // factor(numExamplesFactorial / (hFactorial * tFactorial) * sum(actualIGs));
 
     //console.log("Naive teacher IG calculated...");
-    
+
     //Return as the score what the actual IGs will be
     return sum(actualIGs);
   });
@@ -290,7 +289,7 @@ var getNaiveAdminIG = function(students, numTeachers, targetParams, numExamples,
 var multiPluck = function(objectArray){
   //Extract the keys from the first object in the array
   var keys = _.keys(objectArray[0]);
-  
+
   //Perform a pluck on each key
   var valueArrays = map(function(key){
     return _.pluck(objectArray, key);
@@ -373,14 +372,14 @@ var results = mapN(function(trialNum){
           {trialNum: trialNum, numTeachers: numTeachers, numAssessments: numAssessments, numExamples: numExamples, teacherMu: mu, exponent: exponent, simType: "sortedUncertainTeachers", IG: sortedIG},
           {trialNum: trialNum, numTeachers: numTeachers, numAssessments: numAssessments, numExamples: numExamples, teacherMu: mu, exponent: exponent, simType: "unsortedPerfectTeachers", IG: trueUnsortedIG},
           {trialNum: trialNum, numTeachers: numTeachers, numAssessments: numAssessments, numExamples: numExamples, teacherMu: mu, exponent: exponent, simType: "sortedPerfectTeachers", IG: trueSortedIG}];
-      
+
         }, exponentsArray);
 
         return exponentsMapping;
       }, numTeachersArray.length);
 
       return numTeachersMapping;
-  		
+
   	}, teacherMus.length);
 
     return teacherMusMapping;
@@ -389,7 +388,7 @@ var results = mapN(function(trialNum){
 
   return numAssessmentsMapping;
 
-}, 10); // Run 100 trials
+}, 100); // Number of trials to run
 
 
 multiPluck(_.flatten(results));

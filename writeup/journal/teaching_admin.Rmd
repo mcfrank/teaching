@@ -28,7 +28,7 @@ abstract: |
    A good teacher is a good communicator. But communicating to a large audience can be difficult if audience members have differing preconceptions and hence construe the same message differently. Following this analogy of teaching as communication, we develop a framework for modeling classroom education as optimal communication to a variable audience. We study simple teaching games where teachers provide examples of a target concept to groups of students. Students synthesize these examples with their prior knowledge in order to induce the concept. We consider strategies for managing variability, including ability grouping ("tracking"), reductions in class size, and formative assessment. With known costs on actions, our model can also be extended for decision-theoretic analysis. This model provides a framework for estimating theoretical limits on the utility of educational interventions.
 
 significance: | 
-  Given limitations on time and money, should teachers and school administrators invest in reducing class sizes, should they track students by ability, or should they focus on improving instruction in individual classes? Much educational research focuses on what practical gains are achievable due to interventions. This work is valuable, but often proceeds without a theoretical prediction as to the maximal achievable gain. We develop a framework for predicting the performance of optimal teachers in simple teaching scenarios where all constraints can easily be quantified. This framework allows for prediction of the effects of different interventions, for example highlighting the limited effects that should be expected due to many class size interventions. 
+  Given limitations on time and money, should teachers and school administrators invest in reducing class sizes, should they track students by ability, or should they focus on improving instruction in individual classes? Much educational research focuses on what practical gains are achievable due to interventions. This work is valuable, but often proceeds without a theoretical prediction as to the maximal achievable gain given particular constraints. We develop a framework for predicting the performance of optimal teachers in simple teaching scenarios where all constraints can easily be quantified. This framework allows for prediction of the effects of different interventions, for example highlighting the limited effects that should be expected due to many class size interventions. 
 
 acknowledgements: | 
   Thanks to NSF BCS \#1456077 for support, and to Noah Goodman, Long Ouyang, and Michael Henry Tessler for helpful feedback.
@@ -75,15 +75,15 @@ library(langcog) #requires devtools::install_github("langcog/langcog")
 EXAMPLE_TEACHERMU <- .6
 ```
 
-A good teacher is a good communicator, choosing explanations and examples that allow students to learn concepts effectively. But just as a message that is intended for one particular person can be incomprehensible to another, a lesson that is appropriate for one student can be inappropriate for another. The perfect pace for one student is too fast or too slow for the second; a helpful analogy for one is confusing to another other. More generally, the broader the audience for a lesson, the more difficult it can be to ensure that every student learns. In this paper, we explore this intuition formally, creating a framework for understanding the role of student variability in educational outcomes. 
+A good teacher is a good communicator, choosing explanations and examples that allow students to learn concepts effectively. But just as a message that is intended for one particular person can be incomprehensible to another, a lesson that is appropriate for one student can be inappropriate for another. The perfect pace for one student is too fast or too slow for the second; a helpful analogy for one could be confusing to another. More generally, the broader the audience for a lesson, the more difficult it can be to ensure that every student learns. In this paper, we explore this intuition formally, creating a framework for understanding the role of student variability in educational outcomes. 
 
-Managing student variability is a central issue in educational policy and practice. Should schools group students into classrooms by ability ["tracking"; @glass1979;@slavin1989]? Should policymakers invest resources in decreasing class size, allowing for smaller classes with more opportunities to tailor instruction to individual students [@slavin1987,@tomlinson1999]? When should teachers conduct formative assessments to learn more about the range of knowledge and abilities in a classroom [@fuchs1986;@sadler1989]? Each of these questions has been the focus of intense discussion. Randomized trials can provide real-world evidence for the effects of particular interventions on class size or åbility grouping [e.g., @duflo2011, @duflo2015], but such experiments can tell us only what *does* work, not what could or couldn't work in principle. Yet, to our knowledge, no body of theory provides guidance on this issue. Our goal here is to take a first step towards such a framework, which can then be used as a guide for interpreting the assumptions underlying intervention studies.
+Managing student variability is a central issue in educational policy and practice. Should schools group students into classrooms by ability ["tracking"; @glass1979;@slavin1989]? Should policymakers invest resources in decreasing class size, allowing for smaller classes with more opportunities to tailor instruction to individual students [@slavin1987,@tomlinson1999]? When should teachers conduct formative assessments to learn more about the range of knowledge and abilities in a classroom [@fuchs1986;@sadler1989]? Each of these questions has been the focus of intense discussion. Randomized trials can provide real-world evidence for the effects of particular interventions on class size or åbility grouping [e.g., @duflo2011, @duflo2015], but such experiments can tell us only what *does* work under a particular implementation, not what could or couldn't work *in principle*. Yet, to our knowledge, no body of theory provides guidance on this issue. Our goal here is to take a first step towards such a framework, which can then be used as a guide for interpreting the assumptions underlying intervention studies.
 
 We exploit parallel between teaching and communication that emerge in recent formal work using probabilistic models [@shafto2012,@goodman2016]. For example, @shafto2014 model the process of reasoning about which examples the teacher should choose and what inference the student should draw from the examples. The unit of their analysis is a "teaching game" [@shafto2014,@avrahami1997], by analogy to "signaling games" in linguistics [@lewis2008]: scenarios whose participants, rules, and parameters are known and hence which admit quantitative analysis. These abstractions can in turn be leveraged to  provide insight into more complex, messier situations. 
 
 In a teaching game, a teacher attempts to teach a target concept to a group of one or more students, by providing examples of that concept. Each student then attempts to induce the target concept based on their prior knowledge and the given examples. Teaching games are collaborative games: the payoff is successful commmunication such that the student's learned concept is closer to the target. We formalize this payoff through the information-theoretic notion of information gain, the distance that the student's concept moves in the direction of the teacher's through teaching. 
 
-The game we study is extremely simple: a teacher attempts to communicate the weight on a biased coin via showing a series of individual coin flips (heads or tails). The key choice is what set of flips to show. Given unlimited teaching time, a long sequence of flips could allow the learner to approximate the coin's weight very closely. But with more limited time, the teacher must choose selectively and with respect to the students' prior beliefs. These priors -- which stand in for the combination of knowledge and ability differences that vary across students in real classrooms -- are the key factor in determining teaching effectiveness. If two students have very different priors, they will take away different generalizations from the same sequence of examples. Thus, our analysis focuses on managing student variability by intervening on the teaching game. 
+The game we study is extremely simple: a teacher attempts to communicate the weight on a biased coin via showing a series of individual coin flips (heads or tails). The key choice is what set of flips to show. Given unlimited teaching time, a long sequence of flips could allow the learner to approximate the coin's weight very closely. But with bounded time, the teacher must choose selectively and with respect to the students' prior beliefs. These priors -- which stand in for the combination of knowledge and ability differences that vary across students in real classrooms -- are the key factor in determining teaching effectiveness. If two students have very different priors, when they observe the same sequence of examples, they will infer that the teacher is trying to communicate very different weights. Thus, our analysis focuses on managing student variability by intervening on the teaching game. 
 
 To explore the limits imposed by structural features of the teaching game, we examine outcomes when both teachers and learners perform optimally. Students in our models are optimal Bayesian learners, who make statistical inferences about how to combine observed examples of a concept with their prior beliefs. Teachers are optimal communicators, who consider their students' prior distribution and choose the best examples to maximize learning. Even under these idealizing assumptions, student learning is necessarily limited. Our analysis investigates sources of these limitations: in particular, the choice of instructional groups, strategies, and teaching examples given uncertainty about student knowledge and abilities. 
 
@@ -99,7 +99,7 @@ In our teaching game, students $S = {s_1 ... s_n}$ attempt to learn the target c
 
 Students are sampled so that their beliefs are uniform across the range of possible values for $C$. Thus, different true values of $C$ represent concepts about which students will have more or less variable priors. For example, for $C = .5$, half of students will have $\mu > C$ and half will have $\mu < C$. A single sample from $C$ (a 0 or 1) will lead half of students to adjust their estimates in the appropriate direction and half to adjust in the wrong direction. In contrast, for a more extreme value of $C$, say $C=.9$, a single sample (likely a 1) will lead nearly all students to adjust their estimates to be closer to the target. 
 
-In general, the teacher does not know students' priors and must represent them approximately as $\hat{S} = {\hat{s_1} ... \hat{s_m}}$. Teachers use these estimates to compute their objective function, to maximize their estimate of students' *information gain* ($IG_T$) given a particular set of examples $E$:
+In general, the teacher does not know students' priors and must represent them approximately as $\hat{S} = {\hat{s_1} ... \hat{s_m}}$. Teachers use these estimates to compute their objective function, to maximize their estimate of students' *information gain* ($IG_T$) given a particular set of examples $E$ (a set of heads and tails):
 
 $$IG_T(E) = \sum_{s \in S}{D_{KL}(T || \hat{s}) - D_{KL}(T || {\hat{s}+E})}$$
 
@@ -112,14 +112,11 @@ We distinguish the teacher's approximation information gain $IG_T$ from the true
 # Simulations
 
 ```{r}
-d <- read_csv("../../sims_admin/cached_data/raw_data_041017_3Per11Nu_exp_large.csv") %>%
+d <- read_csv("../../sims_admin/raw_data_041017_3Per11Nu_exp_large.csv") %>%
   mutate(grouping = ifelse(str_detect(simType, "unsorted"), "random", "by ability"),
          knowledge = ifelse(str_detect(simType, "Perfect"), "perfect", "uncertain"),
          knowledge = ifelse(str_detect(simType, "Naive"), "naive", knowledge)) %>%
   mutate(knowledge = fct_rev(knowledge))
-#df <- read_csv("../sims_admin/cached_data/raw_data_053017_10timesteps_small.csv")
-# df2 <- read_csv("../../sims_admin/cached_data/raw_data_050917_highResMus.csv")
-# studentByStudent_df <- read_csv("../../sims_admin/cached_data/raw_data_052317_studentTracker.csv")
 ```
 
 In our simulations, we investigate how different structural features of the teaching game affect the maximal possible information (the limits on optimal performance). We do this investigation via numerical simulation, choosing a representative set of structural values and exhaustively investigating different choice parameters within these. In particular, we generate random *schools* of 100 students and systematically vary five parameters:
@@ -136,7 +133,8 @@ is available at [http://github.com/mcfrank/teaching]().
 
 ```{r, fig.cap="\\label{fig:ex} Average information gain plotted by the number of assessments. Colors show whether students are grouped by ability or randomly, and line-type shows teacher knowledge (uncertain, perfect, or naive). The dots show the number of assessments that produces the maximal information gain."}
 ig <- d %>%
-  filter(exponent == 1, teacherMu %in% EXAMPLE_TEACHERMU, numTeachers %in% c(5)) %>%
+  filter(exponent == 1, # include only simulations with no exponentiation on IG 
+         teacherMu %in% EXAMPLE_TEACHERMU, numTeachers %in% c(5)) %>%
   group_by(grouping, knowledge, numTeachers, numAssessments, teacherMu) %>%
   summarise(IG = mean(IG))
 
@@ -150,7 +148,6 @@ ggplot(ig,
        aes(x = numAssessments, y = IG, col = grouping, lty = knowledge)) +
   geom_line() +
   geom_point(data = maxes, size = 4) + 
-  # facet_grid(numTeachers~teacherMu) + 
   scale_x_continuous(breaks = c(0, 3, 6, 9, 12)) +
   scale_color_solarized(name="Grouping") + 
   scale_linetype_discrete(name = "Teacher Knowledge") + 
@@ -389,6 +386,7 @@ Second, the model of teaching and learning we assume is direct communication bet
 Finally, the teaching game we assume is -- by design -- exceedingly simple. In order to consider general dynamics of communication in a classroom environment, we have abstracted away almost completely from the specifics of what is being taught. We view this abstraction as a strength in that it allows for interpretable inferences about the structure of the game without complexities relating to content. Of course this assumption neglects the important dependencies within and across academic domains. In practice, learning any particular piece of knowledge depends on many others -- for example, learning content knowledge often presupposes language and literacy skills -- and these dependencies add immense complexity to the implementation of any intervention of the type schematically described here.
 
 Our model instantiates a linkage between a particular set of assumptions and their natural outcomes. The key structural assumption of our model is that education is fundamentally about the communication of knowledge from a rational speaker [@goodman2016] to an audience of variable size and with varying starting points. Once this assumption is adopted, a number of regularities regarding class size, ability grouping, and assessment emerge almost immediately. These linkages suggest future directions for both formal and empirical inquiry -- in particular, testing the relationship between quantities approximated in our model and student learning outcomes. 
+
 
 # References 
 
