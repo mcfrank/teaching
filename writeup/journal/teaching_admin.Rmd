@@ -1,5 +1,5 @@
 ---
-title: "Modeling optimal classroom teaching as communication to variable listeners"
+title: "Modeling classroom teaching as optimal communication"
 
 # Use letters for affiliations, numbers to show equal authorship (if applicable) and to indicate the corresponding author
 author:
@@ -68,6 +68,10 @@ library(directlabels)
 library(forcats)
 library(stringr)
 library(langcog) #requires devtools::install_github("langcog/langcog")
+
+theme_set(theme_bw() + 
+            theme(strip.background = element_blank(), 
+                  panel.grid = element_blank())) # nice theme with limited extras
 ```
 
 ```{r}
@@ -77,17 +81,17 @@ EXAMPLE_TEACHERMU <- .6
 
 A good teacher is a good communicator, choosing explanations and examples that allow students to learn concepts effectively. But just as a message that is intended for one particular person can be incomprehensible to another, a lesson that is appropriate for one student can be inappropriate for another. The perfect pace for one student is too fast or too slow for the second; a helpful analogy for one could be confusing to another. More generally, the broader the audience for a lesson, the more difficult it can be to ensure that every student learns. In this paper, we explore this intuition formally, creating a framework for understanding the role of student variability in educational outcomes. 
 
-Managing student variability is a central issue in educational policy and practice. Should schools group students into classrooms by ability ["tracking"; @glass1979;@slavin1989]? Should policymakers invest resources in decreasing class size, allowing for smaller classes with more opportunities to tailor instruction to individual students [@slavin1987,@tomlinson1999]? When should teachers conduct formative assessments to learn more about the range of knowledge and abilities in a classroom [@fuchs1986;@sadler1989]? Each of these questions has been the focus of intense discussion. Randomized trials can provide real-world evidence for the effects of particular interventions on class size or åbility grouping [e.g., @duflo2011, @duflo2015], but such experiments can tell us only what *does* work under a particular implementation, not what could or couldn't work *in principle*. Yet, to our knowledge, no body of theory provides guidance on this issue. Our goal here is to take a first step towards such a framework, which can then be used as a guide for interpreting the assumptions underlying intervention studies.
+Managing student variability is a central issue in educational policy and practice. Should schools group students into classrooms by ability ["tracking"; @glass1979;@slavin1989]? Should policymakers invest resources in decreasing class size, allowing for smaller classes with more opportunities to tailor instruction to individual students [@slavin1987,@tomlinson1999]? When should teachers conduct formative assessments to learn more about the range of knowledge and abilities in a classroom [@fuchs1986;@sadler1989]? Each of these questions has been the focus of intense discussion. Randomized trials can provide real-world evidence for the effects of particular interventions on class size or ability grouping [e.g., @duflo2011, @duflo2015], but such experiments can tell us only what *does* work under a particular implementation, not what could or couldn't work *in principle*. Yet, to our knowledge, no body of theory provides guidance on this issue. Our goal here is to take a first step towards such a framework, which can then be used as a guide for interpreting the assumptions underlying intervention studies.
 
 We exploit parallel between teaching and communication that emerge in recent formal work using probabilistic models [@shafto2012,@goodman2016]. For example, @shafto2014 model the process of reasoning about which examples the teacher should choose and what inference the student should draw from the examples. The unit of their analysis is a "teaching game" [@shafto2014,@avrahami1997], by analogy to "signaling games" in linguistics [@lewis2008]: scenarios whose participants, rules, and parameters are known and hence which admit quantitative analysis. These abstractions can in turn be leveraged to  provide insight into more complex, messier situations. 
 
-In a teaching game, a teacher attempts to teach a target concept to a group of one or more students, by providing examples of that concept. Each student then attempts to induce the target concept based on their prior knowledge and the given examples. Teaching games are collaborative games: the payoff is successful commmunication such that the student's learned concept is closer to the target. We formalize this payoff through the information-theoretic notion of information gain, the distance that the student's concept moves in the direction of the teacher's through teaching. 
+In a teaching game, a teacher attempts to teach a target concept to a group of one or more students, by providing examples of that concept. Each student then attempts to induce the target concept based on their prior knowledge and the given examples. Teaching games are collaborative games: the payoff is successful communication such that the student's learned concept is closer to the target. We formalize this payoff through the information-theoretic notion of information gain, the distance that the student's concept moves in the direction of the teacher's through teaching. 
 
 The game we study is extremely simple: a teacher attempts to communicate the weight on a biased coin via showing a series of individual coin flips (heads or tails). The key choice is what set of flips to show. Given unlimited teaching time, a long sequence of flips could allow the learner to approximate the coin's weight very closely. But with bounded time, the teacher must choose selectively and with respect to the students' prior beliefs. These priors -- which stand in for the combination of knowledge and ability differences that vary across students in real classrooms -- are the key factor in determining teaching effectiveness. If two students have very different priors, when they observe the same sequence of examples, they will infer that the teacher is trying to communicate very different weights. Thus, our analysis focuses on managing student variability by intervening on the teaching game. 
 
 To explore the limits imposed by structural features of the teaching game, we examine outcomes when both teachers and learners perform optimally. Students in our models are optimal Bayesian learners, who make statistical inferences about how to combine observed examples of a concept with their prior beliefs. Teachers are optimal communicators, who consider their students' prior distribution and choose the best examples to maximize learning. Even under these idealizing assumptions, student learning is necessarily limited. Our analysis investigates sources of these limitations: in particular, the choice of instructional groups, strategies, and teaching examples given uncertainty about student knowledge and abilities. 
 
-Uncertainty about student priors plays an important role in our framework. If teachers know exactly what students know, they can choose appropriate examples. But if they are uncertain, they can guess, informed by observed evidence about student abilities. Such guesses will necessarily be less accurate, leading to lower information gain. We assume that teachers can gather further information about student priors by conducting assessments. Such assessments take time away from instruction, but may nonetheless lead to increased learning due to the information they provide to teachers. We investigate this tradeoff. 
+Uncertainty about student priors plays an important role in our framework. If teachers know exactly what students know -- that is, if they know each students' prior beliefs -- they can choose an optimal set of examples that will maximize aggregate learning within their classroom. But if teachers are unsure about what students do and do not know, they can guess, informed by observed evidence about student abilities. Such guesses will necessarily be less accurate, leading to lower information gain. We assume that teachers can gather information about student priors by conducting assessments. Such assessments take time away from instruction, but may nonetheless lead to increased learning due to the information they provide to teachers. We investigate this tradeoff. 
 
 We begin by presenting the details of our modeling framework and then describe results that emerge from this framework through simulation. We next describe simulations focused on estimating effects of 1) reducing class size, 2) grouping students into classes by ability, and 3) conducting formative assessments to increase teacher knowledge about students. We end by discussing how our framework can be used for decision-making by assigning costs to individual aspects of an intervention. 
 
@@ -95,9 +99,9 @@ Though the specifics of quantitative variation in our framework is of course dep
 
 # Model
 
-In our teaching game, students $S = {s_1 ... s_n}$ attempt to learn the target concept $C$, the weight on a biased coin (a single Bernoulli variable). They do so by Bayesian estimation of a sequence of examples $E = {e_1 ... e_m}$, using a conjugate Beta-Bernoulli distribution. Their prior distribution is $Beta(\alpha,\beta)$, and the form of the posterior can be written $Beta(\alpha+x,\beta+y)$ where $x$ and $y$ represent the number of heads and tails observed in the data. Under this formulation, the priors $\alpha$ and $\beta$ represent students' prior knowledge and abilities. To the extent that their prior mean $\mu = \frac{\alpha}{\alpha + \beta}$ is distant from $C$ they will require more examples to estimate $C$. 
+In our teaching game, students $S = {s_1 ... s_n}$ attempt to learn the target concept $C$, the weight on a biased coin (a single Bernoulli variable). They do so by Bayesian estimation of a sequence of examples $E = {e_1 ... e_m}$, using a conjugate Beta-Bernoulli distribution. Their prior distribution is $Beta(\alpha,\beta)$, and the form of the posterior can be written $Beta(\alpha+x,\beta+y)$ where $x$ and $y$ represent the number of heads and tails observed in the data. Under this formulation, the priors $\alpha$ and $\beta$ represent students' prior knowledge and abilities. If their prior mean $\mu = \frac{\alpha}{\alpha + \beta}$ is distant from $C$, they will require more examples to estimate $C$. 
 
-Students are sampled so that their beliefs are uniform across the range of possible values for $C$. Thus, different true values of $C$ represent concepts about which students will have more or less variable priors. For example, for $C = .5$, half of students will have $\mu > C$ and half will have $\mu < C$. A single sample from $C$ (a 0 or 1) will lead half of students to adjust their estimates in the appropriate direction and half to adjust in the wrong direction. In contrast, for a more extreme value of $C$, say $C=.9$, a single sample (likely a 1) will lead nearly all students to adjust their estimates to be closer to the target. 
+Students are sampled so that their beliefs are uniform across the range of possible values for $C$. Thus, different true values of $C$ represent concepts about which students will have more or less variable priors. For example, for $C = .5$, half of students will have $\mu > C$ and half will have $\mu < C$. A single sample from $C$ (a 0 or 1) will lead half of students to adjust their estimates in the appropriate direction and half to adjust in the wrong direction. In contrast, for a more extreme value of $C$, say $C=.9$, a single sample (likely a 1) will lead nearly all students to adjust their estimates up, leading them to be closer to the target.  
 
 In general, the teacher does not know students' priors and must represent them approximately as $\hat{S} = {\hat{s_1} ... \hat{s_m}}$. Teachers use these estimates to compute their objective function, to maximize their estimate of students' *information gain* ($IG_T$) given a particular set of examples $E$ (a set of heads and tails):
 
@@ -107,7 +111,7 @@ Intuitively, information gain captures the distance that students travel towards
 
 <!-- $$\underset{E}{\operatorname{argmax}}  {IG_T(E)}.$$ -->
 
-We distinguish the teacher's approximation information gain $IG_T$ from the true information gain $IG$ that can be computed via exact knowledge of the students' priors. In the case where teachers have uncertainty about student priors, they can gain information about students by assessing students. We model *assessments* as samples from student's true distribution, which teachers then use as updates to their internal representations of students. Our general case is also one in which teachers have uncertainty about student priors, but in some simulations we also consider the special case where teachers have perfect knowledge of student beliefs and $\hat{S} = S$, hence $IG_T = IG$. 
+We distinguish the teacher's approximation information gain $IG_T$ from the true information gain $IG$ that can be computed via exact knowledge of the students' priors. In the case where teachers have uncertainty about student priors, they can gain information about students by assessing students. We model *assessments* as samples from student's true distribution, which teachers then use as Bayesian updates to their internal representations of students. Our general case is also one in which teachers have uncertainty about student priors, but in some simulations we also consider the special case where teachers have perfect knowledge of student beliefs and $\hat{S} = S$, hence $IG_T = IG$. 
 
 # Simulations
 
@@ -123,9 +127,9 @@ In our simulations, we investigate how different structural features of the teac
 
 - The number of teachers in the school, from a single class of 100 to 10 classes of 10;
 - The number of formative assessments conducted by each teacher (out of 12 instructional periods), from 0 (0%) to 12 (100%);
-- How extreme the teacher's target concept is, from a concept for which students have very different starting points (.5) to a more extreme concept for which students will have more similar starting points (.9);
-- Whether teachers group students into classes randomly or by ability, with ability grouping implemented as optimally partitioning similiar students into classes via teachers' representations of student knowledge; and
-- Whether the teachers have perfect or uncertain knowledge about their teachers (in the latter case, assessments can be implememented to improve teachers' estimate of student knowledge).
+- How extreme the teacher's target concept is, from a concept for which students have very different starting points (.5) to a more extreme concept for which students will have more similar starting points (.9; by symmetry this range also covers the range from .5 -- .1);
+- Whether teachers group students into classes randomly or by ability, with ability grouping implemented as optimally partitioning similar students into classes via teachers' representations of student knowledge; and
+- Whether the teachers have perfect or uncertain knowledge about their students (in the latter case, assessments can be implemented to improve teachers' estimate of student knowledge).
 
 \noindent For each parameter setting, we generate 100 schools, examine the effects of these design choices, and then average performance. All simulations were conducted using the probabilistic programming language \texttt{WebPPL} [@goodman2017]. All code 
 is available at [http://github.com/mcfrank/teaching]().
@@ -153,12 +157,11 @@ ggplot(ig,
   scale_linetype_discrete(name = "Teacher Knowledge") + 
   xlab("Number of Assessments") +
   ylab("Information Gain (nats)") + 
-  ggthemes::theme_few() + 
   theme(legend.position = "bottom", legend.box = "vertical") 
   
 ```
 
-Figure \ref{fig:ex} shows an example parameter regime (target concept = .6, 5 teachers) and the information gain values that result from different instructional settings within this regime. A number of trends are immediately apparent. First, the overall amount of possible information gain varies as a function of the number of assessments. In the limit (100% assessments), students are never taught anything and hence they do not learn at all. Second, there is a substantial boost in total information gain due to ability grouping (red vs. blue) for perfect teachers (dotted lines). Third, and perhaps most interesting, this gain is moderated in uncertain teachers, who must conduct assessments in order to group and to teach students successfully. With no assessments, ability grouping is no better than random grouping, but as the number of assessments is increased, the groupings approach the optimal (though instructional opportunities as a whole decline). In this parameter regime, the optimal solution is to group by ability and administer three assessments; this optimal solution is shown by the colored dots.
+Figure \ref{fig:ex} shows an example parameter regime (target concept = .6, 5 teachers) and the information gain values that result from different instructional settings within this regime. A number of trends are immediately apparent. First, the overall amount of possible information gain varies as a function of the number of assessments. In the limit (100% of possible instruction time is spent on assessments), students are never taught anything and hence they do not learn at all. Second, there is a substantial boost in total information gain due to ability grouping (red vs. blue) for perfect teachers (dotted lines). Third, and perhaps most interesting, this gain is moderated in uncertain teachers, who must conduct assessments in order to group and to teach students successfully. With no assessments, ability grouping is no better than random grouping. As the number of assessments is increased, however, the groupings approach the optimal (though the total number of instructional opportunities declines, decreasing overall information gain). In this parameter regime, the optimal solution is to group by ability and administer three assessments; this optimal solution is shown by the colored dots.
 
 ## Simulations
 
@@ -203,7 +206,6 @@ ggplot(size_grouping,
   scale_color_solarized(name="Target Concept") + 
   xlab("Class Size (Students)") +
   ylab("Proportional IG") + 
-  ggthemes::theme_few() + 
   theme(legend.position = "bottom")
 ```
 
@@ -219,7 +221,7 @@ Class size reductions lead to increases in information gain, especially for less
 
 ### Ability grouping into a small number of classes can yield large gains in performance
 
-We next consider the effects of student grouping, in which students are placed in classes based on the teacher's evaluation of their priors. We compute proportional information gain due to ability grouping similarly to our computation above, except that we compare to the ungrouped condition as a baseline. Figure \ref{fig:grouping}, right shows the results of this analysis. Several trends are apparent. First, all trends are positive. As class sizes decrease, information gain increases over baseline, sometimes substantially (up to 80% in some conditions). Second, gains due to ability grouping are most apparent for less extreme target concepts -- that is, the more students differ in their intial knoewledge/abilities with respect to these concepts, the more grouping matters. Third, class size plays a relatively small role: beyond two teachers, additional gains are marginal. Thus, within our teaching games, our simulations show that -- for teachers with perfect knowledge -- grouping students into two rough "tracks" will produce substantial benefits, especially for concepts where students' starting points are variable. 
+We next consider the effects of student grouping, in which students are placed in classes based on the teacher's evaluation of their priors. We compute proportional information gain due to ability grouping similarly to our computation above, except that we compare to the ungrouped condition as a baseline. Figure \ref{fig:grouping}, right shows the results of this analysis. Several trends are apparent. First, all trends are positive. As class sizes decrease, information gain increases over baseline, sometimes substantially (up to 80% in some conditions). Second, gains due to ability grouping are most apparent for less extreme target concepts -- that is, the more students differ in their initial knowledge/abilities with respect to these concepts, the more grouping matters. Third, class size plays a relatively small role: beyond two or three teachers, additional gains are marginal. Thus, within our teaching games, our simulations show that -- for teachers with perfect knowledge -- grouping students into a few "tracks" will produce substantial benefits, especially for concepts where students' starting points are variable. 
 
 ### Imperfect ability grouping yields lower effect sizes, except for highly uncertain concepts
 
@@ -242,19 +244,18 @@ ggplot(filter(grouping_boost_imperfect, numTeachers == 2),
   geom_linerange(aes(ymin = ci_lower, ymax = ci_upper)) +
   xlab("Proportion of Instruction Time Devoted to Assessment") +
   ylab("Proportional IG") + 
-  ggthemes::theme_few() + 
   theme(legend.position = "bottom") +
   scale_colour_solarized(name = "Target Concept") + 
   xlim(0,1) 
 ```
 
-We previously considered teachers with perfect knowledge of students. But what if teachers are uncertain about student knowledge and only gain information by sacrificing class time to conduct assessments? In this case, each assessment provides a small increment of information (since assessment is modeled as random sampling from students' true distributions), but larger amounts of assessment are costly in terms of instruction time. 
+We previously considered teachers with perfect knowledge of students. But what if teachers are uncertain about student knowledge and only gain information by sacrificing class time to conduct assessments? In this case, each assessment provides a small increment of information (since assessment is modeled as random sampling from students' true distributions). Larger amounts of assessment take away instruction time (as is visible in Figure \ref{fig:ex}). 
  
 Figure \ref{fig:imperfect_grouping} shows proportional information gain due to ability grouping for uncertain teachers. Although perfect ability grouping yields large increases in information gain, these increases are mostly not realized in cases of imperfect knowledge, with one exception. For target concepts above $C=.5$, maximal proportional gains are at most 50%. Only for $C=.5$ are gains larger: this is a case where student priors differ from one another so significantly that it is very difficult to teach without placing students into separate groups. In this case, maximal proportional gains are not achieved until nearly all class time is used for assessment. More modest amounts of assessment lead to much more limited proportional gains. 
 
 ### A small amount of assessment typically produces maximal absolute gains
 
-```{r, fig.cap="\\label{fig:temporal_tradeoff} Absolute information gain plotted by the optimal number of assessments, for students either grouped by ability or randomly assigned to classes. Colors show different target concepts, and dashed lines show the best fitting quadratic function."}
+```{r, fig.cap="\\label{fig:temporal_tradeoff} Absolute information gain plotted by the optimal number of assessments, for students either grouped by ability or randomly assigned to classes. Colors show different target concepts."}
 
 ig_maxes <- d %>%
   filter(exponent == 1, knowledge == "uncertain") %>%
@@ -266,17 +267,17 @@ ig_maxes <- d %>%
 ggplot(ig_maxes, 
        aes(x = numAssessments, y = IG)) + 
   # geom_jitter( width = .2, height = .2)+ 
-  geom_smooth(method = "lm", formula = y ~ x + I(x^2), se=FALSE, col = "black", lty = 2) +
+  # geom_smooth(method = "lm", formula = y ~ x + I(x^2), se=FALSE, col = "black", lty = 2) +
+  geom_path(col = "black") + 
   geom_point(aes(col = factor(teacherMu)), size = 4) + 
   facet_grid(. ~ grouping) + 
   ggthemes::scale_color_solarized(name="Target Concept") + 
   xlab("Optimal number of assessments") +
   ylab("Information Gain (nats)") + 
-  ggthemes::theme_few() + 
   theme(legend.position = "bottom") 
 ```
 
-How much assessment produces the best possible information gain, optimizing the tradeoff between assessment and instruction? Figure \ref{fig:temporal_tradeoff} shows the number of assessments that yield the maximal information gain for each target concept, for both ability-grouped and random class assignemnts. In both cases, the optimal number of assessments is typically relatively limited: in general three or fewer assessments (< 25% of instructional time) produces optimal results. It is only for $C=.5$, and only for ability grouped classrooms, reinforcing the result above: for target concepts in which student priors are highly variable, teachers must know a large amount about each individual students' abilities.   
+How much assessment produces the best possible information gain, optimizing the tradeoff between assessment and instruction? Figure \ref{fig:temporal_tradeoff} shows the number of assessments that yield the maximal information gain for each target concept, for both ability-grouped and random class assignments. In both cases, the optimal number of assessments is typically relatively limited: in general three or fewer assessments (< 25% of instructional time) produces optimal results. It is only for $C=.5$, and only for ability grouped classrooms, reinforcing the result above: for target concepts in which student priors are highly variable, teachers must know a large amount about each individual students' abilities.   
 
 ## Decision-Theoretic Applications: A Handful of Teachers and Assessments is Typically Optimal
 
@@ -285,7 +286,7 @@ In our final set of simulations, we consider an additional factor in making deci
 <!-- We also consider value functions that maximize students' learning differently, including a "remedial" value function that privileges students who have the most to learn. Under this value function, assessment is more valuable, because proper identification and class assignment for remedial students is critical. -->
 Interventions to change class size are typically costly: they require resources to be allocated to hire more teachers. By assigning a notional "cost" $C_T$ (in arbitrary units) to teachers, it is possible to define a Pareto frontier -- a set of maximally efficient parameter settings -- between cost and information gain.
 
-```{r fig.cap="\\label{fig:pareto_teacher} Information gain by cost of number of teachers, with colors showing the number of assessments for each parameter setting. The optimal assessment value for each cost is outlined and connected with a black line to show the Pareto frontier. Subplots show different levels of teacher knowledge and ability grouping. Target concept shown is .6."}
+```{r fig.cap="\\label{fig:pareto_teacher} Information gain by cost of number of teachers only, with colors showing the number of assessments for each parameter setting. The optimal assessment value for each cost is outlined and connected with a black line to show the Pareto frontier. Subplots show different levels of teacher knowledge and ability grouping. Target concept shown is .6."}
 
 ig_by_cost <- d %>%
   filter(teacherMu == EXAMPLE_TEACHERMU, knowledge == "uncertain", grouping == "by ability") %>%
@@ -314,7 +315,6 @@ ggplot(ig_by_cost,
   ylim(c(0,200)) + 
   scale_fill_gradient2(name = "Number of Assessments", midpoint = 6) + 
   scale_x_continuous(breaks = c(1,2,3,5,10)) + 
-  ggthemes::theme_few() + 
   theme(legend.position = "bottom") + 
   xlab("Cost (Number of Teachers)") + 
   ylab("Information Gain (nats)")
@@ -364,18 +364,17 @@ ggplot(regimes,
   scale_linetype_discrete(name = "Target Concept") +
   scale_fill_gradient2(name = "Number of Assessments", midpoint = 6, 
                        limits = c(0,12), breaks = c(0,6,12)) + 
-  ggthemes::theme_few() + 
   theme(legend.position = "right", legend.box = "vertical") + 
   xlab("Cost (Arbitrary Units)") + 
   ylab("Information Gain (nats)")
 ```
 
 
-Other cost structures are possible, however, leading to a number of different possible regimes. Assuming that assessments have a fixed cost $C_A$, due to classroom-exernal time or other resources expended in acquiring or creating them, then a number of regimes emerge. Figure \ref{fig:pareto_regimes} shows three sample regimes, in which assessment costs dominate ($C_A > C_T$), teaching costs dominate ($C_T > C_A$), or they are roughly similar ($C_A \approx C_T$), each shown for a range of target concepts. When assessment costs dominate, the most optimal choice is typically to hire many teachers. Interestingly, the converse is not true: even when teaching costs dominate, a quite small number of assessments is typically optimal. Across all simulations, most gains can be typically realized with a small number of assessments and a small number of teachers.^[This result mirrors a more general result due to @vul2014: under some sampling cost, a single sample from a binary variable -- in our case assessment -- is often enough for many decision problems.]
+Other cost structures are possible, however, leading to a number of different possible regimes. Assuming that assessments have a fixed cost $C_A$, due to classroom-external time or other resources expended in acquiring or creating them, then a number of regimes emerge. Figure \ref{fig:pareto_regimes} shows three sample regimes, in which assessment costs dominate ($C_A > C_T$), teaching costs dominate ($C_T > C_A$), or they are roughly similar ($C_A \approx C_T$), each shown for a range of target concepts. When assessment costs dominate, the most optimal choice is typically to hire many teachers. Interestingly, the converse is not true: even when teaching costs dominate, a quite small number of assessments is typically optimal. Across all simulations, most gains can be typically realized with a small number of assessments and a small number of teachers.^[This result mirrors a more general result due to @vul2014: under some sampling cost, a single sample from a binary variable -- in our case assessment -- is often enough for many decision problems.]
 
 # General Discussion
 
-What are the limits on learning in the educational context? We used optimal models of teaching and learning to investigate how structural features of the educational situation restrict learning. In particular, we focus on the role of student variability: the more variable the students in a class are, the less effective any particular lesson is, on average. Our simulations allow us to test the effectiveness of different simulated educational interventions. Within our chosen initial conditions, class size reduction alone yielded only small increases in learning alone. In combination with grouping students into a small number of classes, however, gains increased. These gains were moderated by teachers' knowledge about individual students' priors, though, and were typically optimal when done in combination with a handful of formative assessments to improve teachers' knowledge. To assist in decision-making, we added costs to the different actions in our model. Across a range of different cost regimes, most information gain was realized by conducting a small number of assessments and then splitting students into a small number of classes. In sum, this model takes a first step towards creating a framework for investigating theoretical limits on the benefits of educational interventions. 
+What are the limits on learning in the educational context? We used optimal models of teaching and learning to investigate how structural features of the educational situation restrict learning. In particular, we focus on the role of student variability: the more variable the students in a class are, the less effective any particular lesson is, on average. Our simulations allow us to test the effectiveness of different simulated educational interventions. Within our chosen initial conditions, class size reduction alone yielded only small increases in learning alone. In combination with grouping students into a small number of classes, however, gains increased. These gains were moderated by teachers' knowledge about individual students' priors, though, and were typically optimal when done in combination with a handful of formative assessments to improve teachers' knowledge. To assist in decision-making, we added costs to the different actions in our model. Across a range of different cost regimes, most information gain was realized by conducting a small number of assessments and then splitting students by ability into a small number of distinct classes. In sum, this model takes a first step towards creating a framework for investigating theoretical limits on the benefits of educational interventions. 
 
 Results from our model could in principle be used to help parse the complex and variable educational literature. The literature on class-size reduction in particular is extremely challenging to parse, with important studies suggesting null [@hoxby2000,@hanushek1997], moderate [@duflo2015, @krueger2003], and larger [@mosteller1995] effects. Our simulations suggest that there is no single effect of class size reduction that we should expect. Instead, improvements in performance should depend on a number of factors, including initial class size [with reductions more important for classes that are already small, cf. @glass1979] and student variability [with reductions more important for populations that are more variable, cf. @mosteller1995]. Rather than resolving conflicting measurements in the literature, our model suggests that different initial conditions should lead interventions to have substantially different effects. 
 
@@ -385,7 +384,7 @@ Second, the model of teaching and learning we assume is direct communication bet
 
 Finally, the teaching game we assume is -- by design -- exceedingly simple. In order to consider general dynamics of communication in a classroom environment, we have abstracted away almost completely from the specifics of what is being taught. We view this abstraction as a strength in that it allows for interpretable inferences about the structure of the game without complexities relating to content. Of course this assumption neglects the important dependencies within and across academic domains. In practice, learning any particular piece of knowledge depends on many others -- for example, learning content knowledge often presupposes language and literacy skills -- and these dependencies add immense complexity to the implementation of any intervention of the type schematically described here.
 
-Our model instantiates a linkage between a particular set of assumptions and their natural outcomes. The key structural assumption of our model is that education is fundamentally about the communication of knowledge from a rational speaker [@goodman2016] to an audience of variable size and with varying starting points. Once this assumption is adopted, a number of regularities regarding class size, ability grouping, and assessment emerge almost immediately. These linkages suggest future directions for both formal and empirical inquiry -- in particular, testing the relationship between quantities approximated in our model and student learning outcomes. 
+Our model instantiates a linkage between a particular set of assumptions and their natural outcomes. The key structural assumption is that education is fundamentally about the communication of knowledge from a rational speaker [@goodman2016] to an audience of variable size and with varying starting points. Once this assumption is adopted, a number of regularities regarding class size, ability grouping, and assessment emerge almost immediately. These linkages suggest future directions for both formal and empirical inquiry -- in particular, testing the relationship between quantities approximated in our model and student learning outcomes. 
 
 
 # References 
