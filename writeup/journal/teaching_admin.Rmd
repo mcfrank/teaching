@@ -5,7 +5,7 @@ title: "Modeling classroom teaching as optimal communication"
 author:
   - name: Michael C. Frank
     affiliation: a,1
-  - name: Larry Liu
+  - name: Lawrence (Larry) Liu
     affiliation: a
 
 address:
